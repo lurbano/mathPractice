@@ -30,7 +30,7 @@
         .question-container {
             display: grid;
             grid-template-columns: 4em 2em 4em 2em 4em 2em 4em;
-            grid-template-rows: repeat(5, 1fr);
+            grid-template-rows: repeat(6, 1fr);
         }
         .question-item {
             background-color: lightgreen;
@@ -71,10 +71,23 @@
             grid-column: 5;
             grid-row: 3;
         }
+        .question-ans-2 {
+            grid-column: 5;
+            grid-row: 4;
+        }
+        .question-ans-3 {
+            grid-column: 5;
+            grid-row: 5;
+        }
         .question-simplify-button {
             grid-column: 1 / 4;
             grid-row: 4;
         }
+        .question-mixed-button {
+            grid-column: 1 / 4;
+            grid-row: 5;
+        }
+        
       </style>
 </head>
 <body>
@@ -90,7 +103,7 @@
     
 
     let f1 = new Fraction(1,2);
-    let f2 = new Fraction(1, 6);
+    let f2 = new Fraction(5, 6);
 
     let add1 = new addQuestion(f1, f2);
     let q1 = doc.getElementById("addFrac");

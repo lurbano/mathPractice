@@ -24,12 +24,46 @@ class mixedNumber{
             return `${this.whole} ${this.frac.toHTML()}`;
         }
     }
+    insertIntoDiv(div, className=undefined) {
+        console.log(`Inserting ${className}:`);
+        let m = doc.createElement('span');
+        if (className !== undefined){
+            m.classList.add(className);
+        }
+        let whole = doc.createTextNode(this.whole);
+        m.appendChild(whole);
+
+        let frac = doc.createElement('span');
+        frac.className = 'fraction';
+
+        let n = doc.createElement('span');
+        n.className = 'numerator';
+        n.innerText = this.frac.reduced.numerator;
+        frac.appendChild(n);
+
+        let d = doc.createElement('span');
+        d.className = 'denominator';
+        d.innerText = this.frac.reduced.denominator;
+        frac.appendChild(d);
+
+        m.appendChild(frac);
+        div.appendChild(m); 
+    }
 }
 class Fraction {
     constructor(numerator, denominator) {
         this.numerator = numerator;
         this.denominator = denominator;
-        //this.reduce();
+        if (this.reducable()){
+            this.reduced = this.reduce(); //reduced fraction
+        } else {
+            this.reduced = this;
+        }
+        if (this.isImproper()){
+            this.mixed = this.toMixedNumber();
+        } else {
+            this.mixed = new mixedNumber(0, this);
+        }
     }
 
     isImproper(){
@@ -52,17 +86,22 @@ class Fraction {
 
     reducable() {
         const commonDivisor = this.gcd(this.numerator, this.denominator);
-        console.log(commonDivisor);
+        // console.log(commonDivisor);
         const r = commonDivisor === 1 ? false : true;
+        console.log("reducable? ", commonDivisor, r)
         return r;
     }
     reduce() {
         // Reduce the fraction to its simplest form
         const commonDivisor = this.gcd(this.numerator, this.denominator);
         console.log("commonDivisor: ", commonDivisor);
-        this.numerator /= commonDivisor;
-        this.denominator /= commonDivisor;
-        console.log(this.toString());
+        let numerator = this.numerator;
+        let denominator = this.denominator;
+        numerator /= commonDivisor;
+        denominator /= commonDivisor;    
+        console.log(this.numerator)
+        console.log("reduced:", this.toString(), numerator, denominator);
+        return new Fraction(numerator, denominator);
     }
 
     toMixedNumber() {
@@ -90,12 +129,13 @@ class Fraction {
 
     insertIntoDiv(div, className=undefined) {
         console.log(`Inserting ${className}:`);
+        let m = doc.createElement('span');
+        if (className !== undefined){
+            m.classList.add(className);
+        }
         let frac = doc.createElement('span');
         frac.className = 'fraction';
-        if (className !== undefined){
-            frac.classList.add(className);
-        }
-
+        
         let n = doc.createElement('span');
         n.className = 'numerator';
         n.innerText = this.numerator;
@@ -106,7 +146,8 @@ class Fraction {
         d.innerText = this.denominator;
         frac.appendChild(d);
 
-        div.appendChild(frac); 
+        m.appendChild(frac);
+        div.appendChild(m); 
     }
 
 
@@ -150,19 +191,56 @@ class Fraction {
             console.log("reducable? ", this.reducable());
             if (this.reducable) {
                 //create simplify button
-                this.simplifyButton = doc.createElement('input');
-                this.simplifyButton.type = 'button';
-                this.simplifyButton.value = "Simplify";
-                this.simplifyButton.className = 'question-simplify-button';
-                div.append(this.simplifyButton);
+                this.addSimplifyButton(div);
+                // this.simplifyButton = doc.createElement('input');
+                // this.simplifyButton.type = 'button';
+                // this.simplifyButton.value = "Simplify";
+                // this.simplifyButton.className = 'question-simplify-button';
+                // div.append(this.simplifyButton);
 
-                
+                // this.simplifyButton.addEventListener("click", () => {
+                //     this.reduced.insertIntoDiv(div, "question-ans-2");
+
+
+                //     if (this.isImproper()){
+                //         // this.mixedButton = doc.createElement('input');
+                //         // this.mixedButton.type = 'button';
+                //         // this.mixedButton.value = "Mixed Number";
+                //         // this.mixedButton.className = 'question-simplify-button';
+                //         // div.append(this.mixedButton);
+                //     }
+                // })
             }
 
         });
 
         div.appendChild(this.ansCheckButton);
 
+    }
+
+    addSimplifyButton(div){
+        this.simplifyButton = doc.createElement('input');
+        this.simplifyButton.type = 'button';
+        this.simplifyButton.value = "Simplify";
+        this.simplifyButton.className = 'question-simplify-button';
+        div.append(this.simplifyButton);
+        this.simplifyButton.addEventListener("click", () => {
+            this.reduced.insertIntoDiv(div, "question-ans-2");
+            this.addMixedButton(div);
+        })
+    }
+    addMixedButton(div){
+        if (this.isImproper()){
+            this.mixedButton = doc.createElement('input');
+            this.mixedButton.type = 'button';
+            this.mixedButton.value = "Mixed Number";
+            this.mixedButton.className = 'question-mixed-button';
+            div.append(this.mixedButton);
+
+            this.mixedButton.addEventListener('click', () => {
+                this.mixed.insertIntoDiv(div, 'question-ans-3');
+            })
+        }
     }
 }
 
