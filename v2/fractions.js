@@ -244,10 +244,11 @@ class additionQuestion{
         this.f2 = f2;
         this.sum = addFractions(f1, f2);
         this.nrows = 0;
+        this.ncols = 6;
 
         this.div = doc.createElement('div');
         this.div.style.display = 'grid';
-        this.div.style.gridTemplateColumns = '10em 2em 2em 2em 2em 4em';
+        this.div.style.gridTemplateColumns = '15em 2em 2em 2em 2em 4em';
         this.div.style.gridTemplateRows = '1fr';
         this.div.style.border = '1px solid black';
         this.div.style.alignItems = 'center';
@@ -270,6 +271,19 @@ class additionQuestion{
         
         this.divContainer.appendChild(this.div);
 
+    }
+
+    insertCommonDenominatorRow(){
+        this.nrows += 1;
+        this.div.style.gridTemplateRows = `repeat(${this.nrows}, 1fr)`;
+        
+        let LCM = lcm(this.f1.denominator, this.f2.denominator);
+
+        let html = `Step 1 in addition is to find a common denominator.
+                    In this case the lowest common denominator is ${LCM}`;
+
+        this.insertCommentRow(html);
+        this.div.appendChild(this.getCommonDenominatorButton());
     }
 
     getFractionInputs(){
@@ -314,9 +328,34 @@ class additionQuestion{
                 this.answer['denominator'] !== undefined) {
                     this.answer['fraction'] = new Fraction(this.answer['numerator'], this.answer['denominator']);
                     console.log("Answer: ", this.answer['fraction'].toString());
+                    // add comment row
+                    //this.insertCommentRow("Hi");
                     //add "show answer" button/row.
+                    this.insertCommonDenominatorRow();
                 }
         })
+
+        return div;
+    }
+
+    insertCommentRow(html, rowSpan=1){
+        this.nrows += rowSpan;
+        this.div.style.gridTemplateRows = `repeat(${this.nrows}, 1fr)`;
+        
+        let div = doc.createElement('span');
+        console.log(`${this.nrows-rowSpan+1} / ${this.nrows+1}`);
+        div.style.gridRow = `${this.nrows-rowSpan} / ${this.nrows+1}`;
+        div.style.border = '1px solid blue';
+        //div.style.gridColumn = `1 / ${this.ncols+1}`;
+
+        div.innerHTML = html;
+        this.div.appendChild(div);
+    }
+
+    getCommonDenominatorButton(){
+        let div = doc.createElement('input');
+        div.type = 'button';
+        div.value = 'Step 1: Common Denominator';
 
         return div;
     }
