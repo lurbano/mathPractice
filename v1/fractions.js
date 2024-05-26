@@ -192,24 +192,6 @@ class Fraction {
             if (this.reducable) {
                 //create simplify button
                 this.addSimplifyButton(div);
-                // this.simplifyButton = doc.createElement('input');
-                // this.simplifyButton.type = 'button';
-                // this.simplifyButton.value = "Simplify";
-                // this.simplifyButton.className = 'question-simplify-button';
-                // div.append(this.simplifyButton);
-
-                // this.simplifyButton.addEventListener("click", () => {
-                //     this.reduced.insertIntoDiv(div, "question-ans-2");
-
-
-                //     if (this.isImproper()){
-                //         // this.mixedButton = doc.createElement('input');
-                //         // this.mixedButton.type = 'button';
-                //         // this.mixedButton.value = "Mixed Number";
-                //         // this.mixedButton.className = 'question-simplify-button';
-                //         // div.append(this.mixedButton);
-                //     }
-                // })
             }
 
         });
@@ -318,26 +300,35 @@ function gridDiv(html="", gridClass=undefined){
 }
 
 
-class addQuestion{
-    constructor(f1, f2){
+class additionQuestion{
+    constructor(f1, f2, div){
         // f1 and f2 are Fraction's
         this.operator = "+"
         this.f1 = f1;
         this.f2 = f2;
         this.sum = addFractions(f1, f2);
+        this.div = div;
+        this.insertIntoDiv();
     }
     questionHTML(){
         this.html = `${f1.toHTML()} + ${f2.toHTML()} =`;
         return this.html;
     }
-    getDiv(id=0){
+    insertIntoDiv(div=undefined){
+        if (div === undefined){
+            this.div.appendChild(this.getDiv());
+        } else {
+            div.appendChild(this.getDiv());
+        }
+    }
+    getDiv(id=0, className="question-container"){
         let div = doc.createElement("div");
         div.id = `addQ${id}`;
-        div.className = "question-container";
+        div.className = className;
         
-        div.appendChild(gridDiv(f1.toHTML(), "question-fraction1"));
+        div.appendChild(gridDiv(this.f1.toHTML(), "question-fraction1"));
         div.appendChild(gridDiv(this.operator, "question-operator"));
-        div.appendChild(gridDiv(f2.toHTML(), "question-fraction2"));
+        div.appendChild(gridDiv(this.f2.toHTML(), "question-fraction2"));
         div.appendChild(gridDiv("=", "question-equals"));
         
         // answer
@@ -346,5 +337,40 @@ class addQuestion{
         this.sum.answerSetup(div);
 
         return div;
+    }
+
+    showSteps(div_id){
+        this.div_id = div_id;
+        let div = doc.getElementById(div_id);
+        let qdiv = doc.createElement("div");
+        qdiv.className = 'steps-container';
+
+        qdiv.appendChild(gridDiv(this.f1.toHTML(), "question-fraction1"));
+        qdiv.appendChild(gridDiv(this.operator, "question-operator"));
+        qdiv.appendChild(gridDiv(this.f2.toHTML(), "question-fraction2"));
+        qdiv.appendChild(gridDiv("=", "question-equals"));
+
+        //check for common denominator
+        if (this.f1.denominator !== this.f2.denominator){
+            // find common denominator button
+            var cdenomButton = new commonDenominatorButton(this.div_id, 2, 5);
+        }
+
+        div.appendChild(qdiv);
+    }
+}
+
+class commonDenominatorButton{
+    constructor(div_id,  r=1, c=1){
+        this.div = doc.getElementById(div_id);
+        this.button = doc.createElement("input");
+        this.button.type = "button";
+        this.button.value = 'Find common denominator';
+        this.button.style.gridRow = r;
+        this.button.style.gridColumn = c;
+
+
+        this.div.appendChild(this.button);
+
     }
 }

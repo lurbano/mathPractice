@@ -10,21 +10,6 @@
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script> -->
 
     <style>
-        .fraction {
-          display: inline-block;
-          text-align: center;
-          vertical-align: middle;
-        }
-        .fraction .numerator {
-          display: block;
-          border-bottom: 1px solid #000;
-          padding: 0 5px;
-        }
-        .fraction .denominator {
-          display: block;
-          padding: 0 5px;
-        }
-
 
 
         .question-container {
@@ -70,14 +55,17 @@
         .question-ans-1 {
             grid-column: 5;
             grid-row: 3;
+            align-items: center;
         }
         .question-ans-2 {
             grid-column: 5;
             grid-row: 4;
+            align-items: center;
         }
         .question-ans-3 {
             grid-column: 5;
             grid-row: 5;
+            align-items: center;
         }
         .question-simplify-button {
             grid-column: 1 / 4;
@@ -87,16 +75,23 @@
             grid-column: 1 / 4;
             grid-row: 5;
         }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: 4em 2em 4em 2em 4em 2em 4em;
+            grid-template-rows: repeat(6, 1fr);
+            border: 1px solid black;
+        }
         
       </style>
 </head>
 <body>
 
-    <!-- $$x = { 1 \over 2} + {1 \over 4} $$ -->
 
+    <hr>
     <div id="addFrac"></div>
-
-
+    <hr>
+    
 </body>
 
 <script>
@@ -104,13 +99,10 @@
 
     let f1 = new Fraction(1,2);
     let f2 = new Fraction(5, 6);
+    let f3 = new Fraction(3,0);
 
-    let add1 = new addQuestion(f1, f2);
-    let q1 = doc.getElementById("addFrac");
-    //console.log(add1.getDiv(1));
-    q1.appendChild(add1.getDiv(1));
-    //q1.innerHTML = add1.questionHTML();
-
+    q = new additionQuestion(f1, f2, 'addFrac');
+    
 
 </script>
 </html>
