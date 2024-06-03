@@ -10,22 +10,6 @@
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script> -->
 
     <style>
-        .fraction {
-          display: inline-block;
-          text-align: center;
-          vertical-align: middle;
-        }
-        .fraction .numerator {
-          display: block;
-          border-bottom: 1px solid #000;
-          padding: 0 5px;
-        }
-        .fraction .denominator {
-          display: block;
-          padding: 0 5px;
-        }
-
-
 
         .question-container {
             display: grid;
@@ -102,12 +86,11 @@
 </head>
 <body>
 
-    <!-- $$x = { 1 \over 2} + {1 \over 4} $$ -->
 
+    <hr>
     <div id="addFrac"></div>
     <hr>
-    <div id="showSteps" class="steps-container"></div>
-
+    
 </body>
 
 <script>
@@ -115,13 +98,9 @@
 
     let f1 = new Fraction(1,2);
     let f2 = new Fraction(5, 6);
+    let f3 = new Fraction(3,0);
 
-    let q1 = doc.getElementById("addFrac");
-    let add1 = new additionQuestion(f1, f2, q1);
-    
-    add1.showSteps("showSteps");
-    //console.log(add1.getDiv(1));
-    //q1.appendChild(add1.getDiv(1));
+    q = new additionQuestion(f1, f2, 'addFrac');
     
 
 </script>

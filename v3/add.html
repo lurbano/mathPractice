@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script src="fractions.js"></script>
+    <!-- <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script> -->
+
+    <style>
+
+        .question-container {
+            display: grid;
+            grid-template-columns: 4em 2em 4em 2em 4em 2em 4em;
+            grid-template-rows: repeat(6, 1fr);
+        }
+        .question-item {
+            background-color: lightgreen;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .question-fraction1 {
+            grid-column: 1;
+            grid-row: 2;
+            background-color: lightblue;
+        }
+        .question-fraction2 {
+            grid-column: 3;
+            grid-row: 2;
+            background-color: lightblue;
+        }
+        .question-operator {
+            grid-column: 2;
+            grid-row: 2;
+            background-color: lightblue;
+        }
+        .question-equals {
+            grid-column: 4;
+            grid-row: 2;
+            background-color: lightblue;
+        }
+        .question-answer {
+            grid-column: 5;
+            grid-row: 2;
+            background-color: lightblue;
+        }
+        .question-ansCheckButton {
+            grid-column: 1 / 4;
+            grid-row: 3;
+        }
+        .question-ans-1 {
+            grid-column: 5;
+            grid-row: 3;
+            align-items: center;
+        }
+        .question-ans-2 {
+            grid-column: 5;
+            grid-row: 4;
+            align-items: center;
+        }
+        .question-ans-3 {
+            grid-column: 5;
+            grid-row: 5;
+            align-items: center;
+        }
+        .question-simplify-button {
+            grid-column: 1 / 4;
+            grid-row: 4;
+        }
+        .question-mixed-button {
+            grid-column: 1 / 4;
+            grid-row: 5;
+        }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: 4em 2em 4em 2em 4em 2em 4em;
+            grid-template-rows: repeat(6, 1fr);
+            border: 1px solid black;
+        }
+        
+      </style>
+</head>
+<body>
+
+
+    <hr>
+    <div id="addFrac"></div>
+    <hr>
+    
+</body>
+
+<script>
+    
+
+    let f1 = new Fraction(1,2);
+    let f2 = new Fraction(5, 6);
+    let f3 = new Fraction(3,0);
+
+    q = new additionQuestion(f1, f2, 'addFrac');
+    
+
+</script>
+</html>
