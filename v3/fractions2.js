@@ -95,7 +95,13 @@ class Fraction {
         let d = doc.createElement('span');
         d.style.display = 'block';
         d.style.padding = '0 5px';
-        d.innerText = this.denominator;
+        if (typeof this.denominator === "number" 
+            && Number.isFinite(this.denominator)){
+                d.innerText = this.denominator;
+        } else {
+            d.innerText = " ";
+        }
+        
 
         frac.appendChild(n);
         frac.appendChild(d);
@@ -108,10 +114,13 @@ class Fraction {
         div.appendChild(this.toHTML());
     }
 
-    isSameAs(frac){
+    isSameAs(frac, reduced=true){
         let result = false;
-        if ((this.numerator === frac.numerator) &&
-            (this.denominator === frac.denominator)){
+        let f1 = reduced ? this.reduced : this;
+        let f2 = reduced ? frac.reduced : frac;
+
+        if ((f1.numerator === f2.numerator) &&
+            (f1.denominator === f2.denominator)){
             result = true;
         } 
         return result;
@@ -167,6 +176,18 @@ class mixedNumber{
     insertById(id, width=undefined){
         let div = doc.getElementById(id);
         this.insertIntoDiv(div, width);
+    }
+
+    isSameAs(mixedNum, reduced=true){
+        //compare other mixed number to this one
+        // return true or false
+        let result = false;
+        if (this.whole === mixedNum.whole){
+            if (this.frac.isSameAs(mixedNum.frac, reduced)){
+                result = true;
+            }
+        } 
+        return result;
     }
 }
 
@@ -231,6 +252,14 @@ function divideFractions(frac1, frac2){
     return result;
 }
 
+
+function addMixedNumbers(m1, m2){
+    let whole = m1.whole + m2.whole;
+    let fracSum = addFractions(m1.frac, m2.frac);
+    whole += fracSum.mixed.whole;
+    return new mixedNumber(whole, fracSum.mixed.frac);
+}
+
 function gridDiv(html="", gridClass=undefined){
     console.log("gridClass: ", gridClass);
     let div = doc.createElement('div');
@@ -244,13 +273,15 @@ function gridDiv(html="", gridClass=undefined){
 
 
 class additionQuestion{
-    constructor(f1, f2, div_id){
+    constructor(f1, f2, div_id, 
+                inputType="text", showInstructions=true){
         // f1 and f2 are Fraction instances
         this.divContainer = doc.getElementById(div_id);
         this.operator = "+"
         this.f1 = f1;
         this.f2 = f2;
-        this.sum = addFractions(f1, f2);
+        this.inputType = inputType;
+        this.mixedSum = addMixedNumbers(f1.mixed, f2.mixed);
         this.nrows = 0;
         this.ncols = 6;
 
@@ -259,9 +290,10 @@ class additionQuestion{
 
         this.div = doc.createElement('div');
         this.div.style.display = 'grid';
-        this.div.style.gridTemplateColumns = '15em 2em 2em 2em 2em 3em 6em 2em';
+        //this.div.style.gridTemplateColumns = '15em 2em 2em 2em 2em 3em 2em 2em';
+        this.div.style.gridTemplateColumns = "repeat(auto-fit, 'auto')";
         this.div.style.gridTemplateRows = '2fr';
-        this.div.style.border = '1px solid black';
+        this.div.style.border = '1px solid red';
         this.div.style.alignItems = 'center';
 
         this.answer = {};
@@ -270,7 +302,7 @@ class additionQuestion{
         this.useMixedInputs = false;
         this.useSimplifiedInputs = true;
 
-        this.insertInstructions();
+        if (showInstructions) this.insertInstructions();
         this.insertControlsRow();
         this.insertQuestionRow();
 
@@ -292,40 +324,35 @@ class additionQuestion{
         // this.nrows += 1;
         // this.div.style.gridTemplateRows = `repeat(${this.nrows}, 1fr)`;
 
-        let checkDiv = this.getMixedCheckbox("Mixed Number");
-        checkDiv.style.gridRow = `1`;
-        checkDiv.style.gridColumn = '8';
+        // let checkDiv = this.getMixedCheckbox("Mixed Number");
+        // checkDiv.style.gridRow = `1`;
+        // checkDiv.style.gridColumn = '8';
 
-        this.div.appendChild(checkDiv);
+        // this.div.appendChild(checkDiv);
     }
     insertQuestionRow(){
-        this.nrows += 1;
         this.div.style.gridTemplateRows = `repeat(${this.nrows}, 1fr)`;
         
-        //this.div.appendChild(doc.createTextNode('Question: '));
-        this.div.appendChild(this.getTextSpan('Question: ',2,1));
-
-        // let div = this.f1.toHTML();
-        // div.style.gridRow = '2';
-        // div.style.gridColumn = '2';
-        // div.style.border = '1px solid blue';
-        // this.div.appendChild(div);
+        //this.div.appendChild(this.getTextSpan('Question: ',2,1));
 
         this.insertFraction(this.f1, 2, 2)
-
-        // this.div.appendChild(this.f1.toHTML());
-        // this.div.appendChild(this.getOperatorSpan("+"));
-        //this.div.appendChild(this.f2.toHTML());
         this.insertOperator("+", 2, 3);
         this.insertFraction(this.f2, 2, 4);
         this.insertOperator("=", 2, 5);
-        // this.div.appendChild(this.getOperatorSpan("="));
-        if (this.useMixedInputs){
-            this.div.appendChild(this.getMixedInputs());
-        } else {
-            // this.div.appendChild(this.getFractionInputs());
-            this.insertFractionInputs(2,6);
-        }
+
+        this.insertAnswerDisplay(2,8);
+
+        this.insertAnswerTextInput(2,6);
+        this.insertOperator("=", 2, 7);
+
+        this.insertAnswerButton(2,9);
+        
+        // if (this.useMixedInputs){
+        //     this.div.appendChild(this.getMixedInputs());
+        // } else {
+        //     // this.div.appendChild(this.getFractionInputs());
+        //     this.insertFractionInputs(2,6);
+        // }
         
         // this.div.appendChild(this.getAnswerButton());
         
@@ -333,8 +360,40 @@ class additionQuestion{
 
     }
 
-    insertAnswerButton(){
-        this.div.appendChild(this.getAnswerButton());
+    insertAnswerDisplay(r,c){
+        this.answerTextDisplay = doc.createElement("span");
+        this.answerTextDisplay.style.gridRow = r;
+        this.answerTextDisplay.style.gridColumn = c;
+        this.answerTextDisplay.style.backgroundColor = "lightblue";
+        this.answerTextDisplay.style.width = "5em";
+        this.answerTextDisplay.innerHTML = "hi";
+        this.div.appendChild(this.answerTextDisplay);
+    
+    }
+
+    insertAnswerTextInput(r,c){
+        this.answerTextInput = doc.createElement("input");
+        this.answerTextInput.type = "text";
+        this.answerTextInput.style.gridRow = r;
+        this.answerTextInput.style.gridColumn = c;
+        this.answerTextInput.style.width = '5em';
+        this.answerTextInput.style.backgroundColor = "lightblue";
+
+        this.answerTextInput.addEventListener("keyup", () => {
+            this.answer = readStrToFraction(this.answerTextInput.value);
+            this.answer.insertIntoDiv(this.answerTextDisplay);
+        })
+
+        // this.answerTextInput.addEventListener("change", () => {
+        //     let result = readStrToFraction(this.answerTextInput.value);
+        //     result.insertIntoDiv(this.answerTextDisplay);
+        // })
+
+        this.div.appendChild(this.answerTextInput);
+    }
+
+    insertAnswerButton(r,c){
+        this.div.appendChild(this.getAnswerButton(r,c));
     }
 
     insertFraction(frac, r, c){
@@ -342,6 +401,7 @@ class additionQuestion{
         div.style.gridRow = r;
         div.style.gridColumn = c;
         div.style.border = '1px solid blue';
+        div.style.width = '3em';
         this.div.appendChild(div);
     }
 
@@ -384,12 +444,13 @@ class additionQuestion{
         return div;
     }
 
-    getAnswerButton(){
+    getAnswerButton(r, c){
         let div = doc.createElement('input');
         div.type = 'button';
         div.value = 'Check';
-        div.style.gridColumn = '6';
-        div.style.gridRow = '2';
+        div.style.gridColumn = c;
+        div.style.gridRow = r;
+        div.style.width = '6em';
 
         div.addEventListener('click', ()=> {
             this.checkAnswer();
@@ -500,6 +561,7 @@ class additionQuestion{
         let div = this.getOperatorSpan(txt);
         div.style.gridRow = r;
         div.style.gridColumn = c;
+        div.style.width = "1em";
         div.style.border = '1px solid blue';
 
         this.div.appendChild(div);
@@ -516,26 +578,57 @@ class additionQuestion{
         return p;
     }
 
+    // checkAnswer(){
+    //     let frac = this.answer['fraction'];
+
+    //     let result = '';
+    //     let color = 'white';
+
+    //     //check to see if the reduced fraction is the same
+    //     if (this.sum.reduced.isSameAs(frac)){
+    //         result += " is correct, in most simplified form.";
+    //         color = 'springGreen';
+    //     } else if (this.sum.reduced.isSameAs(frac.reduced)){
+    //         result += ' can be simplified.';
+    //         color = 'paleGreen';
+    //     } else {
+    //         result += ' is incorrect';
+    //         color = 'pink';
+    //     }
+
+    //     // console.log(result);
+    //     this.insertResults(result, color);
+
+    // }
+
     checkAnswer(){
         let frac = this.answer['fraction'];
 
         let result = '';
         let color = 'white';
 
-        //check to see if the reduced fraction is the same
-        if (this.sum.reduced.isSameAs(frac)){
-            result += " is correct, in most simplified form.";
-            color = 'springGreen';
-        } else if (this.sum.reduced.isSameAs(frac.reduced)){
-            result += ' can be simplified.';
-            color = 'paleGreen';
+        if (this.mixedSum.isSameAs(this.answer)){
+            console.log("Same");
         } else {
-            result += ' is incorrect';
-            color = 'pink';
+            console.log("wrong");
         }
 
-        // console.log(result);
-        this.insertResults(result, color);
+        // if (this.sum) Need an addMixedNumbers class
+
+        // //check to see if the reduced fraction is the same
+        // if (this.sum.reduced.isSameAs(frac)){
+        //     result += " is correct, in most simplified form.";
+        //     color = 'springGreen';
+        // } else if (this.sum.reduced.isSameAs(frac.reduced)){
+        //     result += ' can be simplified.';
+        //     color = 'paleGreen';
+        // } else {
+        //     result += ' is incorrect';
+        //     color = 'pink';
+        // }
+
+        // // console.log(result);
+        // this.insertResults(result, color);
 
     }
 
