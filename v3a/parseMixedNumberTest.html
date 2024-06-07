@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script src="fractions2.js"></script>
+    <style>       
+    </style>
+</head>
+<body>
+
+
+    <hr>
+    <input type="text" id="fracInput">
+    <div id="fracOutput"></div>
+    <div id="improperOutput"></div>
+
+    
+</body>
+
+<script>
+    
+
+    fracInput.addEventListener("keyup", function(){
+        //console.log(this.value);
+        let mixed = parseMixedNumber(this.value);
+        mixed.insertElement("fracOutput", "3em");
+        improperOutput.innerHTML = "";
+        //mixed.improper.insertElement("improperOutput");
+    })
+    
+
+</script>
+</html>
