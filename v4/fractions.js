@@ -17,7 +17,6 @@ class Fraction {
 
                 try {
             
-                    // console.log("n, d:", this.numerator, this.denominator);
                     this.isValid = true;
                 
                     // this.mixed = new mixedNumber(0, this);
@@ -25,10 +24,8 @@ class Fraction {
                         this.divideByZero = false;
         
                         if (this.isReducable()){
-                            // console.log('reducable')
                             this.reduced = this.reduce(); //reduced fraction
                         } else {
-                            // console.log("not reducable")
                             this.reduced = this;
                         }
         
@@ -100,7 +97,6 @@ class Fraction {
         if (this.divideByZero || !this.isValid) return false;
 
         const commonDivisor = gcd(this.numerator, this.denominator);
-        // console.log(commonDivisor);
         const r = commonDivisor === 1 ? false : true;
         return r;
     }
@@ -176,37 +172,41 @@ class Fraction {
 
 class mixedNumber{
     constructor(whole = 0, frac = new Fraction()){
-        // if (typeof n === "number" && Number.isFinite(n)){
-        //     numPart = n;
-        // }
-        
+        this.isValid = false;
         this.whole = whole;
         this.frac = frac;
-        this.isValid = true;
 
- 
-
-        console.log("test:", this.toString(), this.frac);
-        
-        if (this.frac.divideByZero){
-            this.divideByZero = true;
-            this.improper = new Fraction(0,0);
-        } else {
-            console.log("reducable? ", this.isReducable());
-            if (this.isReducable()){
-                console.log("Reducing mixed number")
-                let fracMixed = this.frac.mixed();
-                let w = this.whole + fracMixed.whole;
-                console.log("whole =", w);
-                this.reduced = new mixedNumber(w, fracMixed.frac);
-            } else {
-                this.reduced = this;
-            }
-    
-            console.log("impropering: ", this.toString())
-            this.improper = this.makeImproper();
+        if ((frac.isValid) && (!frac.divideByZero) &&
+            typeof whole === "number" && Number.isFinite(whole)){
+            this.isValid = true;
             
+
+            if (this.frac.divideByZero){
+                this.divideByZero = true;
+                this.inValid = false;
+                this.improper = new Fraction(0,0);
+            } else {
+                if (this.isReducable()){
+                    let fracMixed = this.frac.mixed();
+                    let w = this.whole + fracMixed.whole;
+                    this.reduced = new mixedNumber(w, fracMixed.frac);
+                } else {
+                    this.reduced = this;
+                }
+        
+                this.improper = this.makeImproper();
             }
+        } else {
+            console.log("Error: Invalid mixed number", whole);
+            console.log("Error: Invalid mixed number", frac);
+            this.isValid = false;
+            this.improper = this.fraction;
+            this.reduced = this;
+        }
+        
+        
+        
+        
 
         
     
@@ -217,28 +217,26 @@ class mixedNumber{
     }
 
     makeImproper(){
-        console.log("improper:", this.toString());
         let n = this.frac.numerator;
         if (this.whole !== 0){
-            console.log(">")
             n += this.whole * this.frac.denominator;
             return new Fraction(n, this.frac.denominator);
         } else {
-            console.log("===")
             return this.frac;
         }
         
     }
 
     toString(){
-        return `${this.whole} ${this.frac.toString()}`;
+        let txt = this.isValid ? `${this.whole} ${this.frac.toString()}` : "NaMix";
+        return txt;
     }
 
     insertString(div_id){
         let div = doc.getElementById(div_id);
         div.appendChild(doc.createTextNode(this.toString()));
     }
-    
+
     toHTML(){
         if (this.whole === 0) {
             return this.frac.toHTML();
@@ -248,10 +246,31 @@ class mixedNumber{
             return `${this.whole} ${this.frac.toHTML()}`;
         }
     }
-    insertIntoDiv(div, width=undefined) {
+    // insertIntoDiv(div, width=undefined) {
+    //     let m = doc.createElement('span');
+    //     m.style.display = 'grid';
+    //     m.style.gridTemplateColumns = '1fr 1fr';
+    //     m.style.alignItems = 'center';
+    //     if (width !== undefined){
+    //         m.style.width = width;
+    //     }
+        
+    //     if (this.whole !== 0 || this.frac.numerator === 0) {
+    //         let whole = doc.createTextNode(this.whole);
+    //         m.appendChild(whole);
+    //     }
+
+    //     if (this.frac.numerator !== 0){
+    //         m.appendChild(this.frac.getElement());
+    //     } 
+        
+    //     div.appendChild(m); 
+    // }
+    getElement(width=undefined) {
         let m = doc.createElement('span');
-        m.style.display = 'grid';
-        m.style.gridTemplateColumns = '1fr 1fr';
+        // m.style.display = 'grid';
+        // m.style.gridTemplateColumns = '1fr 1fr';
+        m.style.display = 'inline-block';
         m.style.alignItems = 'center';
         if (width !== undefined){
             m.style.width = width;
@@ -266,15 +285,14 @@ class mixedNumber{
             m.appendChild(this.frac.getElement());
         } 
         
-        
-        //div.innerHTML = '';
-        console.log("m:", m);
-        div.appendChild(m); 
+        return m;
     }
-    insertElement(div_id, width='2em', replace=false){
+    
+    insertElement(div_id, replace=false, width='2em'){
+        console.log("REPLACE:", replace);
         let div = doc.getElementById(div_id);
         if (replace) div.innerHTML = "";
-        this.insertIntoDiv(div, width);
+        div.appendChild(this.getElement(width));
     }
 
     isSameAs(mixedNum, reduced=true){
@@ -315,7 +333,6 @@ function addFractions(frac1, frac2, reduce=false) {
     // Sum the adjusted numerators
     const sumNumerator = adjustedNumerator1 + adjustedNumerator2;
 
-    console.log("Checking to reduce.", sumNumerator, commonDenominator)
     // Reduce the resulting fraction
     if (reduce){
         const commonDivisor = gcd(sumNumerator, commonDenominator);
@@ -327,7 +344,6 @@ function addFractions(frac1, frac2, reduce=false) {
     }
 
     // Return the resulting fraction as an object
-    console.log("Adding fractions:", result);
     return result;
 }
 
@@ -348,16 +364,12 @@ function divideFractions(frac1, frac2){
 
 function addMixedNumbers(m1, m2){
     let whole = m1.whole + m2.whole;
-    console.log("Adding:", m1.frac.toString(), "+", m2.frac.toString());
     let fracSum = addFractions(m1.frac, m2.frac);
-    console.log("Added (fracSum):", fracSum.toString());
     whole += fracSum.mixed().whole;
-    console.log("added mixed numbers: ", whole, fracSum.mixed().frac.toString());
     return new mixedNumber(whole, fracSum.mixed().frac);
 }
 
 function gridDiv(html="", gridClass=undefined){
-    console.log("gridClass: ", gridClass);
     let div = doc.createElement('div');
     div.innerHTML = html;
     div.classList.add('question-item');
@@ -476,13 +488,12 @@ class additionQuestion{
 
         this.answerTextInput.addEventListener("keyup", () => {
             this.answer = parseMixedNumber(this.answerTextInput.value);
-            this.answer.insertIntoDiv(this.answerTextDisplay);
+            //this.answer.insertIntoDiv(this.answerTextDisplay);
+            if (this.answer.isValid){
+                this.answerTextDisplay.innerHTML = "";
+                this.answerTextDisplay.appendChild(this.answer.getElement());
+            }
         })
-
-        // this.answerTextInput.addEventListener("change", () => {
-        //     let result = readStrToFraction(this.answerTextInput.value);
-        //     result.insertIntoDiv(this.answerTextDisplay);
-        // })
 
         this.div.appendChild(this.answerTextInput);
     }
@@ -507,35 +518,6 @@ class additionQuestion{
         div.style.gridCol = `${c}`;
         if (showElementBorders) div.style.border = '1px solid blue';
 
-        return div;
-    }
-
-    getMixedCheckbox(txt="check"){
-        let div = doc.createElement('span');
-        this.mixedCheckbox = doc.createElement('input');
-        this.mixedCheckbox.type = 'checkbox';
-
-        this.mixedCheckbox.addEventListener('change', () => {
-            if (this.mixedCheckbox.checked){
-                console.log("checked");
-
-                let oppDiv = this.getOperatorSpan("=");
-                oppDiv.style.gridRow = '2';
-                oppDiv.style.gridColumn = '7';
-
-                let mixedDiv = this.getMixedInputs();
-                mixedDiv.style.gridRow = '2';
-                mixedDiv.style.gridColumn = '8';
-
-                this.div.appendChild(oppDiv);
-                this.div.appendChild(mixedDiv);
-            } else {
-                console.log("not checked");
-            }
-        })
-
-        div.appendChild(doc.createTextNode(txt));
-        div.appendChild(this.mixedCheckbox);
         return div;
     }
 
@@ -777,9 +759,6 @@ function parseMixedNumber(input) {
     input = input.replace(/\/\s+/g, '/');
     // Split the string by spaces
     let parts = input.trim().split(' ');
-
-    console.log("parts.length:", parts.length);
-    console.log("parseMixedNumber:", parts)
     
     if (parts.length === 2) {
         
@@ -791,10 +770,7 @@ function parseMixedNumber(input) {
     } else if (parts.length === 1) {
         // If there is only one part, it could be a whole number or a fraction
         if (parts[0].includes('/')) {
-            console.log("parts[0]:", parts[0])
             frac = parseFraction(parts[0]);
-            console.log("Parsed Fraction:", frac);
-            
         } else {
             // It's a whole number
             whole = parseInt(parts[0], 10);
@@ -803,10 +779,7 @@ function parseMixedNumber(input) {
         throw new Error('3. Invalid input format.');
     }
 
-    // let frac = new Fraction(numPart, denomPart);
-    console.log("whole, frac:", whole, frac);
     let result = new mixedNumber(whole, frac);
-    console.log("Result:", result.toString());
     return result;
 }
 
@@ -816,7 +789,6 @@ function parseFraction(input){
         return new Fraction();
     }
     let fractionParts = input.split('/');
-    console.log("parseFraction:", fractionParts);
     if (fractionParts.length === 2) {
         let n = parseInt(fractionParts[0], 10);
         let d = parseInt(fractionParts[1], 10);
@@ -825,19 +797,17 @@ function parseFraction(input){
             numPart = n;
         } else {
             numPart = 0;
-            console.log("parseFraction: numerator not a number");
+            console.log("Error: parseFraction: numerator not a number");
         }
 
         if (typeof d === "number" && Number.isFinite(d)){
             denomPart = d;
         } else {
             denomPart = 0;
-            console.log("parseFraction: denominator not a number");
+            console.log("Error: parseFraction: denominator not a number");
         }
-        console.log("numPart, denomPart:", numPart, denomPart)
         return new Fraction(numPart, denomPart);
     } else {
-        console.log("parseFraction Error: ")
         return new Fraction();
     }
 }
