@@ -132,8 +132,11 @@ class mixedNumber{
             this.improper = new Fraction(0,0);
         } else {
             if (this.isReducable()){
-                let w = this.whole + this.frac.mixed.whole;
-                this.reduced = new mixedNumber(w, this.frac.mixed.frac);
+                console.log("Reducing mixed number")
+                let fracMixed = this.frac.mixed();
+                let w = this.whole + fracMixed.whole;
+                console.log("whole =", w);
+                this.reduced = new mixedNumber(w, fracMixed.frac);
             } else {
                 this.reduced = this;
             }
@@ -191,14 +194,14 @@ class mixedNumber{
             m.style.width = width;
         }
         
-        if (this.whole !== 0) {
+        if (this.whole !== 0 || this.frac.numerator === 0) {
             let whole = doc.createTextNode(this.whole);
             m.appendChild(whole);
         }
 
         if (this.frac.numerator !== 0){
             m.appendChild(this.frac.getElement());
-        }
+        } 
         
         
         div.innerHTML = '';

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 
-    <script src="fractions2.js"></script>
+    <script src="fractions.js"></script>
     <style>       
     </style>
 </head>
@@ -16,6 +16,7 @@
     <input type="text" id="fracInput">
     <div id="fracOutput"></div>
     <div id="improperOutput"></div>
+    <div id="reducedOutput"></div>
 
     
 </body>
@@ -28,6 +29,7 @@
         let mixed = parseMixedNumber(this.value);
         mixed.insertElement("fracOutput", "3em");
         improperOutput.innerHTML = "";
+        mixed.reduced.insertElement("reducedOutput")
         //mixed.improper.insertElement("improperOutput");
     })
     
