@@ -40,10 +40,10 @@
     fracInput.addEventListener("keyup", function(){
         //console.log(this.value);
         let mixed = parseMixedNumber(this.value);
-        mixed.insertElement("fracOutput", "3em");
+        mixed.insertElement("fracOutput", "3em", replace=true);
         improperOutput.innerHTML = "";
-        mixed.improper.insertElement("improperOutput")
-        mixed.reduced.insertElement("reducedOutput")
+        mixed.improper.insertElement("improperOutput", replace=true)
+        mixed.reduced.insertElement("reducedOutput", replace=true)
         //mixed.improper.insertElement("improperOutput");
     })
     

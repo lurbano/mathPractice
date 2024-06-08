@@ -3,25 +3,54 @@ let showElementBorders = false;
 
 class Fraction {
     constructor(numerator=0, denominator=1) {
+        this.isValid = false;
         this.numerator = parseInt(numerator);
         this.denominator = parseInt(denominator);
-        // this.mixed = new mixedNumber(0, this);
-        if (this.denominator !== 0){
-            this.divideByZero = false;
 
-            if (this.isReducable()){
-                console.log('reducable')
-                this.reduced = this.reduce(); //reduced fraction
-            } else {
-                console.log("not reducable")
-                this.reduced = this;
-            }
+        if ((typeof this.denominator === "number" 
+             && Number.isFinite(this.denominator)) && 
+            (typeof this.numerator === "number" 
+             && Number.isFinite(this.numerator))){
+
+                this.isValid = true;
+
+
+                try {
+            
+                    // console.log("n, d:", this.numerator, this.denominator);
+                    this.isValid = true;
+                
+                    // this.mixed = new mixedNumber(0, this);
+                    if (this.denominator !== 0){
+                        this.divideByZero = false;
+        
+                        if (this.isReducable()){
+                            // console.log('reducable')
+                            this.reduced = this.reduce(); //reduced fraction
+                        } else {
+                            // console.log("not reducable")
+                            this.reduced = this;
+                        }
+        
+                    } else {
+                        console.log("Error with fraction", this.numerator, this.denominator);
+                        this.reduced = undefined;
+                        this.divideByZero = true;
+                        this.isValid = false;
+                    }
+                } catch {
+                    console.log("Error: invalid fraction.");
+                    this.isValid = false;
+                }
+
 
         } else {
-            console.log("Error with fraction", this.numerator, this.denominator);
-            this.reduced = undefined;
-            this.divideByZero = true;
+            console.log("Error with input: Fraction:", this.numerator, this.denominator);
+            this.inValid = false;
         }
+        
+
+        
 
     }
 
@@ -31,36 +60,44 @@ class Fraction {
         frac.style.textAlign = "center";
         frac.style.verticalAlign = "middle";
 
-        let n = doc.createElement('span');
-        n.style.display = 'block';
-        n.style.borderBottom = '1px solid #000';
-        n.style.padding = '0 5px';
-        n.innerText = this.numerator;
+        if (this.isValid) {
+            let n = doc.createElement('span');
+            n.style.display = 'block';
+            n.style.borderBottom = '1px solid #000';
+            n.style.padding = '0 5px';
+            n.innerText = this.numerator;
 
-        let d = doc.createElement('span');
-        d.style.display = 'block';
-        d.style.padding = '0 5px';
-        if (typeof this.denominator === "number" 
-            && Number.isFinite(this.denominator)){
-                d.innerText = this.denominator;
+            let d = doc.createElement('span');
+            d.style.display = 'block';
+            d.style.padding = '0 5px';
+            if (typeof this.denominator === "number" 
+                && Number.isFinite(this.denominator)){
+                    d.innerText = this.denominator;
+            } else {
+                d.innerText = " ";
+            }
+            
+
+            frac.appendChild(n);
+            frac.appendChild(d);
         } else {
-            d.innerText = " ";
+            let n = doc.createTextNode("NaF");
+            frac.appendChild(n);
         }
-        
-
-        frac.appendChild(n);
-        frac.appendChild(d);
 
         return frac;
     }
 
-    insertElement(div_id) {
+    insertElement(div_id, replace=false) {
         let div = doc.getElementById(div_id);
+        if (replace) {
+            div.innerHTML = "";
+        } 
         div.appendChild(this.getElement());
     }
 
     isReducable() {
-        if (this.divideByZero) return false;
+        if (this.divideByZero || !this.isValid) return false;
 
         const commonDivisor = gcd(this.numerator, this.denominator);
         // console.log(commonDivisor);
@@ -70,12 +107,16 @@ class Fraction {
 
     reduce() {
         // Reduce the fraction to its simplest form
-        const commonDivisor = gcd(this.numerator,this.denominator);
-        let numerator = this.numerator;
-        let denominator = this.denominator;
-        numerator /= commonDivisor;
-        denominator /= commonDivisor;    
-        return new Fraction(numerator, denominator);
+        if (this.isValid) {
+            const commonDivisor = gcd(this.numerator,this.denominator);
+            let numerator = this.numerator;
+            let denominator = this.denominator;
+            numerator /= commonDivisor;
+            denominator /= commonDivisor;    
+            return new Fraction(numerator, denominator);
+        } else {
+            return false;
+        }
     }
 
     //
@@ -83,13 +124,18 @@ class Fraction {
     //
 
     mixed(){
-        const wholeNumber = Math.floor(this.numerator / this.denominator);
-        const remainder = this.numerator % this.denominator;
-        return new mixedNumber(wholeNumber, new Fraction(remainder, this.denominator))
+        if (this.isValid){
+            const wholeNumber = Math.floor(this.numerator / this.denominator);
+            const remainder = this.numerator % this.denominator;
+            return new mixedNumber(wholeNumber, new Fraction(remainder, this.denominator))
+    
+        } else {
+            return false;
+        }
     }
 
     isImproper(){
-        if (this.numerator > this.denominator) {
+        if (this.isValid && (this.numerator > this.denominator)) {
             return true;
         } else {
             return false;
@@ -104,26 +150,41 @@ class Fraction {
     }
 
     toString() {
-        return `${this.numerator}/${this.denominator}`;
+        let txt = this.isValid ? `${this.numerator}/${this.denominator}` : "NaF";
+        return txt;
+    }
+
+    insertString(div_id){
+        let div = doc.getElementById(div_id);
+        div.appendChild(doc.createTextNode(this.toString()));
     }
  
     isSameAs(frac, reduced=true){
         let result = false;
-        let f1 = reduced ? this.reduced() : this;
-        let f2 = reduced ? frac.reduced() : frac;
+        if (this.isValid && frac.isValid) {
+            let f1 = reduced ? this.reduced() : this;
+            let f2 = reduced ? frac.reduced() : frac;
 
-        if ((f1.numerator === f2.numerator) &&
-            (f1.denominator === f2.denominator)){
-            result = true;
-        } 
+            if ((f1.numerator === f2.numerator) &&
+                (f1.denominator === f2.denominator)){
+                result = true;
+            } 
+        }
         return result;
     }
 }
 
 class mixedNumber{
     constructor(whole = 0, frac = new Fraction()){
+        // if (typeof n === "number" && Number.isFinite(n)){
+        //     numPart = n;
+        // }
+        
         this.whole = whole;
         this.frac = frac;
+        this.isValid = true;
+
+ 
 
         console.log("test:", this.toString(), this.frac);
         
@@ -131,6 +192,7 @@ class mixedNumber{
             this.divideByZero = true;
             this.improper = new Fraction(0,0);
         } else {
+            console.log("reducable? ", this.isReducable());
             if (this.isReducable()){
                 console.log("Reducing mixed number")
                 let fracMixed = this.frac.mixed();
@@ -143,7 +205,9 @@ class mixedNumber{
     
             console.log("impropering: ", this.toString())
             this.improper = this.makeImproper();
-        }
+            
+            }
+
         
     
     }
@@ -167,15 +231,14 @@ class mixedNumber{
     }
 
     toString(){
-        // if (this.whole === 0) {
-        //     return this.frac.toString();
-        // } else if (this.frac.numerator === 0) {
-        //     return this.whole;
-        // } else {
-        //     return `${this.whole} ${this.frac.toString()}`;
-        // }
         return `${this.whole} ${this.frac.toString()}`;
     }
+
+    insertString(div_id){
+        let div = doc.getElementById(div_id);
+        div.appendChild(doc.createTextNode(this.toString()));
+    }
+    
     toHTML(){
         if (this.whole === 0) {
             return this.frac.toHTML();
@@ -204,12 +267,13 @@ class mixedNumber{
         } 
         
         
-        div.innerHTML = '';
+        //div.innerHTML = '';
         console.log("m:", m);
         div.appendChild(m); 
     }
-    insertElement(div_id, width='2em'){
+    insertElement(div_id, width='2em', replace=false){
         let div = doc.getElementById(div_id);
+        if (replace) div.innerHTML = "";
         this.insertIntoDiv(div, width);
     }
 
@@ -724,27 +788,12 @@ function parseMixedNumber(input) {
         // The second part is the fraction
         frac = parseFraction(parts[1]);
 
-        // let fractionParts = parts[1].split('/');
-        // if (fractionParts.length === 2) {
-        //     numPart = parseInt(fractionParts[0], 10);
-        //     denomPart = parseInt(fractionParts[1], 10);
-        // } else {
-        //     throw new Error('1. Invalid fraction format.');
-        // }
     } else if (parts.length === 1) {
         // If there is only one part, it could be a whole number or a fraction
         if (parts[0].includes('/')) {
             console.log("parts[0]:", parts[0])
             frac = parseFraction(parts[0]);
             console.log("Parsed Fraction:", frac);
-            // It's a fraction
-            // let fractionParts = parts[0].split('/');
-            // if (fractionParts.length === 2) {
-            //     numPart = parseInt(fractionParts[0], 10);
-            //     denomPart = parseInt(fractionParts[1], 10);
-            // } else {
-            //     throw new Error('2. Invalid fraction format.');
-            // }
             
         } else {
             // It's a whole number
@@ -807,4 +856,9 @@ function gcd(a, b) {
         a = 1;
     }
     return a;
+}
+
+function insertEqualSign(div_id){
+    let div = document.getElementById(div_id);
+    div.appendChild(document.createTextNode('='));
 }

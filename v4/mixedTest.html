@@ -6,19 +6,24 @@
     <title>Document</title>
 
     <script src="fractions.js"></script>
-    <style>       
+    <style>      
+        .testArea{
+            border: 1px solid black;
+            width: fit-content;
+            padding: 5px;
+        } 
     </style>
 </head>
 <body>
 
 
     <hr>
-    <div id="fraction0"></div>
-    <div id="fraction1"></div>
-    <div id="fraction2"></div>
-    <div id="fraction3"></div>
-    <div id="fraction4"></div>
-    <div id="fraction5"></div>
+    <div id="fraction0" class="testArea"></div>
+    <div id="fraction1" class="testArea"></div>
+    <div id="fraction2" class="testArea"></div>
+    <div id="fraction3" class="testArea"></div>
+    <div id="fraction4" class="testArea"></div>
+    <div id="fraction5" class="testArea"></div>
     
     
 </body>
@@ -26,16 +31,26 @@
 <script>
     
     let m0 = new mixedNumber();
-    m0.insertElement('fraction0');
+    let div_id = 'fraction0';
+    m0.insertString(div_id);
+    insertEqualSign(div_id)
+    m0.insertElement(div_id);
 
     let f1 = new Fraction(1,2);
     let m1 = new mixedNumber(2, f1);
-    m1.insertElement('fraction1');
+    div_id = 'fraction1';
+    m1.insertString(div_id);
+    insertEqualSign(div_id)
+    m1.insertElement(div_id);
 
     let f2 = new Fraction(12,5);
     let m2 = new mixedNumber(3, f2);
-    m2.insertElement('fraction2');
-    m2.reduced.insertElement('fraction3')
+    div_id = 'fraction2';
+    m2.insertString(div_id);
+    insertEqualSign(div_id)
+    m2.insertElement(div_id);
+    insertEqualSign(div_id)
+    m2.reduced.insertElement(div_id)
     
 
 </script>
