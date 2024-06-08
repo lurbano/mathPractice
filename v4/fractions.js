@@ -158,7 +158,7 @@ class mixedNumber{
         if (this.whole !== 0){
             console.log(">")
             n += this.whole * this.frac.denominator;
-            return new Fraction(n, this.denominator);
+            return new Fraction(n, this.frac.denominator);
         } else {
             console.log("===")
             return this.frac;
@@ -411,7 +411,7 @@ class additionQuestion{
         this.answerTextInput.style.backgroundColor = "lightblue";
 
         this.answerTextInput.addEventListener("keyup", () => {
-            this.answer = readStrToFraction(this.answerTextInput.value);
+            this.answer = parseMixedNumber(this.answerTextInput.value);
             this.answer.insertIntoDiv(this.answerTextDisplay);
         })
 
@@ -428,7 +428,7 @@ class additionQuestion{
     }
 
     insertFraction(frac, r, c){
-        let div = frac.toHTML();
+        let div = frac.getElement();
         div.style.gridRow = r;
         div.style.gridColumn = c;
         if (showElementBorders) div.style.border = '1px solid blue';
@@ -714,10 +714,13 @@ function parseMixedNumber(input) {
     // Split the string by spaces
     let parts = input.trim().split(' ');
 
+    console.log("parts.length:", parts.length);
+    console.log("parseMixedNumber:", parts)
     
     if (parts.length === 2) {
+        
         // If there are two parts, the first part is the whole number
-        wholePart = parseInt(parts[0], 10);
+        whole = parseInt(parts[0], 10);
         // The second part is the fraction
         frac = parseFraction(parts[1]);
 
@@ -731,7 +734,9 @@ function parseMixedNumber(input) {
     } else if (parts.length === 1) {
         // If there is only one part, it could be a whole number or a fraction
         if (parts[0].includes('/')) {
+            console.log("parts[0]:", parts[0])
             frac = parseFraction(parts[0]);
+            console.log("Parsed Fraction:", frac);
             // It's a fraction
             // let fractionParts = parts[0].split('/');
             // if (fractionParts.length === 2) {
@@ -743,14 +748,15 @@ function parseMixedNumber(input) {
             
         } else {
             // It's a whole number
-            wholePart = parseInt(parts[0], 10);
+            whole = parseInt(parts[0], 10);
         }
     } else {
         throw new Error('3. Invalid input format.');
     }
 
     // let frac = new Fraction(numPart, denomPart);
-    let result = new mixedNumber(wholePart, frac);
+    console.log("whole, frac:", whole, frac);
+    let result = new mixedNumber(whole, frac);
     console.log("Result:", result.toString());
     return result;
 }
@@ -779,7 +785,7 @@ function parseFraction(input){
             denomPart = 0;
             console.log("parseFraction: denominator not a number");
         }
-
+        console.log("numPart, denomPart:", numPart, denomPart)
         return new Fraction(numPart, denomPart);
     } else {
         console.log("parseFraction Error: ")

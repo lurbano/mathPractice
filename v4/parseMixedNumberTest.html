@@ -13,10 +13,23 @@
 
 
     <hr>
+    Try a fraction (eg 3/5), a mixed number (3 3/5) 
+    and a mixed number with an improper fraction part (3 9/4)
+    <p></p>
     <input type="text" id="fracInput">
-    <div id="fracOutput"></div>
-    <div id="improperOutput"></div>
-    <div id="reducedOutput"></div>
+    <p>
+        Fraction: 
+        <div id="fracOutput"></div>
+    </p>
+    <p>
+        Improper Fraction
+        <div id="improperOutput"></div>
+    </p>
+    <p>
+        Reduced value:
+        <div id="reducedOutput"></div>
+    </p>
+    
 
     
 </body>
@@ -29,6 +42,7 @@
         let mixed = parseMixedNumber(this.value);
         mixed.insertElement("fracOutput", "3em");
         improperOutput.innerHTML = "";
+        mixed.improper.insertElement("improperOutput")
         mixed.reduced.insertElement("reducedOutput")
         //mixed.improper.insertElement("improperOutput");
     })
