@@ -158,8 +158,8 @@ class Fraction {
     isSameAs(frac, reduced=true){
         let result = false;
         if (this.isValid && frac.isValid) {
-            let f1 = reduced ? this.reduced() : this;
-            let f2 = reduced ? frac.reduced() : frac;
+            let f1 = reduced ? this.reduced : this;
+            let f2 = reduced ? frac.reduced : frac;
 
             if ((f1.numerator === f2.numerator) &&
                 (f1.denominator === f2.denominator)){
@@ -246,26 +246,7 @@ class mixedNumber{
             return `${this.whole} ${this.frac.toHTML()}`;
         }
     }
-    // insertIntoDiv(div, width=undefined) {
-    //     let m = doc.createElement('span');
-    //     m.style.display = 'grid';
-    //     m.style.gridTemplateColumns = '1fr 1fr';
-    //     m.style.alignItems = 'center';
-    //     if (width !== undefined){
-    //         m.style.width = width;
-    //     }
-        
-    //     if (this.whole !== 0 || this.frac.numerator === 0) {
-    //         let whole = doc.createTextNode(this.whole);
-    //         m.appendChild(whole);
-    //     }
-
-    //     if (this.frac.numerator !== 0){
-    //         m.appendChild(this.frac.getElement());
-    //     } 
-        
-    //     div.appendChild(m); 
-    // }
+    
     getElement(width=undefined) {
         let m = doc.createElement('span');
         // m.style.display = 'grid';
@@ -298,9 +279,12 @@ class mixedNumber{
     isSameAs(mixedNum, reduced=true){
         //compare other mixed number to this one
         // return true or false
+        let n1 = this.reduced;
+        let n2 = mixedNum.reduced;
+
         let result = false;
-        if (this.whole === mixedNum.whole){
-            if (this.frac.isSameAs(mixedNum.frac, reduced)){
+        if (n1.whole === n2.whole){
+            if (n1.frac.isSameAs(n2.frac, reduced)){
                 result = true;
             }
         } 
@@ -381,20 +365,22 @@ function gridDiv(html="", gridClass=undefined){
 
 
 class additionQuestion{
-    constructor(f1, f2, div_id, 
-                inputType="text", showInstructions=true){
+    constructor(f1, f2, div_id, showInstructions=true){
         // f1 and f2 are Fraction instances
         this.divContainer = doc.getElementById(div_id);
         this.operator = "+"
         this.f1 = f1;
         this.f2 = f2;
-        this.inputType = inputType;
-        // this.mixedSum = addMixedNumbers(f1.mixed(), f2.mixed());
+        this.mixedSum = addMixedNumbers(f1.mixed(), f2.mixed());
         this.nrows = 0;
         this.ncols = 6;
 
-        this.nResults = 0;
-        this.results = '';
+        if (showInstructions) {
+            this.instructionsDiv = doc.createElement('div');
+            this.instructionsDiv.innerHTML = "Find the sum:";
+            this.divContainer.appendChild(this.instructionsDiv);
+        }
+
         this.div = doc.createElement('div');
         this.div.style.display = 'grid';
         //this.div.style.gridTemplateColumns = '15em 2em 2em 2em 2em 3em 2em 2em';
@@ -409,22 +395,29 @@ class additionQuestion{
         this.useMixedInputs = false;
         this.useSimplifiedInputs = true;
 
-        if (showInstructions) this.insertInstructions();
+        //if (showInstructions) this.insertInstructions();
         this.insertControlsRow();
         this.insertQuestionRow();
 
+        this.nResults = 0;
+        this.results = [];
+        this.resultsDiv = doc.createElement('div');
+        this.resultsDiv.style.border = '1px solid green';
+        this.resultsDiv.innerHTML = "Results: "
+        this.divContainer.appendChild(this.resultsDiv);
+
     }
-    insertInstructions(){
-        let instructions = '';
-        if (this.useMixedInputs){
-            instructions += "Enter answers as a mixed number.<br>";
-        } else {
-            instructions += "Enter answer as a fraction. The fraction may be improper.<br>";
-        }
-        if (this.useSimplifiedInputs){
-            instructions += "Be sure to simplify your results.<br>"
-        }
-        let insDiv = doc.getElementById('instructions');
+    insertInstructions(div_id){
+        let instructions = 'Add:';
+        // if (this.useMixedInputs){
+        //     instructions += "Enter answers as a mixed number.<br>";
+        // } else {
+        //     instructions += "Enter answer as a fraction. The fraction may be improper.<br>";
+        // }
+        // if (this.useSimplifiedInputs){
+        //     instructions += "Be sure to simplify your results.<br>"
+        // }
+        let insDiv = doc.getElementById(div_id);
         insDiv.innerHTML = instructions;
     }
     insertControlsRow(){
@@ -490,9 +483,15 @@ class additionQuestion{
             this.answer = parseMixedNumber(this.answerTextInput.value);
             //this.answer.insertIntoDiv(this.answerTextDisplay);
             if (this.answer.isValid){
+                this.answerTextDisplay.style.backgroundColor = 'lightgreen';
                 this.answerTextDisplay.innerHTML = "";
                 this.answerTextDisplay.appendChild(this.answer.getElement());
+            } else {
+                this.answerTextDisplay.style.backgroundColor = 'darksalmon';
             }
+        })
+        this.answerTextInput.addEventListener('change', () => {
+            this.checkAnswer();
         })
 
         this.div.appendChild(this.answerTextInput);
@@ -536,103 +535,6 @@ class additionQuestion{
         return div;
     }
 
-    insertFractionInputs(r,c){
-        let div = this.getFractionInputs();
-        div.style.gridRow = r;
-        div.style.gridColumn = c;
-        if (showElementBorders) div.style.border = '1px solid green';
-
-        this.div.appendChild(div);
-    }
-    getFractionInputs(){
-        let frac = doc.createElement('span');
-        frac.style.display = 'inline-block';
-        frac.style.textAlign = "center";
-        frac.style.verticalAlign = "middle";
-
-        let n = doc.createElement('span');
-        n.style.display = 'block';
-        if (showElementBorders) n.style.borderBottom = '1px solid #000';
-        n.style.padding = '0 5px';
-        this.numeratorInput = this.getNumberInput('numerator')
-        n.appendChild(this.numeratorInput);
-
-        let d = doc.createElement('span');
-        d.style.display = 'block';
-        d.style.padding = '0 5px';
-        this.denominatorInput = this.getNumberInput("denominator");
-        d.appendChild(this.denominatorInput);
-
-        frac.appendChild(n);
-        frac.appendChild(d);
-
-        return frac;
-    }
-
-    getMixedInputs(){
-
-        let div = doc.createElement('span');
-
-        this.wholeInput = this.getNumberInput('whole');
-        div.appendChild(this.wholeInput);
-
-        let frac = doc.createElement('span');
-        frac.style.display = 'inline-block';
-        frac.style.textAlign = "center";
-        frac.style.verticalAlign = "middle";
-
-        let n = doc.createElement('span');
-        n.style.display = 'block';
-        n.style.borderBottom = '1px solid #000';
-        n.style.padding = '0 5px';
-        this.numeratorInput = this.getNumberInput('numerator')
-        n.appendChild(this.numeratorInput);
-
-        let d = doc.createElement('span');
-        d.style.display = 'block';
-        d.style.padding = '0 5px';
-        this.denominatorInput = this.getNumberInput("denominator");
-        d.appendChild(this.denominatorInput);
-
-        frac.appendChild(n);
-        frac.appendChild(d);
-
-        div.appendChild(frac);
-
-        return div;
-    }
-
-    getNumberInput(id){
-        let div = doc.createElement("input");
-        div.id = id;
-        div.style.width = '3em';
-        div.type = 'number';
-        div.min = -1000;
-        div.max = 1000;
-        div.step = 1;
-
-        div.addEventListener('change', () => {
-            let i = doc.getElementById(id);
-            this.answer[id] = i.value;
-            console.log(id, this.answer[id]);
-            if (this.answer['numerator'] !== undefined && 
-                this.answer['denominator'] !== undefined &&
-                ((this.useMixedInputs && this.answer['whole'] !== undefined) ||
-                  !this.useMixedInputs)) {
-
-                    this.answer['fraction'] = new Fraction(this.answer['numerator'], this.answer['denominator']);
-                    console.log("Answer: ", this.answer['fraction'].toString());
-                    //this.checkAnswer();
-                    if (!this.showAnswerButton){
-                        this.showAnswerButton = true;
-                        this.insertAnswerButton();
-                    }
-                    
-                }
-        })
-
-        return div;
-    }
 
     insertOperator(txt, r, c){
         let div = this.getOperatorSpan(txt);
@@ -655,31 +557,10 @@ class additionQuestion{
         return p;
     }
 
-    // checkAnswer(){
-    //     let frac = this.answer['fraction'];
-
-    //     let result = '';
-    //     let color = 'white';
-
-    //     //check to see if the reduced fraction is the same
-    //     if (this.sum.reduced.isSameAs(frac)){
-    //         result += " is correct, in most simplified form.";
-    //         color = 'springGreen';
-    //     } else if (this.sum.reduced.isSameAs(frac.reduced)){
-    //         result += ' can be simplified.';
-    //         color = 'paleGreen';
-    //     } else {
-    //         result += ' is incorrect';
-    //         color = 'pink';
-    //     }
-
-    //     // console.log(result);
-    //     this.insertResults(result, color);
-
-    // }
 
     checkAnswer(){
-        let frac = this.answer['fraction'];
+        // Note: this.answer is continuously updated 
+        //       with the updates of the input text box
 
         let result = '';
         let color = 'white';
@@ -688,41 +569,36 @@ class additionQuestion{
         console.log("mixedSum: ", this.mixedSum.toString());
 
         if (this.mixedSum.isSameAs(this.answer)){
-            console.log("Same");
+            this.answerIsCorrect = true;
+            result += " is correct. ";
+            //console.log("Same");
         } else {
-            console.log("wrong");
+            this.answerIsCorrect = false;
+            result += " is incorrect. "
         }
 
-        // if (this.sum) Need an addMixedNumbers class
-
-        // //check to see if the reduced fraction is the same
-        // if (this.sum.reduced.isSameAs(frac)){
-        //     result += " is correct, in most simplified form.";
-        //     color = 'springGreen';
-        // } else if (this.sum.reduced.isSameAs(frac.reduced)){
-        //     result += ' can be simplified.';
-        //     color = 'paleGreen';
-        // } else {
-        //     result += ' is incorrect';
-        //     color = 'pink';
-        // }
-
-        // // console.log(result);
-        // this.insertResults(result, color);
+        let r = {
+            answer: this.answer,
+            correctAnswer: this.mixedSum,
+            note: result,
+            isCorrect: this.answerIsCorrect
+        }
+        this.results.push(r);
+        this.insertResults();
 
     }
 
-    insertResults(result, color="white"){
-        this.nResults += 1;
-        let newDiv = doc.createElement("div");
-        newDiv.appendChild(doc.createTextNode(`Try ${this.nResults}: `));
-        newDiv.appendChild(this.answer['fraction'].toHTML());
-        newDiv.appendChild(doc.createTextNode(result));
-        newDiv.style.backgroundColor = color;
+    insertResults(){
+        this.resultsDiv.innerHTML = "";
+        for (const result of this.results) {
+            let div = doc.createElement('div');
+            div.appendChild(result['answer'].getElement());
+            div.appendChild(doc.createTextNode(result['note']));
 
-        //this.results += `Try ${this.nResults}: ${result} <br>`;
-        let div = doc.getElementById('results');
-        div.appendChild(newDiv);
+            div.style.backgroundColor = result['isCorrect'] ? 'lightGreen' : 'darkSalmon';
+            this.resultsDiv.appendChild(div);
+        }
+
     }
 
     insertCommentRow(html){
@@ -738,6 +614,8 @@ class additionQuestion{
     }
     
 }
+
+
 
 /**
  * Parses a string into a whole number part, a numerator, and a denominator.
