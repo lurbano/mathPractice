@@ -14,10 +14,21 @@
 
     <hr>
     <div id="instructions"></div>
+    Using fraction inputs:
     <div id="addFrac"></div>
-    <hr>
+
+    Mixed number inputs:
     <div id="addMixed"></div>
-    
+    <hr>
+   
+    Negative fraction inputs:
+    <div id="addFrac1"></div>
+
+    Negative mixed number inputs:
+    <div id="addMixed1"></div>
+    <hr>
+
+
 </body>
 
 <script>
@@ -25,14 +36,20 @@
 
     let f1 = new Fraction(1,2);
     let f2 = new Fraction(5, 6);
-    //let f3 = new Fraction(3,0);
+    new additionQuestion(f1, f2, 'addFrac');
 
-    q = new additionQuestion(f1, f2, 'addFrac');
+    let f3 = new Fraction(-1,2);
+    let f4 = new Fraction(5, 6);
+    new additionQuestion(f3, f4, 'addFrac1');
+
 
     let m1 = new mixedNumber(1, f1);
     let m2 = new mixedNumber(4, f2);
-
-    q2 = new additionQuestion(m1, m2, "addMixed");
+    new additionQuestion(m1, m2, "addMixed");
+    
+    let m3 = new mixedNumber(-2, f1);
+    let m4 = new mixedNumber(4, f2);
+    new additionQuestion(m3, m4, "addMixed1");
     
 
 </script>

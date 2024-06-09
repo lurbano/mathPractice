@@ -18,9 +18,16 @@
 
 
     <hr>
+    Default instance:
     <div id="fraction0" class="testArea"></div>
+    
+    Basic Example:
     <div id="fraction1" class="testArea"></div>
+    
+    Mixed With Improper Fraction
     <div id="fraction2" class="testArea"></div>
+    
+    Mixed with negative fraction;
     <div id="fraction3" class="testArea"></div>
     <div id="fraction4" class="testArea"></div>
     <div id="fraction5" class="testArea"></div>
@@ -48,9 +55,18 @@
     div_id = 'fraction2';
     m2.insertString(div_id);
     insertEqualSign(div_id)
-    m2.insertElement(div_id);
+    m2.insertElement(div_id, false, width="3em");
     insertEqualSign(div_id)
     m2.reduced.insertElement(div_id)
+
+    f1 = new Fraction(-1, 3);
+    m1 = new mixedNumber(2, f1);
+    div_id = 'fraction3';
+    m1.insertString(div_id);
+    insertEqualSign(div_id)
+    m1.insertElement(div_id, false, width="3em");
+    insertEqualSign(div_id)
+    m1.reduced.insertElement(div_id, false, width="3em");
     
 
 </script>

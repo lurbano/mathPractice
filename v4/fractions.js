@@ -4,6 +4,7 @@ let showElementBorders = false;
 class Fraction {
     constructor(numerator=0, denominator=1) {
         this.isValid = false;
+        this.isNegative = false;
         this.numerator = parseInt(numerator);
         this.denominator = parseInt(denominator);
 
@@ -18,6 +19,15 @@ class Fraction {
                 try {
             
                     this.isValid = true;
+
+                    if (this.numerator/this.denominator < 0) {
+                        this.isNegative = true;
+                        // Make the numerator negative 
+                        //  and denominator positive.
+                        this.numerator = Math.abs(this.numerator) * -1;
+                        this.denominator = Math.abs(this.denominator);
+                    }
+                    // console.log("negative:", this.numerator, this.denominator);
                 
                     // this.mixed = new mixedNumber(0, this);
                     if (this.denominator !== 0){
@@ -28,6 +38,7 @@ class Fraction {
                         } else {
                             this.reduced = this;
                         }
+                        //console.log("reduced:", this.isReducable(), this.reduced.toString());
         
                     } else {
                         console.log("Error with fraction", this.numerator, this.denominator);
@@ -36,7 +47,7 @@ class Fraction {
                         this.isValid = false;
                     }
                 } catch {
-                    console.log("Error: invalid fraction.");
+                    console.log("Error: invalid fraction.", numerator, denominator);
                     this.isValid = false;
                 }
 
@@ -96,7 +107,7 @@ class Fraction {
     isReducable() {
         if (this.divideByZero || !this.isValid) return false;
 
-        const commonDivisor = gcd(this.numerator, this.denominator);
+        const commonDivisor = gcd(Math.abs(this.numerator), Math.abs(this.denominator));
         const r = commonDivisor === 1 ? false : true;
         return r;
     }
@@ -121,8 +132,10 @@ class Fraction {
 
     mixed(){
         if (this.isValid){
-            const wholeNumber = Math.floor(this.numerator / this.denominator);
-            const remainder = this.numerator % this.denominator;
+
+            const wholeNumber = Math.floor(Math.abs(this.numerator) 
+                                           / Math.abs(this.denominator));
+            let remainder = this.numerator % this.denominator;    
             return new mixedNumber(wholeNumber, new Fraction(remainder, this.denominator))
     
         } else {
@@ -168,6 +181,10 @@ class Fraction {
         }
         return result;
     }
+
+    multiplyByWhole(whole){
+        return new Fraction(this.numerator*whole, this.denominator);
+    }
 }
 
 class mixedNumber{
@@ -186,12 +203,20 @@ class mixedNumber{
                 this.inValid = false;
                 this.improper = new Fraction(0,0);
             } else {
+
                 if (this.isReducable()){
                     let fracMixed = this.frac.mixed();
                     let w = this.whole + fracMixed.whole;
                     this.reduced = new mixedNumber(w, fracMixed.frac);
                 } else {
                     this.reduced = this;
+                }
+
+                if (this.reduced.frac.isNegative && this.reduced.whole !== 0){
+                    let m1 = new Fraction(this.reduced.whole, 1);
+                    let m2 = this.reduced.frac;
+                    let f = addFractions(m1, m2);
+                    this.reduced = f.mixed();
                 }
         
                 this.improper = this.makeImproper();
@@ -203,17 +228,11 @@ class mixedNumber{
             this.improper = this.fraction;
             this.reduced = this;
         }
-        
-        
-        
-        
-
-        
     
     }
 
     isReducable(){
-        return this.frac.isImproper();
+        return (this.frac.isImproper());
     }
 
     makeImproper(){
@@ -348,9 +367,55 @@ function divideFractions(frac1, frac2){
 
 function addMixedNumbers(m1, m2){
     let whole = m1.whole + m2.whole;
-    let fracSum = addFractions(m1.frac, m2.frac);
+    let f1 = m1.frac;
+    let f2 = m2.frac;
+    if (m1.whole < 0 && !m1.frac.isNegative){
+        f1 = f1.multiplyByWhole(-1);
+    }
+    if (m2.whole < 0 && !m2.frac.isNegative){
+        f2 = f2.multiplyByWhole(-1);
+    }
+    let fracSum = addFractions(f1, f2);
     whole += fracSum.mixed().whole;
     return new mixedNumber(whole, fracSum.mixed().frac);
+}
+
+
+function subtractMixedNumbers(m1, m2){
+    let whole = m1.whole - m2.whole;
+    
+    if ((m1.whole < 0 && !m1.frac.isNegative)){
+        let newFrac = new Fraction(m1.frac.numerator * -1, m1.frac.denominator);
+        m1 = new mixedNumber(m1.whole, newFrac);
+    }
+
+    if (!(m2.whole < 0 && !m2.frac.isNegative)){
+        let newFrac = new Fraction(m2.frac.numerator * -1, m2.frac.denominator);
+        m2 = new mixedNumber(m2.whole, newFrac);
+    }
+    //console.log("newFrac2:", newFrac2.toString());
+    console.log("newMixed:", m1.toString(), m2.toString())
+
+    let fracSum = addFractions(m1.frac, m2.frac);
+    console.log('fracSum:', fracSum.toString(), ",", 
+                 fracSum.mixed().toString());
+    let mixedSum = new mixedNumber(whole+fracSum.mixed().whole, fracSum.mixed().frac);
+    console.log("subtract Result:", mixedSum.toString())
+    return mixedSum;
+}
+
+function old_subtractMixedNumbers(m1, m2){
+    let whole = m1.whole - m2.whole;
+    let newFrac= new Fraction(m2.frac.numerator * -1, m2.frac.denominator);
+    console.log("newFrac:", newFrac.toString());
+    m2 = new mixedNumber(m2.whole, newFrac);
+    console.log("newMixed:", m1.toString(), m2.toString())
+    let fracSum = addFractions(m1.frac, m2.frac);
+    console.log('fracSum:', fracSum.toString(), ",", 
+                 fracSum.mixed().toString());
+    let mixedSum = new mixedNumber(whole+fracSum.mixed().whole, fracSum.mixed().frac);
+    console.log("subtract Result:", mixedSum.toString())
+    return mixedSum;
 }
 
 function gridDiv(html="", gridClass=undefined){
@@ -362,260 +427,6 @@ function gridDiv(html="", gridClass=undefined){
     } 
     return div;
 }
-
-
-class OldAdditionQuestion{
-    constructor(f1, f2, div_id, showInstructions=true){
-        // f1 and f2 are Fraction instances
-        this.divContainer = doc.getElementById(div_id);
-        this.operator = "+"
-        this.f1 = f1;
-        this.f2 = f2;
-        this.mixedSum = addMixedNumbers(f1.mixed(), f2.mixed());
-        this.nrows = 0;
-        this.ncols = 6;
-
-        if (showInstructions) {
-            this.instructionsDiv = doc.createElement('div');
-            this.instructionsDiv.innerHTML = "Find the sum:";
-            this.divContainer.appendChild(this.instructionsDiv);
-        }
-
-        this.div = doc.createElement('div');
-        this.div.style.display = 'grid';
-        //this.div.style.gridTemplateColumns = '15em 2em 2em 2em 2em 3em 2em 2em';
-        this.div.style.gridTemplateColumns = "repeat(30, auto)";
-        this.div.style.gridTemplateRows = '2fr';
-        this.div.style.border = '1px solid red';
-        this.div.style.alignItems = 'center';
-
-        this.answer = {};
-        this.showAnswerButton = false;
-
-        this.useMixedInputs = false;
-        this.useSimplifiedInputs = true;
-
-        //if (showInstructions) this.insertInstructions();
-        this.insertControlsRow();
-        this.insertQuestionRow();
-
-        this.nResults = 0;
-        this.results = [];
-        this.resultsDiv = doc.createElement('div');
-        this.resultsDiv.style.border = '1px solid green';
-        this.resultsDiv.innerHTML = "Results: "
-        this.divContainer.appendChild(this.resultsDiv);
-
-    }
-    insertInstructions(div_id){
-        let instructions = 'Add:';
-        // if (this.useMixedInputs){
-        //     instructions += "Enter answers as a mixed number.<br>";
-        // } else {
-        //     instructions += "Enter answer as a fraction. The fraction may be improper.<br>";
-        // }
-        // if (this.useSimplifiedInputs){
-        //     instructions += "Be sure to simplify your results.<br>"
-        // }
-        let insDiv = doc.getElementById(div_id);
-        insDiv.innerHTML = instructions;
-    }
-    insertControlsRow(){
-        // this.nrows += 1;
-        // this.div.style.gridTemplateRows = `repeat(${this.nrows}, 1fr)`;
-
-        // let checkDiv = this.getMixedCheckbox("Mixed Number");
-        // checkDiv.style.gridRow = `1`;
-        // checkDiv.style.gridColumn = '8';
-
-        // this.div.appendChild(checkDiv);
-    }
-    insertQuestionRow(){
-        this.div.style.gridTemplateRows = `repeat(${this.nrows}, 1fr)`;
-        
-        //this.div.appendChild(this.getTextSpan('Question: ',2,1));
-
-        this.insertFraction(this.f1, 2, 2)
-        this.insertOperator("+", 2, 3);
-        this.insertFraction(this.f2, 2, 4);
-        this.insertOperator("=", 2, 5);
-
-        this.insertAnswerDisplay(2,8);
-
-        this.insertAnswerTextInput(2,6);
-        this.insertOperator("=", 2, 7);
-
-        this.insertAnswerButton(2,9);
-        
-        // if (this.useMixedInputs){
-        //     this.div.appendChild(this.getMixedInputs());
-        // } else {
-        //     // this.div.appendChild(this.getFractionInputs());
-        //     this.insertFractionInputs(2,6);
-        // }
-        
-        // this.div.appendChild(this.getAnswerButton());
-        
-        this.divContainer.appendChild(this.div);
-
-    }
-
-    insertAnswerDisplay(r,c){
-        this.answerTextDisplay = doc.createElement("span");
-        this.answerTextDisplay.style.gridRow = r;
-        this.answerTextDisplay.style.gridColumn = c;
-        this.answerTextDisplay.style.backgroundColor = "lightblue";
-        this.answerTextDisplay.style.width = "5em";
-        //this.answerTextDisplay.innerHTML = "hi";
-        this.div.appendChild(this.answerTextDisplay);
-    
-    }
-
-    insertAnswerTextInput(r,c){
-        this.answerTextInput = doc.createElement("input");
-        this.answerTextInput.type = "text";
-        this.answerTextInput.style.gridRow = r;
-        this.answerTextInput.style.gridColumn = c;
-        this.answerTextInput.style.width = '5em';
-        this.answerTextInput.style.backgroundColor = "lightblue";
-
-        this.answerTextInput.addEventListener("keyup", () => {
-            this.answer = parseMixedNumber(this.answerTextInput.value);
-            //this.answer.insertIntoDiv(this.answerTextDisplay);
-            if (this.answer.isValid){
-                this.answerTextDisplay.style.backgroundColor = 'lightgreen';
-                this.answerTextDisplay.innerHTML = "";
-                this.answerTextDisplay.appendChild(this.answer.getElement());
-            } else {
-                this.answerTextDisplay.style.backgroundColor = 'darksalmon';
-            }
-        })
-        this.answerTextInput.addEventListener('change', () => {
-            this.checkAnswer();
-        })
-
-        this.div.appendChild(this.answerTextInput);
-    }
-
-    insertAnswerButton(r,c){
-        this.div.appendChild(this.getAnswerButton(r,c));
-    }
-
-    insertFraction(frac, r, c){
-        let div = frac.getElement();
-        div.style.gridRow = r;
-        div.style.gridColumn = c;
-        if (showElementBorders) div.style.border = '1px solid blue';
-        div.style.width = '3em';
-        this.div.appendChild(div);
-    }
-
-    getTextSpan(txt, r, c){
-        let div = doc.createElement('span');
-        div.innerText = txt;
-        div.style.gridRow = `${r}`;
-        div.style.gridCol = `${c}`;
-        if (showElementBorders) div.style.border = '1px solid blue';
-
-        return div;
-    }
-
-    getAnswerButton(r, c){
-        let div = doc.createElement('input');
-        div.type = 'button';
-        div.value = 'Check';
-        div.style.gridColumn = c;
-        div.style.gridRow = r;
-        div.style.width = '6em';
-
-        div.addEventListener('click', ()=> {
-            this.checkAnswer();
-        })
-
-        return div;
-    }
-
-
-    insertOperator(txt, r, c){
-        let div = this.getOperatorSpan(txt);
-        div.style.gridRow = r;
-        div.style.gridColumn = c;
-        div.style.width = "1em";
-        if (showElementBorders) div.style.border = '1px solid blue';
-
-        this.div.appendChild(div);
-    }
-
-    getOperatorSpan(txt){
-        let p = doc.createElement("span");
-        p.style.display = 'flex';
-        p.style.alignItems = 'center';
-        p.style.paddingRight = '0.5em';
-        p.style.paddingLeft = '0.5em';
-        // p.style.border = '1px solid blue';
-        p.innerText = txt;
-        return p;
-    }
-
-
-    checkAnswer(){
-        // Note: this.answer is continuously updated 
-        //       with the updates of the input text box
-
-        let result = '';
-        let color = 'white';
-
-        console.log("Answer: ", this.answer.toString());
-        console.log("mixedSum: ", this.mixedSum.toString());
-
-        if (this.mixedSum.isSameAs(this.answer)){
-            this.answerIsCorrect = true;
-            result += " is correct. ";
-            //console.log("Same");
-        } else {
-            this.answerIsCorrect = false;
-            result += " is incorrect. "
-        }
-
-        let r = {
-            answer: this.answer,
-            correctAnswer: this.mixedSum,
-            note: result,
-            isCorrect: this.answerIsCorrect
-        }
-        this.results.push(r);
-        this.insertResults();
-
-    }
-
-    insertResults(){
-        this.resultsDiv.innerHTML = "";
-        for (const result of this.results) {
-            let div = doc.createElement('div');
-            div.appendChild(result['answer'].getElement());
-            div.appendChild(doc.createTextNode(result['note']));
-
-            div.style.backgroundColor = result['isCorrect'] ? 'lightGreen' : 'darkSalmon';
-            this.resultsDiv.appendChild(div);
-        }
-
-    }
-
-    insertCommentRow(html){
-        this.nrows += 1;
-        this.div.style.gridTemplateRows = `repeat(${this.nrows}, 1fr)`;
-        
-        let div = doc.createElement('span');
-        div.style.border = '1px solid blue';
-        //div.style.gridColumn = `1 / ${this.ncols+1}`;
-
-        div.innerHTML = html;
-        this.div.appendChild(div);
-    }
-    
-}
-
-
 
 /**
  * Parses a string into a whole number part, a numerator, and a denominator.
@@ -711,17 +522,29 @@ function insertEqualSign(div_id){
     div.appendChild(document.createTextNode('='));
 }
 
+function subtractFractionFromWhole(whole, frac){
+
+}
 
 class additionQuestion{
-    constructor(f1, f2, div_id, showInstructions=true){
+    constructor(f1, f2, div_id, operation="+", showInstructions=true){
         // f1 and f2 are Fraction or mixedNumber instances
 
         this.f1 = f1 instanceof Fraction ? new mixedNumber(0, f1): f1;
         this.f2 = f2 instanceof Fraction ? new mixedNumber(0, f2): f2;
 
+        // let a = b;
+
         this.divContainer = doc.getElementById(div_id);
-        this.operator = "+"
-        this.mixedSum = addMixedNumbers(this.f1, this.f2);
+        if (operation === "-"){
+            this.operator = "-"
+            this.mixedSum = subtractMixedNumbers(this.f1, this.f2);
+        } else {
+            this.operator = "+"
+            this.mixedSum = addMixedNumbers(this.f1, this.f2);
+        }
+        
+
         this.nrows = 0;
         this.ncols = 6;
 
@@ -786,7 +609,7 @@ class additionQuestion{
         //this.div.appendChild(this.getTextSpan('Question: ',2,1));
 
         this.insertFraction(this.f1, 2, 2)
-        this.insertOperator("+", 2, 3);
+        this.insertOperator(this.operator, 2, 3);
         this.insertFraction(this.f2, 2, 4);
         this.insertOperator("=", 2, 5);
 
