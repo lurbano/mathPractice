@@ -16,7 +16,7 @@
     <div id="instructions"></div>
     <div id="addFrac"></div>
     <hr>
-    <div id="results"></div>
+    <div id="addMixed"></div>
     
 </body>
 
@@ -28,6 +28,11 @@
     //let f3 = new Fraction(3,0);
 
     q = new additionQuestion(f1, f2, 'addFrac');
+
+    let m1 = new mixedNumber(1, f1);
+    let m2 = new mixedNumber(4, f2);
+
+    q2 = new additionQuestion(m1, m2, "addMixed");
     
 
 </script>
