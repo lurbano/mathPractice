@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script src="fractions.js"></script>
+    <style>       
+    </style>
+</head>
+<body>
+
+
+    <hr>
+    <div id="instructions"></div>
+    Using fraction inputs:
+    <div id="addFrac"></div>
+
+    Mixed number inputs:
+    <div id="addMixed"></div>
+    <hr>
+   
+    Negative fraction inputs:
+    <div id="addFrac1"></div>
+
+    Negative mixed number inputs:
+    <div id="addMixed1"></div>
+    <hr>
+
+
+</body>
+
+<script>
+    
+
+    let f1 = new Fraction(1,2);
+    let f2 = new Fraction(5, 6);
+    new additionQuestion(f1, f2, 'addFrac');
+
+    let f3 = new Fraction(-1,2);
+    let f4 = new Fraction(5, 6);
+    new additionQuestion(f3, f4, 'addFrac1');
+
+
+    let m1 = new mixedNumber(1, f1);
+    let m2 = new mixedNumber(4, f2);
+    new additionQuestion(m1, m2, "addMixed");
+    
+    let m3 = new mixedNumber(-2, f1);
+    let m4 = new mixedNumber(4, f2);
+    new additionQuestion(m3, m4, "addMixed1");
+    
+
+</script>
+</html>
