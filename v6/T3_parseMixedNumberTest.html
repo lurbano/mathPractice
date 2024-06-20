@@ -47,8 +47,8 @@
         let mixed = parseMixedNumber(this.value);
         mixed.insertElement("fracOutput",  replace=true, width="3em");
         improperOutput.innerHTML = "";
-        mixed.improper.insertElement("improperOutput", replace=true)
-        mixed.reduced.insertElement("reducedOutput", replace=true)
+        mixed.toFraction().insertElement("improperOutput", replace=true)
+        mixed.simplify().insertElement("reducedOutput", replace=true)
         //mixed.improper.insertElement("improperOutput");
     })
     
