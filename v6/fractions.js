@@ -5,6 +5,8 @@ class Fraction {
     constructor(numerator=0, denominator=1) {
         this.isValid = false;
         // this.isNegative = false;
+        // console.log("Fraction 1:", numerator, denominator)
+        
 
         try {
             //check if denominator is a number
@@ -40,7 +42,7 @@ class Fraction {
             console.log(error);
         }
 
-        
+        // console.log("Fraction 2:", this.numerator, this.denominator)
         if (this.isValid) {
             if (this.isReducable()){
                 this.reduced = this.reduce(); //reduced fraction
@@ -52,6 +54,7 @@ class Fraction {
             //   is negative and the denominator is positive.
             if (this.numerator/this.denominator < 0) {
                 // this.isNegative = true;
+                // console.log("negative:", this.numerator, this.denominator)
                 this.numerator = -1 * Math.abs(this.numerator);
                 this.denominator = Math.abs(this.denominator);
             }
@@ -112,12 +115,16 @@ class Fraction {
     reduce() {
         // Reduce the fraction to its simplest form
         if (this.isValid) {
-            const commonDivisor = gcd(this.numerator,this.denominator);
-            let numerator = this.numerator;
-            let denominator = this.denominator;
-            numerator /= commonDivisor;
-            denominator /= commonDivisor;    
-            return new Fraction(numerator, denominator);
+            if (this.isReducable){
+                const commonDivisor = gcd(this.numerator,this.denominator);
+                let numerator = this.numerator;
+                let denominator = this.denominator;
+                numerator /= commonDivisor;
+                denominator /= commonDivisor;    
+                return new Fraction(numerator, denominator);
+            } else {
+                return this;
+            }
         } else {
             return false;
         }
@@ -128,13 +135,14 @@ class Fraction {
     //
     isNegative(){
         let result = undefined;
+        // console.log("isNegative (isValid?):", this.isValid)
         if (this.isValid){
-            let result = ( (this.numerator / this.denominator) < 0 ) ? true : false;
+            result = ( (this.numerator / this.denominator) < 0 ) ? true : false;
         }
         return result;
     }
 
-    mixed(){
+    toMixed(){
         if (this.isValid){
 
             let wholeNumber = Math.floor(Math.abs(this.numerator) 
@@ -197,64 +205,39 @@ class Fraction {
 
 class mixedNumber{
     constructor(whole = 0, frac = new Fraction()){
-        this.isValid = false;
+        this.isValid = true;
         this.whole = whole;
         this.frac = frac;
+    }
 
-        if ((frac.isValid) && (!frac.divideByZero) &&
-            typeof whole === "number" && Number.isFinite(whole)){
-            this.isValid = true;
-            
-
-            if (this.frac.divideByZero){
-                this.divideByZero = true;
-                this.inValid = false;
-                this.improper = new Fraction(0,0);
-            } else {
-
-                if (this.isReducable()){
-                    let fracMixed = this.frac.mixed();
-                    let w = this.whole + fracMixed.whole;
-                    this.reduced = new mixedNumber(w, fracMixed.frac);
-                    // this.reduced = this.makeImproper().mixed();
-                } else {
-                    this.reduced = this;
-                }
-
-                if (this.reduced.frac.isNegative() && this.reduced.whole !== 0){
-                    let m1 = new Fraction(this.reduced.whole, 1);
-                    let m2 = this.reduced.frac;
-                    let f = addFractions(m1, m2);
-                    this.reduced = f.mixed();
-                }
-        
-                this.improper = this.makeImproper();
-            }
+    toFraction(){
+        let n = this.frac.numerator;
+        // console.log("toFraction:", this.whole, n, "/", this.frac.denominator)
+        if (this.whole === 0){
+            return this;
+        } else if (this.whole < 0) {
+            n = this.whole * this.frac.denominator - n;
         } else {
-            console.log("Error: Invalid mixed number", whole);
-            console.log("Error: Invalid mixed number", frac);
-            this.isValid = false;
-            this.improper = this.fraction;
-            this.reduced = this;
+            n += this.whole * this.frac.denominator;
         }
-    
-    }
-
-    isReducable(){
-        return (this.makeImproper().isReducable());
-    }
-
-    makeImproper(){
-        let n = this.frac.numerator + Math.abs(this.whole) * this.frac.denominator;
-        // console.log("improper 0: ", n, this.frac.numerator, Math.abs(this.whole) , this.frac.denominator);
-        n =  n * Math.abs(this.whole) / this.whole;
-        n = this.whole === 0 ? this.frac.numerator : n;
-        console.log(`makeImproper: ${n}/${this.frac.denominator}`);
+        // console.log("n", this.whole,  n, "/", this.frac.denominator)
         return new Fraction(n, this.frac.denominator);
+
     }
 
-    toString(){
-        let txt = this.isValid ? `${this.whole} ${this.frac.toString()}` : "NaMix";
+    simplify(){
+        let frac = this.toFraction();
+        // console.log("Simplify: ", frac.toString(), frac.isNegative())
+        return frac.toMixed();
+    }
+
+    toString(full=false){
+        let txt = '';
+        if (full || this.whole !== 0){
+            txt += `${this.whole} ${this.frac.toString()}`;
+        } else {
+            txt += this.frac.toString();
+        }
         return txt;
     }
 
@@ -273,6 +256,7 @@ class mixedNumber{
         }
     }
     
+    // to show in fraction form
     getElement(width=undefined) {
         let m = doc.createElement('span');
         // m.style.display = 'grid';
@@ -296,36 +280,12 @@ class mixedNumber{
     }
     
     insertElement(div_id, replace=false, width='2em'){
-        console.log("REPLACE:", replace);
+        // console.log("REPLACE:", replace);
         let div = doc.getElementById(div_id);
         if (replace) div.innerHTML = "";
         div.appendChild(this.getElement(width));
     }
 
-    isSameAs(mixedNum, reduced=true){
-        //compare other mixed number to this one
-        // return true or false
-        let n1 = this.makeImproper();
-        let n2 = mixedNum.makeImproper();
-
-        let result = n1.isSameAs(n2);
-
-        return result;
-    }
-    // isSameAs(mixedNum, reduced=true){
-    //     //compare other mixed number to this one
-    //     // return true or false
-    //     let n1 = this.reduced;
-    //     let n2 = mixedNum.reduced;
-
-    //     let result = false;
-    //     if (n1.whole === n2.whole){
-    //         if (n1.frac.isSameAs(n2.frac, reduced)){
-    //             result = true;
-    //         }
-    //     } 
-    //     return result;
-    // }
 }
 
 
