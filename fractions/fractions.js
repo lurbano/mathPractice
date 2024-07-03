@@ -214,7 +214,7 @@ class mixedNumber{
         let n = this.frac.numerator;
         // console.log("toFraction:", this.whole, n, "/", this.frac.denominator)
         if (this.whole === 0){
-            return this;
+            
         } else if (this.whole < 0) {
             n = this.whole * this.frac.denominator - n;
         } else {
@@ -227,7 +227,8 @@ class mixedNumber{
 
     simplify(){
         let frac = this.toFraction();
-        // console.log("Simplify: ", frac.toString(), frac.isNegative())
+        // console.log("frac: ", frac)
+        // console.log("Simplify: ", frac.toString())
         return frac.toMixed();
     }
 
@@ -359,9 +360,9 @@ function divideFractions(frac1, frac2){
 
 function addMixedNumbers(m1, m2){
 
-    let f1 = m1.makeImproper();
-    let f2 = m2.makeImproper();
-    console.log(`Improper: ${f1.toString()} + ${f2.toString()}`)
+    let f1 = m1;
+    let f2 = m2;
+    // console.log(`Improper: ${f1.toString()} + ${f2.toString()}`)
     let result = addFractions(m1.makeImproper(), m2.makeImproper())
     return result.mixed()
 
@@ -410,12 +411,16 @@ function gridDiv(html="", gridClass=undefined){
     return div;
 }
 
+function strToFraction(input, toFraction=true){
+    return parseMixedNumber(input, toFraction);
+}
+
 /**
  * Parses a string into a whole number part, a numerator, and a denominator.
  * @param {string} input - The string to be parsed.
  * @returns {Object} An object containing the whole number, numerator, and denominator.
  */
-function parseMixedNumber(input) {
+function parseMixedNumber(input, toFraction=true) {
     if (typeof input !== 'string' || input.trim() === '') {
         throw new Error('Invalid input: input must be a non-empty string.');
     }
@@ -451,7 +456,13 @@ function parseMixedNumber(input) {
     }
 
     let result = new mixedNumber(whole, frac);
-    return result;
+
+    if (toFraction){
+        return result.toFraction()
+    } else {
+        return result;
+    }
+    
 }
 
 function parseFraction(input){
@@ -512,21 +523,38 @@ class additionQuestion{
     constructor(f1, f2, div_id, operation="+", showInstructions=true){
         // f1 and f2 are Fraction or mixedNumber instances
 
-        this.f1 = f1 instanceof Fraction ? new mixedNumber(0, f1): f1;
-        this.f2 = f2 instanceof Fraction ? new mixedNumber(0, f2): f2;
+        this.f1Input = f1;
+        this.f2Input = f2;
 
-        // let a = b;
+        // Error checking
+        if (f1 instanceof Fraction){
+            this.f1 = f1;
+        } else if (f1 instanceof mixedNumber){
+            this.f1 = f1.toFraction();
+        } else {
+            throw new Error(`Error: f1 (${f1}) needs to be a Fraction or mixedNumber.`);
+        }
+        if (f2 instanceof Fraction){
+            this.f2 = f2;
+        } else if (f2 instanceof mixedNumber){
+            this.f2 = f2.toFraction();
+        } else {
+            throw new Error(`Error: f2 (${f2}) needs to be a Fraction or mixedNumber.`);
+        }
+
+
+        console.log("f1 + f2", this.f1, this.f2);
 
         this.divContainer = doc.getElementById(div_id);
         if (operation === "-"){
             this.operator = "-"
-            this.mixedSum = subtractMixedNumbers(this.f1, this.f2);
+            this.sum = subtractMixedNumbers(this.f1, this.f2);
         } else {
             this.operator = "+"
-            this.mixedSum = addMixedNumbers(this.f1, this.f2);
+            this.sum = addFractions(this.f1, this.f2);
         }
         
-        console.log(`Q mixedSum: ${this.mixedSum.toString()}`);
+        console.log(`Q fSum: ${this.sum.toString()}`);
 
         this.nrows = 0;
         this.ncols = 6;
@@ -591,26 +619,15 @@ class additionQuestion{
         
         //this.div.appendChild(this.getTextSpan('Question: ',2,1));
 
-        this.insertFraction(this.f1, 2, 2)
+        this.insertFraction(this.f1Input, 2, 2)
         this.insertOperator(this.operator, 2, 3);
-        this.insertFraction(this.f2, 2, 4);
+        this.insertFraction(this.f2Input, 2, 4);
         this.insertOperator("=", 2, 5);
 
         this.insertAnswerDisplay(2,8);
 
         this.insertAnswerTextInput(2,6);
         this.insertOperator("=", 2, 7);
-
-        this.insertAnswerButton(2,9);
-        
-        // if (this.useMixedInputs){
-        //     this.div.appendChild(this.getMixedInputs());
-        // } else {
-        //     // this.div.appendChild(this.getFractionInputs());
-        //     this.insertFractionInputs(2,6);
-        // }
-        
-        // this.div.appendChild(this.getAnswerButton());
         
         this.divContainer.appendChild(this.div);
 
@@ -636,17 +653,20 @@ class additionQuestion{
         this.answerTextInput.style.backgroundColor = "lightblue";
 
         this.answerTextInput.addEventListener("keyup", () => {
-            this.answer = parseMixedNumber(this.answerTextInput.value);
+            this.answer = parseMixedNumber(this.answerTextInput.value, false);
             //this.answer.insertIntoDiv(this.answerTextDisplay);
             if (this.answer.isValid){
                 this.answerTextDisplay.style.backgroundColor = 'lightgreen';
                 this.answerTextDisplay.innerHTML = "";
                 this.answerTextDisplay.appendChild(this.answer.getElement());
+                this.answerTextInput.style.backgroundColor = 'lightblue';
             } else {
                 this.answerTextDisplay.style.backgroundColor = 'darksalmon';
+                this.answerTextInput.style.backgroundColor = 'lightsalmon';
             }
         })
         this.answerTextInput.addEventListener('change', () => {
+            this.answer = strToFraction(this.answerTextInput.value);
             this.checkAnswer();
         })
 
@@ -721,10 +741,12 @@ class additionQuestion{
         let result = '';
         let color = 'white';
 
-        console.log("User Answer: ", this.answer.toString());
-        console.log("Computed answer: mixedSum: ", this.mixedSum.toString());
+        this.userAnswer = strToFraction(this.answerTextInput.value, false);
 
-        if (this.mixedSum.isSameAs(this.answer)){
+        console.log("User Answer: ", this.answer.toString());
+        console.log("Computed answer: mixedSum: ", this.sum.toString());
+
+        if (this.sum.isSameAs(this.answer)){
             this.answerIsCorrect = true;
             result += " is correct. ";
             //console.log("Same");
@@ -734,7 +756,7 @@ class additionQuestion{
         }
 
         let r = {
-            answer: this.answer,
+            answer: this.userAnswer,
             correctAnswer: this.mixedSum,
             note: result,
             isCorrect: this.answerIsCorrect

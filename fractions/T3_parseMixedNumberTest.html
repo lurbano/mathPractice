@@ -44,7 +44,8 @@
 
     fracInput.addEventListener("keyup", function(){
         //console.log(this.value);
-        let mixed = parseMixedNumber(this.value);
+        let mixed = parseMixedNumber(this.value, false);
+        //console.log("mixed =", mixed);
         mixed.insertElement("fracOutput",  replace=true, width="3em");
         improperOutput.innerHTML = "";
         mixed.toFraction().insertElement("improperOutput", replace=true)
