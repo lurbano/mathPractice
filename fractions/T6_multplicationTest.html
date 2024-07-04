@@ -14,8 +14,12 @@
 
     <hr>
     <div id="instructions"></div>
-    Multiply fractions
+    Add fractions
     <div id="mult0"></div>
+
+    Multiply fractions
+    <div id="mult1"></div>
+    
 
     Multiply fractions with negative numbers
     <div id="phase1"></div>
@@ -33,18 +37,18 @@
 <script>
     
 
-    let f1 = new Fraction(1,2);
-    let f2 = new Fraction(5, 6);
-    new fractionQuestion([f1, f2], 'mult0', "+");
+    // let f1 = new Fraction(1,2);
+    // let f2 = new Fraction(5, 6);
+    new fractionQuestion(["1/2", "5/6"], 'mult0', "+");
 
-    let f3 = new Fraction(-1,2);
-    let f4 = new Fraction(5, 6);
-    new additionQuestion(f3, f4, 'addFrac1');
+    // let f3 = new Fraction(-1,2);
+    // let f4 = new Fraction(5, 6);
+    new fractionQuestion(["1/2", "3/5"], 'mult1', "x");
 
 
-    let m1 = new mixedNumber(1, f1);
-    let m2 = new mixedNumber(4, f2);
-    new additionQuestion(m1, m2, "addMixed");
+    // let m1 = new mixedNumber(1, f1);
+    // let m2 = new mixedNumber(4, f2);
+    // new additionQuestion(m1, m2, "addMixed");
     
 
     

@@ -827,30 +827,15 @@ class fractionQuestion{
             if (fracs[i] instanceof Fraction){
                 this.fracs.push(fracs[i]);
             } else if (fracs[i] instanceof mixedNumber){
-                this.fracs[i].push(f1.toFraction());
+                this.fracs.push(f1.toFraction());
             } else if ((typeof fracs[i] === 'string') && (parseFraction(fracs[i]).isValid)){
-                this.fracs[i]( parseFraction(fracs[i]) );
+                let frac = parseFraction(fracs[i]);
+                this.fracsInput[i] = frac;
+                this.fracs.push( frac );
             } else {
                 throw new Error(`Error: frac[${i}] (${fracs[i]}) needs to be a Fraction or mixedNumber or a fraction/mixed number in string form.`);
             }
         }
-
-        // if (f1 instanceof Fraction){
-        //     this.f1 = f1;
-        // } else if (f1 instanceof mixedNumber){
-        //     this.f1 = f1.toFraction();
-        // } else if ((typeof f1 === 'string') && (parseFraction(f1).isValid)){
-        //     this.f1 = parseFraction(f1);
-        // } else {
-        //     throw new Error(`Error: f1 (${f1}) needs to be a Fraction or mixedNumber.`);
-        // }
-        // if (f2 instanceof Fraction){
-        //     this.f2 = f2;
-        // } else if (f2 instanceof mixedNumber){
-        //     this.f2 = f2.toFraction();
-        // } else {
-        //     throw new Error(`Error: f2 (${f2}) needs to be a Fraction or mixedNumber.`);
-        // }
 
 
         console.log("this.fracs", this.fracs);
@@ -860,18 +845,27 @@ class fractionQuestion{
             // - only works for two fractions at the moment
             this.operator = "-"
             this.fracs[1] = this.fracs[1].multiplyByWhole(-1);
-            this.sum = addFractions(this.fracs[0], this.fracs[1]);
-        } else if (operation === "+"){
+            this.result = addFractions(this.fracs[0], this.fracs[1]);
+        } 
+        else if (operation === "+"){
             this.operator = "+";
-            this.sum = new Fraction();
+            this.result = new Fraction();
             for (let i in this.fracs){
-                this.sum = addFractions(this.sum, this.fracs[i]);
+                this.result = addFractions(this.result, this.fracs[i]);
             }
-        } else {
+        } 
+        else if (operation === "x" || operation === "×"){
+            this.operator = "×"
+            this.result = new Fraction(1,1);
+            for (let i in this.fracs){
+                this.result = multiplyFractions(this.result, this.fracs[i]);
+            }
+        }
+        else {
             throw new Error(`Incorrect operator (${operator}). Should be "+" or "-" or "x"`)
         }
         
-        console.log(`Q fSum: ${this.sum.toString()}`);
+        console.log(`Q fSum: ${this.result.toString()}`);
 
         this.nrows = 0;
         this.ncols = 6;
@@ -900,36 +894,22 @@ class fractionQuestion{
         this.insertControlsRow();
         this.insertQuestionRow();
 
-        this.nResults = 0;
-        this.results = [];
-        this.resultsDiv = doc.createElement('div');
-        this.resultsDiv.style.border = '1px solid green';
-        this.resultsDiv.innerHTML = "Results: "
-        this.divContainer.appendChild(this.resultsDiv);
+        this.nUserResults = 0;
+        this.userResults = [];
+        this.userResultsDiv = doc.createElement('div');
+        this.userResultsDiv.style.border = '1px solid green';
+        this.userResultsDiv.innerHTML = "Results: "
+        this.divContainer.appendChild(this.userResultsDiv);
 
     }
     insertInstructions(div_id){
         let instructions = 'Add:';
-        // if (this.useMixedInputs){
-        //     instructions += "Enter answers as a mixed number.<br>";
-        // } else {
-        //     instructions += "Enter answer as a fraction. The fraction may be improper.<br>";
-        // }
-        // if (this.useSimplifiedInputs){
-        //     instructions += "Be sure to simplify your results.<br>"
-        // }
+
         let insDiv = doc.getElementById(div_id);
         insDiv.innerHTML = instructions;
     }
     insertControlsRow(){
-        // this.nrows += 1;
-        // this.div.style.gridTemplateRows = `repeat(${this.nrows}, 1fr)`;
 
-        // let checkDiv = this.getMixedCheckbox("Mixed Number");
-        // checkDiv.style.gridRow = `1`;
-        // checkDiv.style.gridColumn = '8';
-
-        // this.div.appendChild(checkDiv);
     }
     insertQuestionRow(){
         this.div.style.gridTemplateRows = `repeat(${this.nrows}, 1fr)`;
@@ -1066,9 +1046,9 @@ class fractionQuestion{
         this.userAnswer = strToFraction(this.answerTextInput.value, false);
 
         console.log("User Answer: ", this.answer.toString());
-        console.log("Computed answer: mixedSum: ", this.sum.toString());
+        console.log("Computed answer: result: ", this.result.toString());
 
-        if (this.sum.isSameAs(this.answer)){
+        if (this.result.isSameAs(this.answer)){
             this.answerIsCorrect = true;
             result += " is correct. ";
             //console.log("Same");
@@ -1083,20 +1063,20 @@ class fractionQuestion{
             note: result,
             isCorrect: this.answerIsCorrect
         }
-        this.results.push(r);
+        this.userResults.push(r);
         this.insertResults();
 
     }
 
     insertResults(){
-        this.resultsDiv.innerHTML = "";
-        for (const result of this.results) {
+        this.userResultsDiv.innerHTML = "";
+        for (const result of this.userResults) {
             let div = doc.createElement('div');
             div.appendChild(result['answer'].getElement());
             div.appendChild(doc.createTextNode(result['note']));
 
             div.style.backgroundColor = result['isCorrect'] ? 'lightGreen' : 'darkSalmon';
-            this.resultsDiv.appendChild(div);
+            this.userResultsDiv.appendChild(div);
         }
 
     }
