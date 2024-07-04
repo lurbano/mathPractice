@@ -205,9 +205,20 @@ class Fraction {
 
 class mixedNumber{
     constructor(whole = 0, frac = new Fraction()){
-        this.isValid = true;
-        this.whole = whole;
+        this.whole = parseInt(whole);
+        if (typeof whole === "number" && Number.isFinite(whole)) {
+            this.isValid = true;
+        } else {
+            this.isValid = false;
+        }
+
         this.frac = frac;
+        if (this.isValid && frac.isValid){
+            this.isValid = true;
+        } else {
+            this.isValid = false;
+        }
+        
     }
 
     toFraction(){
@@ -437,11 +448,18 @@ function parseMixedNumber(input, toFraction=true) {
     let parts = input.trim().split(' ');
     
     if (parts.length === 2) {
-        
-        // If there are two parts, the first part is the whole number
-        whole = parseInt(parts[0], 10);
         // The second part is the fraction
         frac = parseFraction(parts[1]);
+
+        // If there are two parts, the first part is the whole number
+        if (parts[0] === '-') {
+            whole = 0;
+            frac = frac.multiplyByWhole(-1); // make fraction negative
+        } else {
+            whole = parseInt(parts[0], 10);
+        }
+        
+        
 
     } else if (parts.length === 1) {
         // If there is only one part, it could be a whole number or a fraction
@@ -452,7 +470,8 @@ function parseMixedNumber(input, toFraction=true) {
             whole = parseInt(parts[0], 10);
         }
     } else {
-        throw new Error('3. Invalid input format.');
+        // throw new Error('3. Invalid input format.');
+        whole = "NaF";
     }
 
     let result = new mixedNumber(whole, frac);
@@ -548,7 +567,8 @@ class additionQuestion{
         this.divContainer = doc.getElementById(div_id);
         if (operation === "-"){
             this.operator = "-"
-            this.sum = subtractMixedNumbers(this.f1, this.f2);
+            // this.sum = subtractMixedNumbers(this.f1, this.f2);
+            this.sum = addFractions(this.f1, this.f2.multiplyByWhole(-1));
         } else {
             this.operator = "+"
             this.sum = addFractions(this.f1, this.f2);
@@ -655,6 +675,7 @@ class additionQuestion{
         this.answerTextInput.addEventListener("keyup", () => {
             this.answer = parseMixedNumber(this.answerTextInput.value, false);
             //this.answer.insertIntoDiv(this.answerTextDisplay);
+            // console.log("isValid? ", this.answer.isValid, this.answer);
             if (this.answer.isValid){
                 this.answerTextDisplay.style.backgroundColor = 'lightgreen';
                 this.answerTextDisplay.innerHTML = "";
@@ -662,7 +683,7 @@ class additionQuestion{
                 this.answerTextInput.style.backgroundColor = 'lightblue';
             } else {
                 this.answerTextDisplay.style.backgroundColor = 'darksalmon';
-                this.answerTextInput.style.backgroundColor = 'lightsalmon';
+                this.answerTextInput.style.backgroundColor = 'darksalmon';
             }
         })
         this.answerTextInput.addEventListener('change', () => {
