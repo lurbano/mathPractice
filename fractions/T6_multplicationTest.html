@@ -11,6 +11,7 @@
 </head>
 <body>
 
+    <div id="Questions"></div>
 
     <hr>
     <div id="instructions"></div>
@@ -37,18 +38,28 @@
 <script>
     
 
-    // let f1 = new Fraction(1,2);
-    // let f2 = new Fraction(5, 6);
-    new fractionQuestion(["1/2", "5/6"], 'mult0', "+");
+    let f1 = new Fraction(1,2);
+    let f2 = new Fraction(5, 6);
+    new FractionQuestion({
+        fracs: ["1/2", "5/6"], 
+        operation: "+", 
+        div_id: 'Questions', 
+        instructions: "Find the sum:"
+    });
 
-    // let f3 = new Fraction(-1,2);
-    // let f4 = new Fraction(5, 6);
-    new fractionQuestion(["1/2", "3/5"], 'mult1', "x");
+    new FractionQuestion({
+        fracs: ["1/2", "5/6"], 
+        operation: "x", 
+        div_id: 'Questions', 
+        instructions: "Multiply:"
+    });
 
-
-    // let m1 = new mixedNumber(1, f1);
-    // let m2 = new mixedNumber(4, f2);
-    // new additionQuestion(m1, m2, "addMixed");
+    new FractionQuestion({
+        fracs: ["2 1/2", "5/6"], 
+        operation: "x", 
+        div_id: 'Questions', 
+        instructions: "Multiply with mixed number:"
+    });
     
 
     

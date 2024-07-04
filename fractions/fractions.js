@@ -3,10 +3,7 @@ let showElementBorders = false;
 
 class Fraction {
     constructor(numerator=0, denominator=1) {
-        this.isValid = false;
-        // this.isNegative = false;
-        // console.log("Fraction 1:", numerator, denominator)
-        
+        this.isValid = false; 
 
         try {
             //check if denominator is a number
@@ -42,7 +39,6 @@ class Fraction {
             console.log(error);
         }
 
-        // console.log("Fraction 2:", this.numerator, this.denominator)
         if (this.isValid) {
             if (this.isReducable()){
                 this.reduced = this.reduce(); //reduced fraction
@@ -53,8 +49,6 @@ class Fraction {
             // for negative fraction, make sure the numerator
             //   is negative and the denominator is positive.
             if (this.numerator/this.denominator < 0) {
-                // this.isNegative = true;
-                // console.log("negative:", this.numerator, this.denominator)
                 this.numerator = -1 * Math.abs(this.numerator);
                 this.denominator = Math.abs(this.denominator);
             }
@@ -148,8 +142,7 @@ class Fraction {
             let wholeNumber = Math.floor(Math.abs(this.numerator) 
                                          / Math.abs(this.denominator));
             let remainder = Math.abs(this.numerator % this.denominator); 
-            // console.log(`making mixed(): ${this.numerator}/${this.denominator}`)
-            // console.log(`making mixed(): whole = ${wholeNumber}, remainder=${remainder}`)
+
             if (this.isNegative()){
                 if (wholeNumber === 0){
                     remainder *= -1;
@@ -223,7 +216,7 @@ class mixedNumber{
 
     toFraction(){
         let n = this.frac.numerator;
-        // console.log("toFraction:", this.whole, n, "/", this.frac.denominator)
+
         if (this.whole === 0){
             
         } else if (this.whole < 0) {
@@ -231,15 +224,13 @@ class mixedNumber{
         } else {
             n += this.whole * this.frac.denominator;
         }
-        // console.log("n", this.whole,  n, "/", this.frac.denominator)
+
         return new Fraction(n, this.frac.denominator);
 
     }
 
     simplify(){
         let frac = this.toFraction();
-        // console.log("frac: ", frac)
-        // console.log("Simplify: ", frac.toString())
         return frac.toMixed();
     }
 
@@ -271,8 +262,6 @@ class mixedNumber{
     // to show in fraction form
     getElement(width=undefined) {
         let m = doc.createElement('span');
-        // m.style.display = 'grid';
-        // m.style.gridTemplateColumns = '1fr 1fr';
         m.style.display = 'inline-block';
         m.style.alignItems = 'center';
         if (width !== undefined){
@@ -354,26 +343,11 @@ function divideFractions(frac1, frac2){
 }
 
 
-// function addMixedNumbers(m1, m2){
-//     let whole = m1.whole + m2.whole;
-//     let f1 = m1.frac;
-//     let f2 = m2.frac;
-//     if (m1.whole < 0 && !m1.frac.isNegative){
-//         f1 = f1.multiplyByWhole(-1);
-//     }
-//     if (m2.whole < 0 && !m2.frac.isNegative){
-//         f2 = f2.multiplyByWhole(-1);
-//     }
-//     let fracSum = addFractions(f1, f2);
-//     whole += fracSum.mixed().whole;
-//     return new mixedNumber(whole, fracSum.mixed().frac);
-// }
-
 function addMixedNumbers(m1, m2){
 
     let f1 = m1;
     let f2 = m2;
-    // console.log(`Improper: ${f1.toString()} + ${f2.toString()}`)
+
     let result = addFractions(m1.makeImproper(), m2.makeImproper())
     return result.mixed()
 
@@ -388,28 +362,6 @@ function subtractMixedNumbers(m1, m2){
     return result.mixed()
 }
 
-// function subtractMixedNumbers(m1, m2){
-//     let whole = m1.whole - m2.whole;
-    
-//     if ((m1.whole < 0 && !m1.frac.isNegative)){
-//         let newFrac = new Fraction(m1.frac.numerator * -1, m1.frac.denominator);
-//         m1 = new mixedNumber(m1.whole, newFrac);
-//     }
-
-//     if (!(m2.whole < 0 && !m2.frac.isNegative)){
-//         let newFrac = new Fraction(m2.frac.numerator * -1, m2.frac.denominator);
-//         m2 = new mixedNumber(m2.whole, newFrac);
-//     }
-//     //console.log("newFrac2:", newFrac2.toString());
-//     console.log("newMixed:", m1.toString(), m2.toString())
-
-//     let fracSum = addFractions(m1.frac, m2.frac);
-//     console.log('fracSum:', fracSum.toString(), ",", 
-//                  fracSum.mixed().toString());
-//     let mixedSum = new mixedNumber(whole+fracSum.mixed().whole, fracSum.mixed().frac);
-//     console.log("subtract Result:", mixedSum.toString())
-//     return mixedSum;
-// }
 
 
 function gridDiv(html="", gridClass=undefined){
@@ -490,6 +442,7 @@ function parseFraction(input){
         return new Fraction();
     }
     let fractionParts = input.split('/');
+    console.log('fractionParts', fractionParts)
     if (fractionParts.length === 2) {
         let n = parseInt(fractionParts[0], 10);
         let d = parseInt(fractionParts[1], 10);
@@ -613,31 +566,13 @@ class additionQuestion{
     }
     insertInstructions(div_id){
         let instructions = 'Add:';
-        // if (this.useMixedInputs){
-        //     instructions += "Enter answers as a mixed number.<br>";
-        // } else {
-        //     instructions += "Enter answer as a fraction. The fraction may be improper.<br>";
-        // }
-        // if (this.useSimplifiedInputs){
-        //     instructions += "Be sure to simplify your results.<br>"
-        // }
         let insDiv = doc.getElementById(div_id);
         insDiv.innerHTML = instructions;
     }
     insertControlsRow(){
-        // this.nrows += 1;
-        // this.div.style.gridTemplateRows = `repeat(${this.nrows}, 1fr)`;
-
-        // let checkDiv = this.getMixedCheckbox("Mixed Number");
-        // checkDiv.style.gridRow = `1`;
-        // checkDiv.style.gridColumn = '8';
-
-        // this.div.appendChild(checkDiv);
     }
     insertQuestionRow(){
         this.div.style.gridTemplateRows = `repeat(${this.nrows}, 1fr)`;
-        
-        //this.div.appendChild(this.getTextSpan('Question: ',2,1));
 
         this.insertFraction(this.f1Input, 2, 2)
         this.insertOperator(this.operator, 2, 3);
@@ -674,8 +609,7 @@ class additionQuestion{
 
         this.answerTextInput.addEventListener("keyup", () => {
             this.answer = parseMixedNumber(this.answerTextInput.value, false);
-            //this.answer.insertIntoDiv(this.answerTextDisplay);
-            // console.log("isValid? ", this.answer.isValid, this.answer);
+
             if (this.answer.isValid){
                 this.answerTextDisplay.style.backgroundColor = 'lightgreen';
                 this.answerTextDisplay.innerHTML = "";
@@ -814,13 +748,23 @@ class additionQuestion{
     
 }
 
-class fractionQuestion{
-    constructor(fracs, div_id, operation="+", showInstructions=true){
+class FractionQuestion{
+
+    constructor({
+        fracs = [],
+        operation = "+",
+        div_id = undefined,
+        instructions = "", 
+        displayAsMixed = true
+    }) {
         // fracs is an array of Fraction or mixedNumber instances or string of fraction or mixed numbers
 
         this.fracsInput = fracs;
         this.fracs = [];
         this.col = 0;
+
+        this.displayAsMixed = displayAsMixed;
+
  
         // Error checking
         for (let i in fracs){
@@ -828,8 +772,8 @@ class fractionQuestion{
                 this.fracs.push(fracs[i]);
             } else if (fracs[i] instanceof mixedNumber){
                 this.fracs.push(f1.toFraction());
-            } else if ((typeof fracs[i] === 'string') && (parseFraction(fracs[i]).isValid)){
-                let frac = parseFraction(fracs[i]);
+            } else if ((typeof fracs[i] === 'string') && (strToFraction(fracs[i]).isValid)){
+                let frac = strToFraction(fracs[i]);
                 this.fracsInput[i] = frac;
                 this.fracs.push( frac );
             } else {
@@ -841,6 +785,7 @@ class fractionQuestion{
         console.log("this.fracs", this.fracs);
 
         this.divContainer = doc.getElementById(div_id);
+        //this.divContainer = doc.createElement("div");
         if (operation === "-"){
             // - only works for two fractions at the moment
             this.operator = "-"
@@ -870,15 +815,15 @@ class fractionQuestion{
         this.nrows = 0;
         this.ncols = 6;
 
-        if (showInstructions) {
+        if (instructions) {
             this.instructionsDiv = doc.createElement('div');
-            this.instructionsDiv.innerHTML = "Find the sum:";
+            this.instructionsDiv.innerHTML = instructions;
             this.divContainer.appendChild(this.instructionsDiv);
         }
 
         this.div = doc.createElement('div');
         this.div.style.display = 'grid';
-        //this.div.style.gridTemplateColumns = '15em 2em 2em 2em 2em 3em 2em 2em';
+
         this.div.style.gridTemplateColumns = "repeat(30, auto)";
         this.div.style.gridTemplateRows = '2fr';
         this.div.style.border = '1px solid red';
@@ -890,7 +835,6 @@ class fractionQuestion{
         this.useMixedInputs = false;
         this.useSimplifiedInputs = true;
 
-        //if (showInstructions) this.insertInstructions();
         this.insertControlsRow();
         this.insertQuestionRow();
 
@@ -955,8 +899,7 @@ class fractionQuestion{
 
         this.answerTextInput.addEventListener("keyup", () => {
             this.answer = parseMixedNumber(this.answerTextInput.value, false);
-            //this.answer.insertIntoDiv(this.answerTextDisplay);
-            // console.log("isValid? ", this.answer.isValid, this.answer);
+
             if (this.answer.isValid){
                 this.answerTextDisplay.style.backgroundColor = 'lightgreen';
                 this.answerTextDisplay.innerHTML = "";
@@ -980,7 +923,7 @@ class fractionQuestion{
     }
 
     insertFraction(frac, r, c){
-        let div = frac.getElement();
+        let div = this.displayAsMixed ? frac.toMixed().getElement() : frac.getElement();
         div.style.gridRow = r;
         div.style.gridColumn = c;
         if (showElementBorders) div.style.border = '1px solid blue';
@@ -1094,3 +1037,4 @@ class fractionQuestion{
     }
     
 }
+
