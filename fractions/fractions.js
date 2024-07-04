@@ -813,3 +813,304 @@ class additionQuestion{
     }
     
 }
+
+class fractionQuestion{
+    constructor(fracs, div_id, operation="+", showInstructions=true){
+        // fracs is an array of Fraction or mixedNumber instances or string of fraction or mixed numbers
+
+        this.fracsInput = fracs;
+        this.fracs = [];
+        this.col = 0;
+ 
+        // Error checking
+        for (let i in fracs){
+            if (fracs[i] instanceof Fraction){
+                this.fracs.push(fracs[i]);
+            } else if (fracs[i] instanceof mixedNumber){
+                this.fracs[i].push(f1.toFraction());
+            } else if ((typeof fracs[i] === 'string') && (parseFraction(fracs[i]).isValid)){
+                this.fracs[i]( parseFraction(fracs[i]) );
+            } else {
+                throw new Error(`Error: frac[${i}] (${fracs[i]}) needs to be a Fraction or mixedNumber or a fraction/mixed number in string form.`);
+            }
+        }
+
+        // if (f1 instanceof Fraction){
+        //     this.f1 = f1;
+        // } else if (f1 instanceof mixedNumber){
+        //     this.f1 = f1.toFraction();
+        // } else if ((typeof f1 === 'string') && (parseFraction(f1).isValid)){
+        //     this.f1 = parseFraction(f1);
+        // } else {
+        //     throw new Error(`Error: f1 (${f1}) needs to be a Fraction or mixedNumber.`);
+        // }
+        // if (f2 instanceof Fraction){
+        //     this.f2 = f2;
+        // } else if (f2 instanceof mixedNumber){
+        //     this.f2 = f2.toFraction();
+        // } else {
+        //     throw new Error(`Error: f2 (${f2}) needs to be a Fraction or mixedNumber.`);
+        // }
+
+
+        console.log("this.fracs", this.fracs);
+
+        this.divContainer = doc.getElementById(div_id);
+        if (operation === "-"){
+            // - only works for two fractions at the moment
+            this.operator = "-"
+            this.fracs[1] = this.fracs[1].multiplyByWhole(-1);
+            this.sum = addFractions(this.fracs[0], this.fracs[1]);
+        } else if (operation === "+"){
+            this.operator = "+";
+            this.sum = new Fraction();
+            for (let i in this.fracs){
+                this.sum = addFractions(this.sum, this.fracs[i]);
+            }
+        } else {
+            throw new Error(`Incorrect operator (${operator}). Should be "+" or "-" or "x"`)
+        }
+        
+        console.log(`Q fSum: ${this.sum.toString()}`);
+
+        this.nrows = 0;
+        this.ncols = 6;
+
+        if (showInstructions) {
+            this.instructionsDiv = doc.createElement('div');
+            this.instructionsDiv.innerHTML = "Find the sum:";
+            this.divContainer.appendChild(this.instructionsDiv);
+        }
+
+        this.div = doc.createElement('div');
+        this.div.style.display = 'grid';
+        //this.div.style.gridTemplateColumns = '15em 2em 2em 2em 2em 3em 2em 2em';
+        this.div.style.gridTemplateColumns = "repeat(30, auto)";
+        this.div.style.gridTemplateRows = '2fr';
+        this.div.style.border = '1px solid red';
+        this.div.style.alignItems = 'center';
+
+        this.answer = {};
+        this.showAnswerButton = false;
+
+        this.useMixedInputs = false;
+        this.useSimplifiedInputs = true;
+
+        //if (showInstructions) this.insertInstructions();
+        this.insertControlsRow();
+        this.insertQuestionRow();
+
+        this.nResults = 0;
+        this.results = [];
+        this.resultsDiv = doc.createElement('div');
+        this.resultsDiv.style.border = '1px solid green';
+        this.resultsDiv.innerHTML = "Results: "
+        this.divContainer.appendChild(this.resultsDiv);
+
+    }
+    insertInstructions(div_id){
+        let instructions = 'Add:';
+        // if (this.useMixedInputs){
+        //     instructions += "Enter answers as a mixed number.<br>";
+        // } else {
+        //     instructions += "Enter answer as a fraction. The fraction may be improper.<br>";
+        // }
+        // if (this.useSimplifiedInputs){
+        //     instructions += "Be sure to simplify your results.<br>"
+        // }
+        let insDiv = doc.getElementById(div_id);
+        insDiv.innerHTML = instructions;
+    }
+    insertControlsRow(){
+        // this.nrows += 1;
+        // this.div.style.gridTemplateRows = `repeat(${this.nrows}, 1fr)`;
+
+        // let checkDiv = this.getMixedCheckbox("Mixed Number");
+        // checkDiv.style.gridRow = `1`;
+        // checkDiv.style.gridColumn = '8';
+
+        // this.div.appendChild(checkDiv);
+    }
+    insertQuestionRow(){
+        this.div.style.gridTemplateRows = `repeat(${this.nrows}, 1fr)`;
+        
+        for (let i in this.fracsInput){
+            this.col = 2*i+2;
+            this.insertFraction(this.fracsInput[i], 2, this.col);
+            this.col += 1;
+            if (i < this.fracsInput.length-1){
+                this.insertOperator(this.operator, 2, this.col);
+            }
+        }
+        
+        this.insertOperator("=", 2, this.col);
+
+        this.insertAnswerDisplay(2,this.col+3);
+
+        this.insertAnswerTextInput(2,this.col+1);
+        this.insertOperator("=", 2, this.col+2);
+        
+        this.divContainer.appendChild(this.div);
+
+    }
+
+    insertAnswerDisplay(r,c){
+        this.answerTextDisplay = doc.createElement("span");
+        this.answerTextDisplay.style.gridRow = r;
+        this.answerTextDisplay.style.gridColumn = c;
+        this.answerTextDisplay.style.backgroundColor = "lightblue";
+        this.answerTextDisplay.style.width = "5em";
+        //this.answerTextDisplay.innerHTML = "hi";
+        this.div.appendChild(this.answerTextDisplay);
+    
+    }
+
+    insertAnswerTextInput(r,c){
+        this.answerTextInput = doc.createElement("input");
+        this.answerTextInput.type = "text";
+        this.answerTextInput.style.gridRow = r;
+        this.answerTextInput.style.gridColumn = c;
+        this.answerTextInput.style.width = '5em';
+        this.answerTextInput.style.backgroundColor = "lightblue";
+
+        this.answerTextInput.addEventListener("keyup", () => {
+            this.answer = parseMixedNumber(this.answerTextInput.value, false);
+            //this.answer.insertIntoDiv(this.answerTextDisplay);
+            // console.log("isValid? ", this.answer.isValid, this.answer);
+            if (this.answer.isValid){
+                this.answerTextDisplay.style.backgroundColor = 'lightgreen';
+                this.answerTextDisplay.innerHTML = "";
+                this.answerTextDisplay.appendChild(this.answer.getElement());
+                this.answerTextInput.style.backgroundColor = 'lightblue';
+            } else {
+                this.answerTextDisplay.style.backgroundColor = 'darksalmon';
+                this.answerTextInput.style.backgroundColor = 'darksalmon';
+            }
+        })
+        this.answerTextInput.addEventListener('change', () => {
+            this.answer = strToFraction(this.answerTextInput.value);
+            this.checkAnswer();
+        })
+
+        this.div.appendChild(this.answerTextInput);
+    }
+
+    insertAnswerButton(r,c){
+        this.div.appendChild(this.getAnswerButton(r,c));
+    }
+
+    insertFraction(frac, r, c){
+        let div = frac.getElement();
+        div.style.gridRow = r;
+        div.style.gridColumn = c;
+        if (showElementBorders) div.style.border = '1px solid blue';
+        div.style.width = '3em';
+        this.div.appendChild(div);
+    }
+
+    getTextSpan(txt, r, c){
+        let div = doc.createElement('span');
+        div.innerText = txt;
+        div.style.gridRow = `${r}`;
+        div.style.gridCol = `${c}`;
+        if (showElementBorders) div.style.border = '1px solid blue';
+
+        return div;
+    }
+
+    getAnswerButton(r, c){
+        let div = doc.createElement('input');
+        div.type = 'button';
+        div.value = 'Check';
+        div.style.gridColumn = c;
+        div.style.gridRow = r;
+        div.style.width = '6em';
+
+        div.addEventListener('click', ()=> {
+            this.checkAnswer();
+        })
+
+        return div;
+    }
+
+
+    insertOperator(txt, r, c){
+        let div = this.getOperatorSpan(txt);
+        div.style.gridRow = r;
+        div.style.gridColumn = c;
+        div.style.width = "1em";
+        if (showElementBorders) div.style.border = '1px solid blue';
+
+        this.div.appendChild(div);
+    }
+
+    getOperatorSpan(txt){
+        let p = doc.createElement("span");
+        p.style.display = 'flex';
+        p.style.alignItems = 'center';
+        p.style.paddingRight = '0.5em';
+        p.style.paddingLeft = '0.5em';
+        // p.style.border = '1px solid blue';
+        p.innerText = txt;
+        return p;
+    }
+
+
+    checkAnswer(){
+        // Note: this.answer is continuously updated 
+        //       with the updates of the input text box
+
+        let result = '';
+        let color = 'white';
+
+        this.userAnswer = strToFraction(this.answerTextInput.value, false);
+
+        console.log("User Answer: ", this.answer.toString());
+        console.log("Computed answer: mixedSum: ", this.sum.toString());
+
+        if (this.sum.isSameAs(this.answer)){
+            this.answerIsCorrect = true;
+            result += " is correct. ";
+            //console.log("Same");
+        } else {
+            this.answerIsCorrect = false;
+            result += " is incorrect. "
+        }
+
+        let r = {
+            answer: this.userAnswer,
+            correctAnswer: this.mixedSum,
+            note: result,
+            isCorrect: this.answerIsCorrect
+        }
+        this.results.push(r);
+        this.insertResults();
+
+    }
+
+    insertResults(){
+        this.resultsDiv.innerHTML = "";
+        for (const result of this.results) {
+            let div = doc.createElement('div');
+            div.appendChild(result['answer'].getElement());
+            div.appendChild(doc.createTextNode(result['note']));
+
+            div.style.backgroundColor = result['isCorrect'] ? 'lightGreen' : 'darkSalmon';
+            this.resultsDiv.appendChild(div);
+        }
+
+    }
+
+    insertCommentRow(html){
+        this.nrows += 1;
+        this.div.style.gridTemplateRows = `repeat(${this.nrows}, 1fr)`;
+        
+        let div = doc.createElement('span');
+        div.style.border = '1px solid blue';
+        //div.style.gridColumn = `1 / ${this.ncols+1}`;
+
+        div.innerHTML = html;
+        this.div.appendChild(div);
+    }
+    
+}

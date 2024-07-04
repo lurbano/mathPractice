@@ -15,7 +15,7 @@
     <hr>
     <div id="instructions"></div>
     Multiply fractions
-    <div id="phase0"></div>
+    <div id="mult0"></div>
 
     Multiply fractions with negative numbers
     <div id="phase1"></div>
@@ -35,7 +35,7 @@
 
     let f1 = new Fraction(1,2);
     let f2 = new Fraction(5, 6);
-    new multiplicationQuestion(f1, f2, 'addFrac');
+    new fractionQuestion([f1, f2], 'mult0', "+");
 
     let f3 = new Fraction(-1,2);
     let f4 = new Fraction(5, 6);
