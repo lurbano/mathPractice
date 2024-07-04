@@ -442,7 +442,6 @@ function parseFraction(input){
         return new Fraction();
     }
     let fractionParts = input.split('/');
-    console.log('fractionParts', fractionParts)
     if (fractionParts.length === 2) {
         let n = parseInt(fractionParts[0], 10);
         let d = parseInt(fractionParts[1], 10);
@@ -781,9 +780,6 @@ class FractionQuestion{
             }
         }
 
-
-        console.log("this.fracs", this.fracs);
-
         this.divContainer = doc.getElementById(div_id);
         //this.divContainer = doc.createElement("div");
         if (operation === "-"){
@@ -810,7 +806,7 @@ class FractionQuestion{
             throw new Error(`Incorrect operator (${operator}). Should be "+" or "-" or "x"`)
         }
         
-        console.log(`Q fSum: ${this.result.toString()}`);
+        //console.log(`Q fSum: ${this.result.toString()}`);
 
         this.nrows = 0;
         this.ncols = 6;

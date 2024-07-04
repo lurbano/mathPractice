@@ -11,26 +11,12 @@
 </head>
 <body>
 
+    <hr>
+    
     <div id="Questions"></div>
 
     <hr>
-    <div id="instructions"></div>
-    Add fractions
-    <div id="mult0"></div>
 
-    Multiply fractions
-    <div id="mult1"></div>
-    
-
-    Multiply fractions with negative numbers
-    <div id="phase1"></div>
-    <hr>
-   
-    Multiply mixed numbers
-    <div id="phase2"></div>
-
-
-    <hr>
 
 
 </body>
@@ -59,6 +45,14 @@
         operation: "x", 
         div_id: 'Questions', 
         instructions: "Multiply with mixed number:"
+    });
+    
+
+    new FractionQuestion({
+        fracs: ["2 1/2", "-5/6"], 
+        operation: "x", 
+        div_id: 'Questions', 
+        instructions: "Multiply with negative number:"
     });
     
 
