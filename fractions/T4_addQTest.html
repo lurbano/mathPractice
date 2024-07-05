@@ -11,22 +11,7 @@
 </head>
 <body>
 
-
-    <hr>
-    <div id="instructions"></div>
-    Using fraction inputs:
-    <div id="addFrac"></div>
-
-    Mixed number inputs:
-    <div id="addMixed"></div>
-    <hr>
-   
-    Negative fraction inputs:
-    <div id="addFrac1"></div>
-
-    Negative mixed number inputs:
-    <div id="addMixed1"></div>
-    <hr>
+    <div id="Questions"></div>
 
 
 </body>
@@ -35,20 +20,37 @@
     
     let f1 = strToFraction("1/2");
     let f2 = strToFraction("5/6");
-    new additionQuestion(f1, f2, 'addFrac');
+    new FractionQuestion({
+        fracs: [f1, f2], 
+        operation: "+", 
+        div_id: 'Questions', 
+        instructions: "Find the sum (Fraction inputs):"
+    });
 
-    let f3 = strToFraction("-1/2");
-    let f4 = strToFraction("5/6");
-    new additionQuestion(f3, f4, 'addFrac1');
+    new FractionQuestion({
+        fracs: ["-1/2", "5/6"], 
+        operation: "+", 
+        div_id: 'Questions', 
+        instructions: "Find the sum (w. negative number, text input):"
+    });
+
 
 
     let m1 = new mixedNumber(1, f1);
     let m2 = new mixedNumber(4, f2);
-    new additionQuestion(m1, m2, "addMixed");
+    new FractionQuestion({
+        fracs: [m1, m2], 
+        operation: "+", 
+        div_id: 'Questions', 
+        instructions: "Sum: mixedNumber inputs"
+    });
     
-    let m3 = new mixedNumber(-2, f1);
-    let m4 = new mixedNumber(4, f2);
-    new additionQuestion(m3, m4, "addMixed1");
+    new FractionQuestion({
+        fracs: ["-2 1/2", "4 5/6"], 
+        operation: "+", 
+        div_id: 'Questions', 
+        instructions: "Sum: Mixed number input as text"
+    });
     
 
 </script>

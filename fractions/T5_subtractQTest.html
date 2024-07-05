@@ -11,20 +11,7 @@
 </head>
 <body>
 
-
-    <hr>
-    <div id="instructions"></div>
-    <div id="addFrac"></div>
-    <div id="addFrac1"></div>
-    S<div id="addFrac2"></div>
-    <div id="addFrac3"></div>
-
-    Subtraction with mixed number:
-    <div id="addMixed"></div>
-    Subtraction with negative number:
-    <div id="addMixed1"></div>
-    Subtraction with negative number (Needs to be fixed):
-    <div id="addMixed2"></div>
+    <div id="Questions"></div>
     
 </body>
 
@@ -34,28 +21,55 @@
     let f1 = new Fraction(1,2);
     let f2 = new Fraction(5, 6);
     
-    q = new additionQuestion(f1, f2, 'addFrac', "+");
-    q = new additionQuestion(f2, f1, 'addFrac', "-");
-    
-    q = new additionQuestion(f1, f2, 'addFrac2', "-");
+    new FractionQuestion({
+        fracs: ["1/2", "5/6"], 
+        operation: "+", 
+        div_id: 'Questions', 
+        instructions: "Find the sum:"
+    });
 
-    let f3 = new Fraction(-5,6);
-    q = new additionQuestion(f1, f3, 'addFrac2', "-");
+    new FractionQuestion({
+        fracs: [ "5/6", "1/2"], 
+        operation: "-", 
+        div_id: 'Questions', 
+        instructions: "Subtraction."
+    });
 
-    let m1 = new mixedNumber(3, f2);
-    let m2 = new mixedNumber(1, f1);
+    new FractionQuestion({
+        fracs: [ "1/2", "5/6"], 
+        operation: "-", 
+        div_id: 'Questions', 
+        instructions: "Subtraction with negative result."
+    });
 
-    q2 = new additionQuestion(m1, m2, "addMixed", "-");
-    
-    m1 = new mixedNumber(3, f2);
-    m2 = new mixedNumber(-1, f1);
 
-    q2 = new additionQuestion(m1, m2, "addMixed1", "-");
-    
-    m1 = new mixedNumber(-3, f2);
-    m2 = new mixedNumber(-1, f1);
+    new FractionQuestion({
+        fracs: [ "5/6", "-1/2"], 
+        operation: "-", 
+        div_id: 'Questions', 
+        instructions: "Subtracting a negative number."
+    });
 
-    q2 = new additionQuestion(m1, m2, "addMixed2", "-");
+    new FractionQuestion({
+        fracs: [ "3 5/6", "1 1/2"], 
+        operation: "-", 
+        div_id: 'Questions', 
+        instructions: "Subtraction with mixed numbers"
+    });
+
+    new FractionQuestion({
+        fracs: [ "3 5/6", "-1 1/2"], 
+        operation: "-", 
+        div_id: 'Questions', 
+        instructions: "Subtraction with mixed negative numbers"
+    });
+
+    new FractionQuestion({
+        fracs: [ "-3 5/6", "-1 1/2"], 
+        operation: "-", 
+        div_id: 'Questions', 
+        instructions: "Subtraction with two mixed negative numbers"
+    });
     
 
 </script>

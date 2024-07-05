@@ -31,6 +31,10 @@
         <div id="improperOutput" class="testArea"></div>
     </p>
     <p>
+        Reduced Fraction
+        <div id="reducedFraction" class="testArea"></div>
+    </p>
+    <p>
         Reduced value:
         <div id="reducedOutput" class="testArea"></div>
     </p>
@@ -49,6 +53,7 @@
         mixed.insertElement("fracOutput",  replace=true, width="3em");
         improperOutput.innerHTML = "";
         mixed.toFraction().insertElement("improperOutput", replace=true)
+        mixed.toFraction().reduce().insertElement("reducedFraction", replace=true)
         mixed.simplify().insertElement("reducedOutput", replace=true)
         //mixed.improper.insertElement("improperOutput");
     })
