@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script src="fractions.js"></script>
+    <style>       
+    </style>
+</head>
+<body>
+
+    <hr>
+
+    <div id="Questions"></div>
+
+    <hr>
+
+
+
+</body>
+
+<script>
+    
+
+    let f1 = new Fraction(1,2);
+    let f2 = new Fraction(5, 6);
+    new FractionQuestion({
+        fracs: ["1/2", "5/6"], 
+        operation: "/", 
+        div_id: 'Questions', 
+        instructions: "Divide"
+    });
+
+    // new FractionQuestion({
+    //     fracs: ["1/2", "5/6"], 
+    //     operation: "x", 
+    //     div_id: 'Questions', 
+    //     instructions: "Multiply:"
+    // });
+
+    new FractionQuestion({
+        fracs: ["1/2", "1 5/6"], 
+        operation: "/", 
+        div_id: 'Questions', 
+        instructions: "Division with mixed number:"
+    });
+    
+
+    new DivisionQuestion({
+        fracs: ["2 1/2", "-5/6"], 
+        div_id: 'Questions', 
+        instructions: "Division with negative number:"
+    });
+
+    new DivisionQuestion({
+        fracs: ["1/2", "4/7"], 
+        div_id: 'Questions', 
+        instructions: "DivisionQuestion class test"
+    });
+    
+
+    
+
+</script>
+</html>

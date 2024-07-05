@@ -194,6 +194,9 @@ class Fraction {
     multiplyByWhole(whole){
         return new Fraction(this.numerator*whole, this.denominator);
     }
+    getReciprocal(){
+        return new Fraction(this.denominator, this.numerator);
+    }
 }
 
 class mixedNumber{
@@ -549,6 +552,12 @@ class FractionQuestion{
                 this.result = multiplyFractions(this.result, this.fracs[i]);
             }
         }
+        else if (["/", "÷"].includes(operation)){
+            this.operator = '÷';
+            // - only works for two fractions at the moment
+            this.result = divideFractions(this.fracs[0], this.fracs[1]);
+
+        }
         else {
             throw new Error(`Incorrect operator (${operator}). Should be "+" or "-" or "x"`)
         }
@@ -844,3 +853,23 @@ class MultiplicationQuestion extends FractionQuestion {
     }
 }
 
+class DivisionQuestion extends FractionQuestion {
+
+    constructor({
+        fracs = [],
+        div_id = undefined,
+        instructions = "", 
+        displayAsMixed = true
+    }){
+
+        let data = {
+            fracs: fracs,
+            div_id: div_id,
+            instructions: instructions,
+            displayAsMixed: displayAsMixed,
+            operation: "/"
+        }
+
+        super(data);
+    }
+}
