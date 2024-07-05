@@ -494,263 +494,6 @@ function subtractFractionFromWhole(whole, frac){
 
 }
 
-// class additionQuestion{
-//     constructor(f1, f2, div_id, operation="+", showInstructions=true){
-//         // f1 and f2 are Fraction or mixedNumber instances
-
-//         this.f1Input = f1;
-//         this.f2Input = f2;
-
-//         // Error checking
-//         if (f1 instanceof Fraction){
-//             this.f1 = f1;
-//         } else if (f1 instanceof mixedNumber){
-//             this.f1 = f1.toFraction();
-//         } else {
-//             throw new Error(`Error: f1 (${f1}) needs to be a Fraction or mixedNumber.`);
-//         }
-//         if (f2 instanceof Fraction){
-//             this.f2 = f2;
-//         } else if (f2 instanceof mixedNumber){
-//             this.f2 = f2.toFraction();
-//         } else {
-//             throw new Error(`Error: f2 (${f2}) needs to be a Fraction or mixedNumber.`);
-//         }
-
-
-//         console.log("f1 + f2", this.f1, this.f2);
-
-//         this.divContainer = doc.getElementById(div_id);
-//         if (operation === "-"){
-//             this.operator = "-"
-//             // this.sum = subtractMixedNumbers(this.f1, this.f2);
-//             this.sum = addFractions(this.f1, this.f2.multiplyByWhole(-1));
-//         } else {
-//             this.operator = "+"
-//             this.sum = addFractions(this.f1, this.f2);
-//         }
-        
-//         console.log(`Q fSum: ${this.sum.toString()}`);
-
-//         this.nrows = 0;
-//         this.ncols = 6;
-
-//         if (showInstructions) {
-//             this.instructionsDiv = doc.createElement('div');
-//             this.instructionsDiv.innerHTML = "Find the sum:";
-//             this.divContainer.appendChild(this.instructionsDiv);
-//         }
-
-//         this.div = doc.createElement('div');
-//         this.div.style.display = 'grid';
-//         //this.div.style.gridTemplateColumns = '15em 2em 2em 2em 2em 3em 2em 2em';
-//         this.div.style.gridTemplateColumns = "repeat(30, auto)";
-//         this.div.style.gridTemplateRows = '2fr';
-//         this.div.style.border = '1px solid red';
-//         this.div.style.alignItems = 'center';
-
-//         this.answer = {};
-//         this.showAnswerButton = false;
-
-//         this.useMixedInputs = false;
-//         this.useSimplifiedInputs = true;
-
-//         //if (showInstructions) this.insertInstructions();
-//         this.insertControlsRow();
-//         this.insertQuestionRow();
-
-//         this.nResults = 0;
-//         this.results = [];
-//         this.resultsDiv = doc.createElement('div');
-//         this.resultsDiv.style.border = '1px solid green';
-//         this.resultsDiv.innerHTML = "Results: "
-//         this.divContainer.appendChild(this.resultsDiv);
-
-//     }
-//     insertInstructions(div_id){
-//         let instructions = 'Add:';
-//         let insDiv = doc.getElementById(div_id);
-//         insDiv.innerHTML = instructions;
-//     }
-//     insertControlsRow(){
-//     }
-//     insertQuestionRow(){
-//         this.div.style.gridTemplateRows = `repeat(${this.nrows}, 1fr)`;
-
-//         this.insertFraction(this.f1Input, 2, 2)
-//         this.insertOperator(this.operator, 2, 3);
-//         this.insertFraction(this.f2Input, 2, 4);
-//         this.insertOperator("=", 2, 5);
-
-//         this.insertAnswerDisplay(2,8);
-
-//         this.insertAnswerTextInput(2,6);
-//         this.insertOperator("=", 2, 7);
-        
-//         this.divContainer.appendChild(this.div);
-
-//     }
-
-//     insertAnswerDisplay(r,c){
-//         this.answerTextDisplay = doc.createElement("span");
-//         this.answerTextDisplay.style.gridRow = r;
-//         this.answerTextDisplay.style.gridColumn = c;
-//         this.answerTextDisplay.style.backgroundColor = "lightblue";
-//         this.answerTextDisplay.style.width = "5em";
-//         //this.answerTextDisplay.innerHTML = "hi";
-//         this.div.appendChild(this.answerTextDisplay);
-    
-//     }
-
-//     insertAnswerTextInput(r,c){
-//         this.answerTextInput = doc.createElement("input");
-//         this.answerTextInput.type = "text";
-//         this.answerTextInput.style.gridRow = r;
-//         this.answerTextInput.style.gridColumn = c;
-//         this.answerTextInput.style.width = '5em';
-//         this.answerTextInput.style.backgroundColor = "lightblue";
-
-//         this.answerTextInput.addEventListener("keyup", () => {
-//             this.answer = parseMixedNumber(this.answerTextInput.value, false);
-
-//             if (this.answer.isValid){
-//                 this.answerTextDisplay.style.backgroundColor = 'lightgreen';
-//                 this.answerTextDisplay.innerHTML = "";
-//                 this.answerTextDisplay.appendChild(this.answer.getElement());
-//                 this.answerTextInput.style.backgroundColor = 'lightblue';
-//             } else {
-//                 this.answerTextDisplay.style.backgroundColor = 'darksalmon';
-//                 this.answerTextInput.style.backgroundColor = 'darksalmon';
-//             }
-//         })
-//         this.answerTextInput.addEventListener('change', () => {
-//             this.answer = strToFraction(this.answerTextInput.value);
-//             this.checkAnswer();
-//         })
-
-//         this.div.appendChild(this.answerTextInput);
-//     }
-
-//     insertAnswerButton(r,c){
-//         this.div.appendChild(this.getAnswerButton(r,c));
-//     }
-
-//     insertFraction(frac, r, c){
-//         let div = frac.getElement();
-//         div.style.gridRow = r;
-//         div.style.gridColumn = c;
-//         if (showElementBorders) div.style.border = '1px solid blue';
-//         div.style.width = '3em';
-//         this.div.appendChild(div);
-//     }
-
-//     getTextSpan(txt, r, c){
-//         let div = doc.createElement('span');
-//         div.innerText = txt;
-//         div.style.gridRow = `${r}`;
-//         div.style.gridCol = `${c}`;
-//         if (showElementBorders) div.style.border = '1px solid blue';
-
-//         return div;
-//     }
-
-//     getAnswerButton(r, c){
-//         let div = doc.createElement('input');
-//         div.type = 'button';
-//         div.value = 'Check';
-//         div.style.gridColumn = c;
-//         div.style.gridRow = r;
-//         div.style.width = '6em';
-
-//         div.addEventListener('click', ()=> {
-//             this.checkAnswer();
-//         })
-
-//         return div;
-//     }
-
-
-//     insertOperator(txt, r, c){
-//         let div = this.getOperatorSpan(txt);
-//         div.style.gridRow = r;
-//         div.style.gridColumn = c;
-//         div.style.width = "1em";
-//         if (showElementBorders) div.style.border = '1px solid blue';
-
-//         this.div.appendChild(div);
-//     }
-
-//     getOperatorSpan(txt){
-//         let p = doc.createElement("span");
-//         p.style.display = 'flex';
-//         p.style.alignItems = 'center';
-//         p.style.paddingRight = '0.5em';
-//         p.style.paddingLeft = '0.5em';
-//         // p.style.border = '1px solid blue';
-//         p.innerText = txt;
-//         return p;
-//     }
-
-
-//     checkAnswer(){
-//         // Note: this.answer is continuously updated 
-//         //       with the updates of the input text box
-
-//         let result = '';
-//         let color = 'white';
-
-//         this.userAnswer = strToFraction(this.answerTextInput.value, false);
-
-//         console.log("User Answer: ", this.answer.toString());
-//         console.log("Computed answer: mixedSum: ", this.sum.toString());
-
-//         if (this.sum.isSameAs(this.answer)){
-//             this.answerIsCorrect = true;
-//             result += " is correct. ";
-//             //console.log("Same");
-//         } else {
-//             this.answerIsCorrect = false;
-//             result += " is incorrect. "
-//         }
-
-//         let r = {
-//             answer: this.userAnswer,
-//             correctAnswer: this.mixedSum,
-//             note: result,
-//             isCorrect: this.answerIsCorrect
-//         }
-//         this.results.push(r);
-//         this.insertResults();
-
-//     }
-
-//     insertResults(){
-//         this.resultsDiv.innerHTML = "";
-//         for (const result of this.results) {
-//             let div = doc.createElement('div');
-//             div.appendChild(result['answer'].getElement());
-//             div.appendChild(doc.createTextNode(result['note']));
-
-//             div.style.backgroundColor = result['isCorrect'] ? 'lightGreen' : 'darkSalmon';
-//             this.resultsDiv.appendChild(div);
-//         }
-
-//     }
-
-//     insertCommentRow(html){
-//         this.nrows += 1;
-//         this.div.style.gridTemplateRows = `repeat(${this.nrows}, 1fr)`;
-        
-//         let div = doc.createElement('span');
-//         div.style.border = '1px solid blue';
-//         //div.style.gridColumn = `1 / ${this.ncols+1}`;
-
-//         div.innerHTML = html;
-//         this.div.appendChild(div);
-//     }
-    
-// }
-
 class FractionQuestion{
 
     constructor({
@@ -1036,5 +779,68 @@ class FractionQuestion{
         this.div.appendChild(div);
     }
     
+}
+
+class AdditionQuestion extends FractionQuestion {
+
+    constructor({
+        fracs = [],
+        div_id = undefined,
+        instructions = "", 
+        displayAsMixed = true
+    }){
+
+        let data = {
+            fracs: fracs,
+            div_id: div_id,
+            instructions: instructions,
+            displayAsMixed: displayAsMixed,
+            operation: "+"
+        }
+
+        super(data);
+    }
+}
+
+class SubtractionQuestion extends FractionQuestion {
+
+    constructor({
+        fracs = [],
+        div_id = undefined,
+        instructions = "", 
+        displayAsMixed = true
+    }){
+
+        let data = {
+            fracs: fracs,
+            div_id: div_id,
+            instructions: instructions,
+            displayAsMixed: displayAsMixed,
+            operation: "-"
+        }
+
+        super(data);
+    }
+}
+
+class MultiplicationQuestion extends FractionQuestion {
+
+    constructor({
+        fracs = [],
+        div_id = undefined,
+        instructions = "", 
+        displayAsMixed = true
+    }){
+
+        let data = {
+            fracs: fracs,
+            div_id: div_id,
+            instructions: instructions,
+            displayAsMixed: displayAsMixed,
+            operation: "x"
+        }
+
+        super(data);
+    }
 }
 
