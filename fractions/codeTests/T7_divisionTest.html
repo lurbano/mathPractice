@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 
-    <script src="fractions.js"></script>
+    <script src="../fractions.js"></script>
     <style>       
     </style>
 </head>
@@ -28,38 +28,36 @@
     let f2 = new Fraction(5, 6);
     new FractionQuestion({
         fracs: ["1/2", "5/6"], 
-        operation: "+", 
+        operation: "/", 
         div_id: 'Questions', 
-        instructions: "Find the sum:"
+        instructions: "Divide"
     });
 
-    new FractionQuestion({
-        fracs: ["1/2", "5/6"], 
-        operation: "x", 
-        div_id: 'Questions', 
-        instructions: "Multiply:"
-    });
+    // new FractionQuestion({
+    //     fracs: ["1/2", "5/6"], 
+    //     operation: "x", 
+    //     div_id: 'Questions', 
+    //     instructions: "Multiply:"
+    // });
 
     new FractionQuestion({
-        fracs: ["2 1/2", "5/6"], 
-        operation: "x", 
+        fracs: ["1/2", "1 5/6"], 
+        operation: "/", 
         div_id: 'Questions', 
-        instructions: "Multiply with mixed number:"
+        instructions: "Division with mixed number:"
     });
     
 
-    new FractionQuestion({
+    new DivisionQuestion({
         fracs: ["2 1/2", "-5/6"], 
-        operation: "x", 
         div_id: 'Questions', 
-        instructions: "Multiply with negative number:"
+        instructions: "Division with negative number:"
     });
 
-    new MultiplicationQuestion({
+    new DivisionQuestion({
         fracs: ["1/2", "4/7"], 
-        operation: "x", 
         div_id: 'Questions', 
-        instructions: "MultiplicationQuestion class test"
+        instructions: "DivisionQuestion class test"
     });
     
 

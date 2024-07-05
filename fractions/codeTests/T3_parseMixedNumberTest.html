@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 
-    <script src="fractions.js"></script>
+    <script src="../fractions.js"></script>
     <style>      
         .testArea{
             border: 1px solid black;
@@ -31,12 +31,16 @@
         <div id="improperOutput" class="testArea"></div>
     </p>
     <p>
-        Reduced Fraction
+        Reduced Fraction (.reduce)
         <div id="reducedFraction" class="testArea"></div>
     </p>
     <p>
-        Reduced value:
+        Reduced value (.simplify):
         <div id="reducedOutput" class="testArea"></div>
+    </p>
+    <p>
+        Reciprocal:
+        <div id="reciprocalOutput" class="testArea"></div>
     </p>
     
 
@@ -55,6 +59,7 @@
         mixed.toFraction().insertElement("improperOutput", replace=true)
         mixed.toFraction().reduce().insertElement("reducedFraction", replace=true)
         mixed.simplify().insertElement("reducedOutput", replace=true)
+        mixed.toFraction().getReciprocal().insertElement("reciprocalOutput", replace=true)
         //mixed.improper.insertElement("improperOutput");
     })
     
