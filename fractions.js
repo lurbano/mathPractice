@@ -1,4 +1,4 @@
-let doc = document;
+var doc = document;
 let showElementBorders = false;
 
 class Fraction {
@@ -571,6 +571,9 @@ class FractionQuestion{
         if (div_id !== undefined){
             this.insertIntoDiv(div_id, instructions);
         }
+
+        //results tries array
+        this.userResults = [];
         
     }
 
@@ -590,7 +593,7 @@ class FractionQuestion{
         this.div = doc.createElement('div');
         this.div.style.display = 'grid';
 
-        this.div.style.gridTemplateColumns = "repeat(this.ncols, auto)";
+        this.div.style.gridTemplateColumns = `repeat(${this.ncols}, auto)`;
         // this.div.style.gridTemplateRows = '2fr';
         this.div.classList.add("questionBox");
         // this.div.style.border = '1px solid red';
@@ -600,8 +603,6 @@ class FractionQuestion{
 
         this.insertQuestionRow();
 
-        this.nUserResults = 0;
-        this.userResults = [];
         this.userResultsDiv = doc.createElement('div');
         this.userResultsDiv.style.border = '1px solid green';
         this.userResultsDiv.innerHTML = "Results: "
@@ -658,6 +659,8 @@ class FractionQuestion{
         this.answerTextInput.style.gridColumn = c;
         this.answerTextInput.style.width = '5em';
         this.answerTextInput.style.backgroundColor = "lightblue";
+
+        this.answerTextInput.classList.add("answerTextInput");
 
         this.answerTextInput.addEventListener("keyup", () => {
             this.answer = parseMixedNumber(this.answerTextInput.value, false);
@@ -762,12 +765,12 @@ class FractionQuestion{
             result += " is incorrect. "
         }
 
-        let r = {
-            answer: this.userAnswer,
+        let r = new fractionResult({
+            userAnswer: this.userAnswer,
             correctAnswer: this.mixedSum,
             note: result,
             isCorrect: this.answerIsCorrect
-        }
+        })
         this.userResults.push(r);
         this.insertResults();
 
@@ -777,7 +780,7 @@ class FractionQuestion{
         this.userResultsDiv.innerHTML = "";
         for (const result of this.userResults) {
             let div = doc.createElement('div');
-            div.appendChild(result['answer'].getElement());
+            div.appendChild(result['userAnswer'].getElement());
             div.appendChild(doc.createTextNode(result['note']));
 
             div.style.backgroundColor = result['isCorrect'] ? 'lightGreen' : 'darkSalmon';
@@ -1027,3 +1030,17 @@ class RandomFractionQuestion extends FractionQuestion {
     }
 }
 
+class fractionResult {
+
+    constructor({
+        userAnswer = undefined,
+        correctAnswer = undefined,
+        note = "",
+        isCorrect = undefined
+    }){
+        this.userAnswer = userAnswer;
+        this.correctAnswer = correctAnswer;
+        this.note = note;
+        this.isCorrect = isCorrect;
+    }
+}
