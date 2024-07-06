@@ -978,7 +978,7 @@ class RandomFractionQuestion extends FractionQuestion {
 
         //SUBTRACTION SPECIAL CONDITIONS
         if (
-            (operation = "-") &&
+            (operation === "-") &&
              positiveResultForSubtraction &&
             (f1.toFloat() < f2.toFloat())
         ){
@@ -1014,7 +1014,7 @@ class RandomFractionQuestion extends FractionQuestion {
 
 
         let fracs = [f1, f2];
-
+        
         let data = {
             fracs: fracs,
             div_id: div_id,
