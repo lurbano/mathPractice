@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adding Fractions</title>
+
+    <script src="../fractions.js"></script>
+    <link rel="stylesheet" href="worksheets.css">
+    <style>      
+        
+    </style>
+</head>
+<body>
+    <h2>Adding Fractions</h2>
+
+    <div id="instructionArea">
+        Instructions: Enter fractions with a slash as <span class="entryDemo">1/2</span>. Enter mixed numbers with a space between the whole part and the fraction part as in <span class="entryDemo">3 1/2</span>.
+    </div>
+    <div id="Questions"></div>
+
+</body>
+
+<script>
+    doc = document;
+
+    let settings = {
+        nQuestions: 5,
+        maxNumerator: 9,
+        minNumerator: 0,
+        maxDenominator: 9,
+        minDenominator: 0,
+        targetDiv: doc.getElementById("Questions")
+    }
+
+    //LIST OF QUESTIONS
+    let questionsArray = [
+        new AdditionQuestion({
+            fracs: ["1/2", "5/6"]
+        }),
+        new AdditionQuestion({
+            fracs: ["1/3", "5/6"]
+        }),
+        new RandomFractionQuestion({}),
+        new RandomFractionQuestion({}),
+        new RandomFractionQuestion({}),
+        new RandomFractionQuestion({}),
+        new RandomFractionQuestion({}),
+        new RandomFractionQuestion({})
+    ]
+    
+    //generate questions
+    for (const [i, question] of questionsArray.entries()){
+        const n = i+1;
+        let div = doc.createElement('div');
+        div.id = `Q_${n}`;
+        div.classList.add("outerQuestionBox");
+        
+        // number
+        let qnumSpan = doc.createElement("span");
+        qnumSpan.innerHTML = `${n}) `;
+        div.appendChild(qnumSpan);
+
+        // questionArea
+        let qArea = doc.createElement("span");
+        qArea.id = `qArea_${n}`;
+        div.appendChild(qArea);
+
+        settings.targetDiv.appendChild(div);
+
+        // question
+        if (question instanceof FractionQuestion){
+            question.insertIntoDiv(qArea.id);
+        }
+        
+    }
+    
+
+</script>
+</html>

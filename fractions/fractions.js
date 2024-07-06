@@ -172,6 +172,10 @@ class Fraction {
         return txt;
     }
 
+    toFloat(){
+        return this.numerator/this.denominator;
+    }
+
     insertString(div_id){
         let div = doc.getElementById(div_id);
         div.appendChild(doc.createTextNode(this.toString()));
@@ -187,6 +191,9 @@ class Fraction {
                 (f1.denominator === f2.denominator)){
                 result = true;
             } 
+            if (f1.numerator === 0 && f2.numerator === 0){
+                result = true;
+            }
         }
         return result;
     }
@@ -530,8 +537,6 @@ class FractionQuestion{
             }
         }
 
-        this.divContainer = doc.getElementById(div_id);
-        //this.divContainer = doc.createElement("div");
         if (operation === "-"){
             // - only works for two fractions at the moment
             this.operator = "-"
@@ -562,32 +567,37 @@ class FractionQuestion{
             throw new Error(`Incorrect operator (${operator}). Should be "+" or "-" or "x"`)
         }
         
-        //console.log(`Q fSum: ${this.result.toString()}`);
+        this.questionRow = 1;
+        if (div_id !== undefined){
+            this.insertIntoDiv(div_id, instructions);
+        }
+        
+    }
 
+    insertIntoDiv(div_id, instructions=""){
+        this.divContainer = doc.getElementById(div_id);
         this.nrows = 0;
-        this.ncols = 6;
+        this.ncols = 8;
 
+        // Add instructions
         if (instructions) {
             this.instructionsDiv = doc.createElement('div');
             this.instructionsDiv.innerHTML = instructions;
             this.divContainer.appendChild(this.instructionsDiv);
         }
 
+        // Create div for question
         this.div = doc.createElement('div');
         this.div.style.display = 'grid';
 
-        this.div.style.gridTemplateColumns = "repeat(30, auto)";
-        this.div.style.gridTemplateRows = '2fr';
-        this.div.style.border = '1px solid red';
-        this.div.style.alignItems = 'center';
+        this.div.style.gridTemplateColumns = "repeat(this.ncols, auto)";
+        // this.div.style.gridTemplateRows = '2fr';
+        this.div.classList.add("questionBox");
+        // this.div.style.border = '1px solid red';
+        // this.div.style.alignItems = 'center';
 
         this.answer = {};
-        this.showAnswerButton = false;
 
-        this.useMixedInputs = false;
-        this.useSimplifiedInputs = true;
-
-        this.insertControlsRow();
         this.insertQuestionRow();
 
         this.nUserResults = 0;
@@ -598,33 +608,33 @@ class FractionQuestion{
         this.divContainer.appendChild(this.userResultsDiv);
 
     }
+
     insertInstructions(div_id){
         let instructions = 'Add:';
 
         let insDiv = doc.getElementById(div_id);
         insDiv.innerHTML = instructions;
     }
-    insertControlsRow(){
 
-    }
     insertQuestionRow(){
-        this.div.style.gridTemplateRows = `repeat(${this.nrows}, 1fr)`;
+        // this.div.style.gridTemplateRows = `repeat(${this.nrows}, 1fr)`;
+        // this.div.style.alignItems = "center";
         
         for (let i in this.fracsInput){
             this.col = 2*i+2;
-            this.insertFraction(this.fracsInput[i], 2, this.col);
+            this.insertFraction(this.fracsInput[i], this.questionRow, this.col);
             this.col += 1;
             if (i < this.fracsInput.length-1){
-                this.insertOperator(this.operator, 2, this.col);
+                this.insertOperator(this.operator, this.questionRow, this.col);
             }
         }
         
-        this.insertOperator("=", 2, this.col);
-
-        this.insertAnswerDisplay(2,this.col+3);
-
-        this.insertAnswerTextInput(2,this.col+1);
-        this.insertOperator("=", 2, this.col+2);
+        this.insertOperator("=", this.questionRow, this.col);
+        this.equalCol = this.col + 1;
+        this.insertAnswerTextInput(this.questionRow,this.equalCol);
+        
+        this.insertOperator("=", this.questionRow, this.col+2);
+        this.insertAnswerDisplay(this.questionRow,this.col+3);
         
         this.divContainer.appendChild(this.div);
 
@@ -634,7 +644,7 @@ class FractionQuestion{
         this.answerTextDisplay = doc.createElement("span");
         this.answerTextDisplay.style.gridRow = r;
         this.answerTextDisplay.style.gridColumn = c;
-        this.answerTextDisplay.style.backgroundColor = "lightblue";
+        this.answerTextDisplay.style.backgroundColor = "aquamarine";
         this.answerTextDisplay.style.width = "5em";
         //this.answerTextDisplay.innerHTML = "hi";
         this.div.appendChild(this.answerTextDisplay);
@@ -873,3 +883,147 @@ class DivisionQuestion extends FractionQuestion {
         super(data);
     }
 }
+
+function randInt(min, max, noZero=false) {
+    min = Math.ceil(min);   // Round up to ensure inclusive of the minimum
+    max = Math.floor(max);  // Round down to ensure inclusive of the maximum
+    
+    let n = Math.floor(Math.random() * (max - min + 1)) + min;
+    if (noZero && n === 0) {
+        let ct = 0;
+        while (n === 0 && ct < 10){
+            n = Math.floor(Math.random() * (max - min + 1)) + min;
+            ct++;
+        }
+    }
+    
+    return n;
+}
+
+// generate a random fraction
+function randFrac({
+        minNumerator = 0,
+        maxNumerator = 9,
+        minDenominator = 1,
+        maxDenominator = 9,
+        noZeroDenominator = true, 
+        noZero = true,
+        l_proper = true,
+        noWholeNumber = true
+    }){
+
+        let d = randInt(minDenominator, maxDenominator, noZeroDenominator);
+
+        let maxNum = l_proper ? d : maxNumerator;
+        let n = randInt(minNumerator, maxNum, noZero);
+
+        if (noWholeNumber && n === d) {
+            let ct = 0;
+            while (n === d && ct < 20){
+                d = randInt(2, maxDenominator, noZeroDenominator);
+
+                maxNum = l_proper ? d : maxNumerator;
+                n = randInt(minNumerator, maxNum, noZero);
+                ct++;
+            }
+        }
+        
+        return new Fraction(n, d);
+        
+}
+
+class RandomFractionQuestion extends FractionQuestion {
+
+    constructor({
+        operation = "+",
+        minNumerator = 0,
+        maxNumerator = 9,
+        minNumerator2 = minNumerator,
+        maxNumerator2 = maxNumerator,
+        minDenominator = 1,
+        maxDenominator = 9,
+        minDenominator2 = minDenominator,
+        maxDenominator2 = maxDenominator,
+        div_id = undefined,
+        instructions = "", 
+        displayAsMixed = true,
+        noZeroDenominator = true, 
+        noZero = true,
+        l_proper = true,
+        noWholeNumber = true,
+        positiveResultForSubtraction = true
+    }){
+
+        let f1 = randFrac({
+            minNumerator: minNumerator,
+            maxNumerator: maxNumerator,
+            minDenominator: minDenominator,
+            maxDenominator: maxDenominator, 
+            noZeroDenominator: noZeroDenominator, 
+            noZero: noZero,
+            l_proper: l_proper,
+            noWholeNumber: noWholeNumber
+        })
+
+        let f2 = randFrac({
+            minNumerator: minNumerator2,
+            maxNumerator: maxNumerator2,
+            minDenominator: minDenominator2,
+            maxDenominator: maxDenominator2,
+            noZeroDenominator: noZeroDenominator, 
+            noZero: noZero,
+            l_proper: l_proper,
+            noWholeNumber: noWholeNumber
+        })
+
+        //SUBTRACTION SPECIAL CONDITIONS
+        if (
+            (operation = "-") &&
+             positiveResultForSubtraction &&
+            (f1.toFloat() < f2.toFloat())
+        ){
+            let ct = 0;
+            while ((f1.toFloat() < f2.toFloat()) && ct < 20){
+                f1 = randFrac({
+                    minNumerator: minNumerator,
+                    maxNumerator: maxNumerator,
+                    minDenominator: minDenominator,
+                    maxDenominator: maxDenominator, 
+                    noZeroDenominator: noZeroDenominator, 
+                    noZero: noZero,
+                    l_proper: l_proper,
+                    noWholeNumber: noWholeNumber
+                })
+        
+                f2 = randFrac({
+                    minNumerator: minNumerator2,
+                    maxNumerator: maxNumerator2,
+                    minDenominator: minDenominator2,
+                    maxDenominator: maxDenominator2,
+                    noZeroDenominator: noZeroDenominator, 
+                    noZero: noZero,
+                    l_proper: l_proper,
+                    noWholeNumber: noWholeNumber
+                })
+                ct++;
+               
+            }
+            
+        }
+
+
+
+        let fracs = [f1, f2];
+
+        let data = {
+            fracs: fracs,
+            div_id: div_id,
+            instructions: instructions,
+            displayAsMixed: displayAsMixed,
+            operation: operation
+        }
+
+        super(data);
+    }
+}
+
