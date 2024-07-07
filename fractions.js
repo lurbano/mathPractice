@@ -1044,3 +1044,10 @@ class fractionResult {
         this.isCorrect = isCorrect;
     }
 }
+
+function putInGrid(div, row, col){
+    div.style.gridRow = row;
+    div.style.gridColumn = col;
+}
+
+

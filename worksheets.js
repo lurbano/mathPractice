@@ -11,6 +11,7 @@ class Worksheet {
         this.questionsDiv_id = questionsDiv_id;
         this.questionsDiv = doc.getElementById(questionsDiv_id);
         this.scoreDiv_id = scoreDiv_id;
+        this.scoreDiv = doc.getElementById(scoreDiv_id);
 
         // set up score display
         this.scoreDiv = doc.getElementById(scoreDiv_id);
@@ -70,43 +71,87 @@ class Worksheet {
     }
 
     showScores(){
-        console.log("Showing Scores")
-        //this.scoreDiv.innerHTML = "";
+        
         let ncols = 4
         this.scoreTable.innerHTML = "";
         this.scoreTable.style.display = 'grid';
         this.scoreTable.style.gridTemplateColumns = `repeat(${ncols}, auto)`;
 
+        let nCorrect = 0;
+        let nWrong = 0;
+        let nNoAnswer = 0;
+        let nQuestions = this.questionsList.length;
+
         //score table
+
+        // columns
+        let qCol = 1; //question column
+        let uaCol = 2; //user answer column
+        let iscCol = 3; // is correct column
+
+        // headers
+        this.putInScoreTable("#", 1, qCol); // question #
+        this.putInScoreTable("Your Answer", 1, uaCol);
+        this.putInScoreTable("Correct", 1, iscCol);
+
+
         for (const [i, question] of this.questionsList.entries()){
 
-            let row = i+1;
+            let row = i+2;
             
             //number
             let qDiv = doc.createElement('div');
             qDiv.innerHTML = `${i+1})`;
-            qDiv.style.gridRow = row;
-            qDiv.style.gridColumn = 1;
-            this.scoreTable.appendChild(qDiv);
+            this.putInScoreTable(qDiv, row, qCol);
 
+            // user answer column
             let uaDiv = doc.createElement('div');
-            uaDiv.style.gridRow = row;
-            uaDiv.style.gridColumn = 2;
+
+            // isCorrect column
+            let iscDiv = doc.createElement('div');
 
             let nTries = question.userResults.length;
-            console.log(row, question.userResults.length);
+            // console.log(row, question.userResults.length);
             if (nTries > 0) {
                 let lastTry = question.userResults[question.userResults.length-1];
+
                 let ua = lastTry.userAnswer.getElement();
                 uaDiv.innerHTML = "";
                 uaDiv.appendChild(ua);
+
+                if (lastTry.isCorrect){
+                    iscDiv.innerHTML = "✔";
+                    iscDiv.style.backgroundColor = "aqua";
+                    nCorrect++;
+                } else {
+                    iscDiv.innerHTML = "✘";
+                    iscDiv.style.backgroundColor = "lightpink";
+                    nWrong++;
+                }
             } else {
                 uaDiv.innerHTML = "No Answer";
-                
+                nNoAnswer++;
             }
 
-            this.scoreTable.appendChild(uaDiv);
+            this.putInScoreTable(uaDiv, row, uaCol);
+            this.putInScoreTable(iscDiv, row, iscCol);
         }
+
+        console.log(`Correct: ${nCorrect}; Wrong: ${nWrong}; No Answer: ${nNoAnswer}; Total Questions: ${nQuestions}`);
+    }
+
+    putInScoreTable(data, row, col){
+        // can handle text, html text and div Elements
+        let div = doc.createElement('div');
+        if (typeof data === 'string') {
+            div.innerHTML = data;
+        } 
+        else if (data instanceof Element) {
+            div.appendChild(data);
+        }
+        div.style.gridRow = row;
+        div.style.gridColumn = col;
+        this.scoreTable.appendChild(div);
     }
 
 }
