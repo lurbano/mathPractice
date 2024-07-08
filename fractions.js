@@ -183,6 +183,10 @@ class Fraction {
  
     isSameAs(frac, reduced=true){
         let result = false;
+        if (!(frac instanceof Fraction)){
+            console.log("ERROR: Fraction isSameAs, input is not a fraction.", frac);
+            return false;
+        }
         if (this.isValid && frac.isValid) {
             let f1 = reduced ? this.reduced : this;
             let f2 = reduced ? frac.reduced : frac;
@@ -299,6 +303,24 @@ class mixedNumber{
         let div = doc.getElementById(div_id);
         if (replace) div.innerHTML = "";
         div.appendChild(this.getElement(width));
+    }
+
+    isReducable(){
+        return this.frac.isReducable();
+    }
+
+    isImproper(){
+        return this.frac.isImproper();
+    }
+
+    isSameAs(input){
+        let frac = this.toFraction();
+        if (input instanceof Fraction){
+            // good to go
+        } else if (input instanceof mixedNumber) {
+            input = input.toFraction();
+        }
+        return frac.isSameAs(input);
     }
 
 }
@@ -511,11 +533,13 @@ class FractionQuestion{
         operation = "+",
         div_id = undefined,
         instructions = "", 
-        displayAsMixed = true
+        displayAsMixed = true,
+        notSimplifiedPenalty = 4  //penalty out of 10
     }) {
         // fracs is an array of Fraction or mixedNumber instances or string of fraction or mixed numbers
 
         this.fracsInput = fracs;
+        this.notSimplifiedPenalty = notSimplifiedPenalty;
         this.fracs = [];
         this.col = 0;
 
@@ -748,28 +772,39 @@ class FractionQuestion{
         // Note: this.answer is continuously updated 
         //       with the updates of the input text box
 
-        let result = '';
-        let color = 'white';
-
+        let note = '';
+        let score = 0;
+        
         this.userAnswer = strToFraction(this.answerTextInput.value, false);
+        this.userAnswerFraction = this.userAnswer.toFraction();
 
-        console.log("User Answer: ", this.answer.toString());
+        console.log("User Answer: ", this.userAnswer.toString(), this.userAnswerFraction instanceof Fraction);
         console.log("Computed answer: result: ", this.result.toString());
 
-        if (this.result.isSameAs(this.answer)){
+        if (this.userAnswer.isSameAs(this.result)){
             this.answerIsCorrect = true;
-            result += " is correct. ";
-            //console.log("Same");
+            score = 10;
+            note = note + " is correct. ";
+            if (this.userAnswer.isReducable()){
+                note = note + "But is reducable. ";
+                score -= this.notSimplifiedPenalty;
+                
+            }
+            if (this.userAnswer.isImproper()){
+                note = note + 'Reducable to a mixed or whole number.';
+            }
         } else {
             this.answerIsCorrect = false;
-            result += " is incorrect. "
+            score = 1;
+            note += " is incorrect. "
         }
-
+        
         let r = new fractionResult({
             userAnswer: this.userAnswer,
             correctAnswer: this.mixedSum,
-            note: result,
-            isCorrect: this.answerIsCorrect
+            note: note,
+            isCorrect: this.answerIsCorrect,
+            score: score
         })
         this.userResults.push(r);
         this.insertResults();
@@ -1036,12 +1071,14 @@ class fractionResult {
         userAnswer = undefined,
         correctAnswer = undefined,
         note = "",
-        isCorrect = undefined
+        isCorrect = undefined, 
+        score = 0
     }){
         this.userAnswer = userAnswer;
         this.correctAnswer = correctAnswer;
         this.note = note;
         this.isCorrect = isCorrect;
+        this.score = score;
     }
 }
 

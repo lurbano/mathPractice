@@ -27,17 +27,6 @@ class Worksheet {
 
         this.insertQuestions({});
 
-        // if (liveScore){
-        //     this.showScores();
-        //     this.inputBoxes = doc.querySelector('.answerTextInput');
-
-        //     this.inputBoxes.addEventListener("change", () => {
-        //         console.log(this);
-        //         setTimeout(() => {this.showScores()}, 500);
-        //     })
-        // }
-
-        
     }
 
     insertQuestions(){
@@ -88,11 +77,15 @@ class Worksheet {
         let qCol = 1; //question column
         let uaCol = 2; //user answer column
         let iscCol = 3; // is correct column
+        let nTriesCol = 4; // number of tries
+        let scoreCol = 5; // score column
 
         // headers
         this.putInScoreTable("#", 1, qCol); // question #
         this.putInScoreTable("Your Answer", 1, uaCol);
         this.putInScoreTable("Correct", 1, iscCol);
+        this.putInScoreTable("Tries", 1, nTriesCol);
+        this.putInScoreTable("Score", 1, scoreCol);
 
 
         for (const [i, question] of this.questionsList.entries()){
@@ -110,31 +103,45 @@ class Worksheet {
             // isCorrect column
             let iscDiv = doc.createElement('div');
 
+            // nTries column
+            let nTriesDiv = doc.createElement('div');
             let nTries = question.userResults.length;
-            // console.log(row, question.userResults.length);
+
+            // score column
+            let scoreDiv = doc.createElement('div');
+            
             if (nTries > 0) {
                 let lastTry = question.userResults[question.userResults.length-1];
+                console.log("Last Try: ", lastTry);
 
                 let ua = lastTry.userAnswer.getElement();
                 uaDiv.innerHTML = "";
                 uaDiv.appendChild(ua);
+                let s = "x"
 
                 if (lastTry.isCorrect){
                     iscDiv.innerHTML = "✔";
                     iscDiv.style.backgroundColor = "aqua";
+                    s = new Fraction(lastTry.score,10);
                     nCorrect++;
                 } else {
                     iscDiv.innerHTML = "✘";
                     iscDiv.style.backgroundColor = "lightpink";
+                    s = strToFraction("1/10");
                     nWrong++;
                 }
+                console.log("Score:", s);
+                scoreDiv.appendChild(s.getElement());
+
             } else {
                 uaDiv.innerHTML = "No Answer";
+                scoreDiv.innerHTML = "0";
                 nNoAnswer++;
             }
 
             this.putInScoreTable(uaDiv, row, uaCol);
             this.putInScoreTable(iscDiv, row, iscCol);
+            this.putInScoreTable(scoreDiv, row, scoreCol);
         }
 
         console.log(`Correct: ${nCorrect}; Wrong: ${nWrong}; No Answer: ${nNoAnswer}; Total Questions: ${nQuestions}`);
