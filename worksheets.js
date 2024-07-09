@@ -81,11 +81,31 @@ class Worksheet {
         let scoreCol = 5; // score column
 
         // headers
-        this.putInScoreTable("#", 1, qCol); // question #
-        this.putInScoreTable("Your Answer", 1, uaCol);
-        this.putInScoreTable("Correct", 1, iscCol);
-        this.putInScoreTable("Tries", 1, nTriesCol);
-        this.putInScoreTable("Score", 1, scoreCol);
+        this.putInScoreTable({ data: "#", 
+            row: 1, 
+            col: qCol,
+            isHeader: true
+        }); // question #
+        this.putInScoreTable({ data: "Your Answer", 
+            row: 1,
+            col: uaCol,
+            isHeader: true
+        });
+        this.putInScoreTable({data: "Correct", 
+            row: 1, 
+            col: iscCol,
+            isHeader: true
+        });
+        this.putInScoreTable({data: "Tries", 
+            row: 1, 
+            col: nTriesCol,
+            isHeader: true
+        });
+        this.putInScoreTable({data: "Score", 
+            row: 1, 
+            col: scoreCol,
+            isHeader: true
+        });
 
 
         for (const [i, question] of this.questionsList.entries()){
@@ -95,7 +115,9 @@ class Worksheet {
             //number
             let qDiv = doc.createElement('div');
             qDiv.innerHTML = `${i+1})`;
-            this.putInScoreTable(qDiv, row, qCol);
+            this.putInScoreTable({data: qDiv, 
+                row: row, 
+                col: qCol});
 
             // user answer column
             let uaDiv = doc.createElement('div');
@@ -106,11 +128,16 @@ class Worksheet {
             // nTries column
             let nTriesDiv = doc.createElement('div');
             let nTries = question.userResults.length;
+            nTriesDiv.innerHTML = nTries;
+            this.putInScoreTable({ data: nTriesDiv, 
+                row: row, 
+                col: nTriesCol});
 
             // score column
             let scoreDiv = doc.createElement('div');
             
             if (nTries > 0) {
+                
                 let lastTry = question.userResults[question.userResults.length-1];
                 console.log("Last Try: ", lastTry);
 
@@ -139,15 +166,27 @@ class Worksheet {
                 nNoAnswer++;
             }
 
-            this.putInScoreTable(uaDiv, row, uaCol);
-            this.putInScoreTable(iscDiv, row, iscCol);
-            this.putInScoreTable(scoreDiv, row, scoreCol);
+            this.putInScoreTable({ data: uaDiv, 
+                row: row, 
+                col: uaCol });
+            this.putInScoreTable({ data: iscDiv, 
+                row: row, 
+                col: iscCol});
+            this.putInScoreTable({ data: scoreDiv, 
+                row: row, 
+                col: scoreCol});
         }
 
         console.log(`Correct: ${nCorrect}; Wrong: ${nWrong}; No Answer: ${nNoAnswer}; Total Questions: ${nQuestions}`);
     }
 
-    putInScoreTable(data, row, col){
+    putInScoreTable({
+        data = "", 
+        row = 1, 
+        col = 1,
+        isHeader = false
+    }){
+
         // can handle text, html text and div Elements
         let div = doc.createElement('div');
         if (typeof data === 'string') {
@@ -158,6 +197,10 @@ class Worksheet {
         }
         div.style.gridRow = row;
         div.style.gridColumn = col;
+
+        if (isHeader){
+            div.style.borderBottom = "1px solid black";
+        }
         this.scoreTable.appendChild(div);
     }
 
