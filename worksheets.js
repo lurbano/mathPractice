@@ -19,6 +19,7 @@ class Worksheet {
         this.scoreButton = doc.createElement('input');
         this.scoreButton.type = "button";
         this.scoreButton.value = "Show Score";
+        this.scoreButton.classList.add('scoreButton');
         this.scoreButton.addEventListener("click", () => {this.showScores()});
         this.scoreDiv.appendChild(this.scoreButton);
         // add table for results
