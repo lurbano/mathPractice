@@ -785,14 +785,19 @@ class FractionQuestion{
             this.answerIsCorrect = true;
             score = 10;
             note = note + " is correct. ";
+            let l_reducable = false;
             if (this.userAnswer.isReducable()){
                 note = note + "But is reducable. ";
-                score -= this.notSimplifiedPenalty;
-                
+                l_reducable = true;
             }
             if (this.userAnswer.isImproper()){
                 note = note + 'Reducable to a mixed or whole number.';
+                l_reducable = true;
             }
+            if (l_reducable) {
+                score -= this.notSimplifiedPenalty;
+            }
+            
         } else {
             this.answerIsCorrect = false;
             score = 1;

@@ -70,6 +70,7 @@ class Worksheet {
         let nWrong = 0;
         let nNoAnswer = 0;
         let nQuestions = this.questionsList.length;
+        let totalScore = 0;
 
         //score table
 
@@ -106,11 +107,14 @@ class Worksheet {
             col: scoreCol,
             isHeader: true
         });
-
+        
+        let row = 0;
 
         for (const [i, question] of this.questionsList.entries()){
 
-            let row = i+2;
+            row = i+2;
+
+            let qScore = 0;
             
             //number
             let qDiv = doc.createElement('div');
@@ -144,25 +148,29 @@ class Worksheet {
                 let ua = lastTry.userAnswer.getElement();
                 uaDiv.innerHTML = "";
                 uaDiv.appendChild(ua);
-                let s = "x"
+                // let s = "x"
 
                 if (lastTry.isCorrect){
                     iscDiv.innerHTML = "✔";
                     iscDiv.style.backgroundColor = "aqua";
-                    s = new Fraction(lastTry.score,10);
+                    qScore += lastTry.score;
+                    // s = new Fraction(lastTry.score,10);
                     nCorrect++;
                 } else {
                     iscDiv.innerHTML = "✘";
                     iscDiv.style.backgroundColor = "lightpink";
-                    s = strToFraction("1/10");
+                    qScore = 1;
+                    // s = strToFraction("1/10");
                     nWrong++;
                 }
+                let s = new Fraction(qScore, 10);
                 console.log("Score:", s);
                 scoreDiv.appendChild(s.getElement());
 
             } else {
                 uaDiv.innerHTML = "No Answer";
                 scoreDiv.innerHTML = "0";
+                qScore = 0;
                 nNoAnswer++;
             }
 
@@ -175,9 +183,20 @@ class Worksheet {
             this.putInScoreTable({ data: scoreDiv, 
                 row: row, 
                 col: scoreCol});
+            totalScore += qScore;
         }
 
         console.log(`Correct: ${nCorrect}; Wrong: ${nWrong}; No Answer: ${nNoAnswer}; Total Questions: ${nQuestions}`);
+        console.log(`Final Score: ${totalScore}/${nQuestions*10}`);
+
+        let fin = new Fraction(totalScore, nQuestions*10);
+        let finElement = fin.getElement();
+        finElement.style.borderTop = '4px double black';
+        finElement.style.marginTop = '10px;';
+        this.putInScoreTable({data: finElement, 
+            row: row+1,
+            col: scoreCol
+        })
     }
 
     putInScoreTable({
