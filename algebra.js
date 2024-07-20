@@ -82,16 +82,24 @@ class Term {
         this.variables = variables;
     }
 
-    insertIntoDiv(div, {showDots=false}={}){
+    insertIntoDiv(div, {showDots=false, showSign=false}={}, signSpace='2px'){
         // div is either the Element or the element's id
 
         if (checkForString(div)){ // if string assume it's the element id
             div = document.getElementById(div);
         } 
 
-        let d = document.createElement('span');
-        d.innerHTML = this.coeff;
-        div.appendChild(d);
+        let signSpan = document.createElement('span');
+
+        let sign = "";
+        if (showSign){
+            sign = this.coeff > 0 ? "+" : "−";
+        }
+
+        //coefficient
+        signSpan.innerHTML = sign + Math.abs(this.coeff);
+        signSpan.style.marginRight = signSpace;
+        div.appendChild(signSpan);
 
         if (showDots && this.variables.length > 0){
             appendDot(div);
@@ -119,25 +127,32 @@ function parseTerm(input="x"){
     }
     try {
         let s = input.trim();
-        s = s.replace(' ', '');
-        // check if negative
-        if (s[0] === '-'){
-            sign = -1;
-            s = s.slice(1);
-        }
+        s = s.replace(/\s/g, '');
+        
         // get constant
         for (const char of s){
-            if ("0123456789.".includes(char)){
+            if ("0123456789.+-".includes(char)){
                 c = c + char;
                 s = s.slice(1);
             } else {
                 break;
             }
         }
+        if (c.length === 0){
+            c = 1;
+            
+        } else if (c === "+"){
+            c = 1;
+        } else if (c === '-'){
+            c = -1;
+        } else {
+            c = parseFloat(c);
+        }
+
         // get variables
         variables = getVariables(s);
         
-        c = parseFloat(c) * sign;
+        
 
     } catch (Error) {
         console.log("Error with parseTerm.", Error)
@@ -153,8 +168,49 @@ class AlgebraicExperssion {
     constructor({
         terms = [new Term] // a list of terms
     }) {
-        this.tems = terms;
+        this.terms = terms;
     }
+
+    insertIntoDiv(div, {showDots=false}={}){
+        // div is either the Element or the element's id
+
+        if (checkForString(div)){ // if string assume it's the element id
+            div = document.getElementById(div);
+        } 
+        let d = document.createElement('span');
+
+        let mods = {};
+        for (let [i, t] of this.terms.entries()){
+            console.log("t", t);
+            if (i > 0){
+                mods["showSign"] = true;
+            }
+            t.insertIntoDiv(d, mods);
+        }
+        div.appendChild(d);
+    }
+}
+
+
+function parseExpression(s){
+    if (!checkForString(s)){
+        return false;
+    }
+
+    s = s.replace(/\s/g, '');; // remove spaces
+    let t = "";
+    let terms = [];
+    for (let c of s){
+        //console.log(c);
+        if ('+-'.includes(c)){
+            terms.push(parseTerm(t));
+            t = c;
+        } else {
+            t = t + c;
+        }
+    }
+    terms.push(parseTerm(t));
+    return new AlgebraicExperssion({terms:terms});
 }
 
 

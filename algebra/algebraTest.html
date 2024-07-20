@@ -26,7 +26,14 @@
     d.textContent = "Parse Term (dots): ";
     div.appendChild(d);
     testTerm.insertIntoDiv(d, {showDots:true});
-    // testTerm.insertIntoDiv('testTermDivDots', {showDots:true});
+    
 
+    let testExpression = parseExpression("2xy + 3x^2z -4x - y");
+    console.log(testExpression)
+
+    d = document.createElement('div');
+    d.textContent = "Parse Expression: ";
+    div.appendChild(d);
+    testExpression.insertIntoDiv(d);
 </script>
 </html>
