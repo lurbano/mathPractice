@@ -28,12 +28,21 @@
     testTerm.insertIntoDiv(d, {showDots:true});
     
 
-    let testExpression = parseExpression("2xy + 3x^2z -4x - y");
+    let testExpression = parseExpression("2xy + 3x^2z -4x - y +g");
     console.log(testExpression)
 
     d = document.createElement('div');
     d.textContent = "Parse Expression: ";
     div.appendChild(d);
     testExpression.insertIntoDiv(d);
+
+
+    let testEquation = parseEquation("3x^2 - 5x = 2x - 3")
+    console.log("testEquation", testEquation);
+    d = document.createElement('div');
+    d.textContent = "Parse Equation: ";
+    div.appendChild(d);
+    testEquation.insertIntoDiv(d);
+
 </script>
 </html>

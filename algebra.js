@@ -1,3 +1,10 @@
+// NOTES ON THE CLASSES
+//
+// A Variable has a letter and its exponent: "x^3"
+// A Term has a coefficient (coeff) and an array of Variable's
+// An AlgebraicExperssion has an array of Terms
+// An Equation has an array of AlgebraicExperssion's
+
 class Variable {
     constructor({
         character = "x",  // variable character
@@ -75,8 +82,8 @@ function getVariables(s){
 
 class Term {
     constructor({
-        coeff = 1, // a coefficient
-        variables = [new Variable()] // a list of varaibles
+        coeff = 1,          // a coefficient
+        variables = []      // a list of Varaibles
     }) {
         this.coeff = coeff;
         this.variables = variables;
@@ -97,7 +104,10 @@ class Term {
         }
 
         //coefficient
-        signSpan.innerHTML = sign + Math.abs(this.coeff);
+        let c = Math.abs(this.coeff) + "";
+        if (c === "1") c = "";
+        
+        signSpan.innerHTML = sign + c;
         signSpan.style.marginRight = signSpace;
         div.appendChild(signSpan);
 
@@ -166,7 +176,7 @@ function parseTerm(input="x"){
 
 class AlgebraicExperssion {
     constructor({
-        terms = [new Term] // a list of terms
+        terms = []      // a list of Term's
     }) {
         this.terms = terms;
     }
@@ -181,7 +191,6 @@ class AlgebraicExperssion {
 
         let mods = {};
         for (let [i, t] of this.terms.entries()){
-            console.log("t", t);
             if (i > 0){
                 mods["showSign"] = true;
             }
@@ -214,6 +223,50 @@ function parseExpression(s){
 }
 
 
+class Equation{
+    constructor({
+        expressions = []    //list of AlgebraicExpressions
+    }){
+        this.expressions = expressions;
+    }
+
+    insertIntoDiv(div, {showDots=false}={}){
+        // div is either the Element or the element's id
+
+        if (checkForString(div)){ // if string assume it's the element id
+            div = document.getElementById(div);
+        } 
+        let d = document.createElement('span');
+
+        let mods = {showDots:showDots};
+        for (let [i, e] of this.expressions.entries()){
+            e.insertIntoDiv(d, mods);
+            if (i < this.expressions.length-1){
+                appendString(d, "=");
+            }
+        }
+        div.appendChild(d);
+    }
+}
+
+function parseEquation(s) {
+    if (!checkForString(s)){
+        return false;
+    }
+    let expressions = [];
+    s = s.replace(/\s/g, '');; // remove spaces
+    let xpString = s.split('=');
+    for (let e of xpString){
+        expr = parseExpression(e);
+        if (expr !== false) {
+            expressions.push(expr);
+        }
+    }
+    return new Equation({expressions:expressions});
+}
+
+
+//  UTILITY FUNCTIONS
 function checkForString(input){
     //check for valid input string
     if (typeof input !== 'string' || input.trim() === '') {
@@ -234,4 +287,14 @@ function appendDot(div){
         div = document.getElementById(div);
     }
     div.appendChild(getDot());
+}
+function appendString(div, s, {margin="4px"}={}){
+    if (checkForString(div)){ // if string assume it's the element id
+        div = document.getElementById(div);
+    }
+    let spn = document.createElement('span');
+    spn.style.marginLeft = margin;
+    spn.style.marginRight = margin;
+    spn.textContent = s;
+    div.appendChild(spn);
 }
