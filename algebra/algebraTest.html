@@ -4,6 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="../algebra.js"></script>
+    <style>
+        .grid-item {
+            border: 2px solid black; /* Add border to each grid item */
+            padding: 20px;
+            text-align: center;
+        }
+        #tests {
+            border: 1px solid green;
+        }
+        #gridArea {
+            border: 1px solid red;
+        }
+    </style>
     <title>Document</title>
 </head>
 <body>
@@ -11,6 +24,10 @@
     <div id="tests"></div>
     <div id="testTermDiv"></div>
     <div id="testTermDivDots"></div>
+    <hr>
+    Grid Area:
+    <div id = 'gridArea'></div>
+    <hr>
 </body>
 <script>
     let testTerm = parseTerm("-43 x^22yz^3");
@@ -39,10 +56,20 @@
 
     let testEquation = parseEquation("3x^2 - 5x = 2x - 3")
     console.log("testEquation", testEquation);
+    
     d = document.createElement('div');
     d.textContent = "Parse Equation: ";
     div.appendChild(d);
     testEquation.insertIntoDiv(d);
+
+    let gridArea = document.getElementById('gridArea');
+    let g = document.createElement('div');
+    g.style.display = "grid";
+    g.style.gridTemplateColumns = `repeat(3, auto)`;
+    g.style.gridTemplateRows = 'repeat(10, 1fr)';
+    // g.appendChild(document.createTextNode("Grid"));
+    gridArea.appendChild(g);
+    testEquation.insertIntoGrid(g, {gridRow:2});
 
 </script>
 </html>

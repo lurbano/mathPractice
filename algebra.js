@@ -181,12 +181,9 @@ class AlgebraicExperssion {
         this.terms = terms;
     }
 
-    insertIntoDiv(div, {showDots=false}={}){
+    getDiv({showDots=false}={}){
         // div is either the Element or the element's id
 
-        if (checkForString(div)){ // if string assume it's the element id
-            div = document.getElementById(div);
-        } 
         let d = document.createElement('span');
 
         let mods = {};
@@ -196,6 +193,24 @@ class AlgebraicExperssion {
             }
             t.insertIntoDiv(d, mods);
         }
+        return d;
+    }
+    insertIntoDiv(div, {showDots=false}={}){
+        // div is either the Element or the element's id
+
+        if (checkForString(div)){ // if string assume it's the element id
+            div = document.getElementById(div);
+        } 
+        let d = document.createElement('span');
+
+        div.appendChild(this.getDiv());
+        // let mods = {};
+        // for (let [i, t] of this.terms.entries()){
+        //     if (i > 0){
+        //         mods["showSign"] = true;
+        //     }
+        //     t.insertIntoDiv(d, mods);
+        // }
         div.appendChild(d);
     }
 }
@@ -246,6 +261,37 @@ class Equation{
             }
         }
         div.appendChild(d);
+    }
+
+    insertIntoGrid(gridDiv, {showDots=false, gridRow=1}={}){
+        // div is either the Element or the element's id
+
+        let mods = {showDots:showDots};
+        let margin = "4px";
+        let c = 1;
+        for (let [i, e] of this.expressions.entries()){
+            let eDiv = e.getDiv();
+            eDiv.classList.add("grid-item");
+            eDiv.style.gridRow = gridRow;
+            eDiv.style.gridColumn = c;
+            c = c + 1 ;
+            gridDiv.appendChild(eDiv);
+            // e.insertIntoDiv(d, mods);
+            if (i < this.expressions.length-1){
+                // appendString(d, "=");
+                let spn = document.createElement('div');
+                spn.textContent = "=";
+                // spn.style.marginLeft = margin;
+                // spn.style.marginRight = margin;
+                spn.style.gridRow = gridRow;
+                spn.style.gridColumn = c;
+                spn.classList.add("grid-item");
+                c = c + 1;
+                
+                gridDiv.appendChild(spn);
+            }
+        }
+
     }
 }
 
