@@ -8,11 +8,25 @@
 </head>
 <body>
     <h3>Algebra</h3>
-    <div id="test"></div>
+    <div id="tests"></div>
+    <div id="testTermDiv"></div>
+    <div id="testTermDivDots"></div>
 </body>
 <script>
-    let test = parseTerm("-43 x^22yz^3");
-    console.log("test:", test);
+    let testTerm = parseTerm("-43 x^22yz^3");
+    console.log("testTerm:", testTerm);
+
+    let div = document.getElementById('tests');
+    let d = document.createElement('div');
+    d.textContent = "Parse Term: ";
+    div.appendChild(d);
+    testTerm.insertIntoDiv(d);
+
+    d = document.createElement('div');
+    d.textContent = "Parse Term (dots): ";
+    div.appendChild(d);
+    testTerm.insertIntoDiv(d, {showDots:true});
+    // testTerm.insertIntoDiv('testTermDivDots', {showDots:true});
 
 </script>
 </html>

@@ -1,25 +1,43 @@
 class Variable {
     constructor({
-        sign = +1,
-        c = "x",  // variable character
+        character = "x",  // variable character
         exp = 1   // exponent
     }){
-        this.sign = sign;
-        this.c = c;
+        this.character = character;
         this.exp = parseFloat(exp);
+    }
+    getHTML({
+        showAllExponents = false,
+        afterSpace = ""
+    }={}){
+        let html = this.character;
+        if (showAllExponents || this.exp != 1){
+            html = html + `<sup>${this.exp}</sup>`;
+        } 
+        html = html + afterSpace;
+        return html;
+    }
+    getSPAN({
+        showAllExponents = false,
+        margin = "3px"
+    }={}){
+        let s = document.createElement('span');
+        s.innerHTML = this.getHTML({showAllExponents:showAllExponents});
+        s.style.marginRight = margin;
+        return s;
     }
 }
 
 function parseVariable(s){
     if (s.length === 1){
         return new Variable({
-            c:s
+            character: s
         });
     }
     else if (s.includes("^")){
         let parts = s.split("^");
         return new Variable({
-            c: parts[0], exp: parts[1]
+            character: parts[0], exp: parts[1]
         })
     }
     else {
@@ -62,6 +80,30 @@ class Term {
     }) {
         this.coeff = coeff;
         this.variables = variables;
+    }
+
+    insertIntoDiv(div, {showDots=false}={}){
+        // div is either the Element or the element's id
+
+        if (checkForString(div)){ // if string assume it's the element id
+            div = document.getElementById(div);
+        } 
+
+        let d = document.createElement('span');
+        d.innerHTML = this.coeff;
+        div.appendChild(d);
+
+        if (showDots && this.variables.length > 0){
+            appendDot(div);
+        }
+
+        for (let [i, v] of this.variables.entries()){
+            div.appendChild(v.getSPAN());
+            if (showDots && i < this.variables.length-1) {
+                appendDot(div);
+            }
+        }
+
     }
 }
 
@@ -113,4 +155,27 @@ class AlgebraicExperssion {
     }) {
         this.tems = terms;
     }
+}
+
+
+function checkForString(input){
+    //check for valid input string
+    if (typeof input !== 'string' || input.trim() === '') {
+        // console.log("Invalid String", input);
+        return false;
+    } else {
+        return true;
+    }
+}
+
+function getDot(){
+    let s = document.createElement('span');
+    s.textContent = '·';
+    return s;
+}
+function appendDot(div){
+    if (checkForString(div)){ // if string assume it's the element id
+        div = document.getElementById(div);
+    }
+    div.appendChild(getDot());
 }
