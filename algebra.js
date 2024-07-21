@@ -13,6 +13,13 @@ class Variable {
         this.character = character;
         this.exp = parseFloat(exp);
     }
+    toString(){
+        let s = this.character;
+        if (String(this.exp) !== '1'){
+            s = s + `^${this.exp}`;
+        }
+        return s;
+    }
     getHTML({
         showAllExponents = false,
         afterSpace = ""
@@ -87,6 +94,30 @@ class Term {
     }) {
         this.coeff = coeff;
         this.variables = variables;
+        this.sortVariables();
+    }
+
+    sortVariables(){
+        this.variables.sort((a, b) => a.character.localeCompare(b.name));
+    }
+
+    toString(showSign=false){
+        
+        let sign = "";
+        if (showSign){
+            sign = this.coeff > 0 ? "+" : "−";
+        }
+
+        //coefficient
+        let c = Math.abs(this.coeff) + "";
+        if (c === "1") c = "";
+
+        let s = sign + c;
+
+        for (let v of this.variables){
+            s = s + v.toString();
+        }
+        return s;
     }
 
     insertIntoDiv(div, {showDots=false, showSign=false}={}, signSpace='2px'){
@@ -181,6 +212,16 @@ class AlgebraicExperssion {
         this.terms = terms;
     }
 
+    toString(){
+        let s = this.terms[0].toString();
+        for (let [i, t] of this.terms.entries()){
+            if (i > 0){
+                s = s + t.toString(true);
+            } 
+        }
+        return s;
+    }
+
     getDiv({showDots=false}={}){
         // div is either the Element or the element's id
 
@@ -243,6 +284,17 @@ class Equation{
         expressions = []    //list of AlgebraicExpressions
     }){
         this.expressions = expressions;
+    }
+
+    toString(){
+        let s = '';
+        for (let [i,e] of this.expressions.entries()){
+            s = s + e.toString();
+            if (i < this.expressions.length -1){
+                s = s + "=";
+            }
+        }
+        return s;
     }
 
     insertIntoDiv(div, {showDots=false}={}){

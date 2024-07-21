@@ -35,7 +35,9 @@
     <div id = 'gridArea'></div>
     <hr>
 </body>
+
 <script>
+
     let testTerm = parseTerm("-43 x^22yz^3");
     console.log("testTerm:", testTerm);
 
@@ -49,6 +51,20 @@
     d.textContent = "Parse Term (dots): ";
     div.appendChild(d);
     testTerm.insertIntoDiv(d, {showDots:true});
+
+    //sort
+    testTerm = parseTerm("3yxg^2");
+    d = document.createElement('div');
+    d.textContent = "Sort Terms: ";
+    div.appendChild(d);
+    testTerm.insertIntoDiv(d, {showDots:false});
+    
+    //toString 
+    d = document.createElement('div');
+    let s = " To String: ";
+    s = s + testTerm.toString();
+    d.innerHTML = s;
+    div.appendChild(d);
     
 
     let testExpression = parseExpression("2xy + 3x^2z -4x - y +g");
@@ -59,6 +75,12 @@
     div.appendChild(d);
     testExpression.insertIntoDiv(d);
 
+    //toString 
+    d = document.createElement('div');
+    s = " To String: ";
+    s = s + testExpression.toString();
+    d.innerHTML = s;
+    div.appendChild(d);
 
     let testEquation = parseEquation("3x^2 - 5x = 2x - 3")
     console.log("testEquation", testEquation);
@@ -78,6 +100,13 @@
     // gridArea.appendChild(g);
     // testEquation.insertIntoGrid(g, {gridRow:1});
     testEquation.insertIntoGrid('gridArea', {gridRow:1});
+
+    //toString 
+    d = document.createElement('div');
+    s = " To String: ";
+    s = s + testEquation.toString();
+    d.innerHTML = s;
+    div.appendChild(d);
 
 </script>
 </html>
