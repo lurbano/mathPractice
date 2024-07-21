@@ -6,9 +6,15 @@
     <script src="../algebra.js"></script>
     <style>
         .grid-item {
-            border: 2px solid black; /* Add border to each grid item */
-            padding: 20px;
+            /* border: 2px solid black; Add border to each grid item */
+            padding: 1px;
             text-align: center;
+        }
+        .equationGrid {
+            display: grid;
+            grid-template-columns: min-content 1.5em min-content;
+            /* grid-template-rows: repeat(2, 1.5em); */
+            align-items: end;
         }
         #tests {
             border: 1px solid green;
@@ -62,14 +68,16 @@
     div.appendChild(d);
     testEquation.insertIntoDiv(d);
 
-    let gridArea = document.getElementById('gridArea');
-    let g = document.createElement('div');
-    g.style.display = "grid";
-    g.style.gridTemplateColumns = `repeat(3, auto)`;
-    g.style.gridTemplateRows = 'repeat(10, 1fr)';
-    // g.appendChild(document.createTextNode("Grid"));
-    gridArea.appendChild(g);
-    testEquation.insertIntoGrid(g, {gridRow:2});
+    // let gridArea = document.getElementById('gridArea');
+    // let g = document.createElement('div');
+    // g.classList.add('equationGrid');
+    // g.style.display = "grid";
+    // g.style.gridTemplateColumns =  'min-content 1.5em min-content'; //'repeat(auto-fill,  minmax(3em, 10em))'; //`repeat(30, auto)`;
+    // g.style.gridTemplateRows = 'repeat(10, 1fr)';
+    // g.style.alignItems = "end";
+    // gridArea.appendChild(g);
+    // testEquation.insertIntoGrid(g, {gridRow:1});
+    testEquation.insertIntoGrid('gridArea', {gridRow:1});
 
 </script>
 </html>

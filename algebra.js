@@ -265,6 +265,18 @@ class Equation{
 
     insertIntoGrid(gridDiv, {showDots=false, gridRow=1}={}){
         // div is either the Element or the element's id
+        console.log("gridDiv", gridDiv);
+        if (checkForString(gridDiv)){ // if string assume it's the element id
+            gridDiv = document.getElementById(gridDiv);
+        } 
+        console.log("gridDiv", gridDiv);
+
+        let g = document.createElement('div');
+        // style div
+        g.style.display = "grid";
+        g.style.gridTemplateColumns =  'min-content 1.5em min-content'; 
+        // g.style.gridTemplateRows = 'repeat(10, 1fr)';
+        g.style.alignItems = "end";
 
         let mods = {showDots:showDots};
         let margin = "4px";
@@ -275,7 +287,7 @@ class Equation{
             eDiv.style.gridRow = gridRow;
             eDiv.style.gridColumn = c;
             c = c + 1 ;
-            gridDiv.appendChild(eDiv);
+            g.appendChild(eDiv);
             // e.insertIntoDiv(d, mods);
             if (i < this.expressions.length-1){
                 // appendString(d, "=");
@@ -288,9 +300,10 @@ class Equation{
                 spn.classList.add("grid-item");
                 c = c + 1;
                 
-                gridDiv.appendChild(spn);
+                g.appendChild(spn);
             }
         }
+        gridDiv.appendChild(g);
 
     }
 }
