@@ -98,7 +98,7 @@ class Term {
     }
 
     sortVariables(){
-        this.variables.sort((a, b) => a.character.localeCompare(b.name));
+        this.variables.sort((a, b) => a.character.localeCompare(b.character));
     }
 
     toString(showSign=false){
