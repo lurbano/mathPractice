@@ -38,7 +38,7 @@
 
 <script>
 
-    // Term's
+    // TERM's
     let testTerm = parseTerm("-43 x^22yz^3");
     console.log("testTerm:", testTerm);
 
@@ -104,9 +104,10 @@
     appendString(d, " is similar to ")
     term5.insertIntoDiv(d);
     appendString(d, `? ${term4.isSimilarTo(term5)}`);
+    appendHTML(d, '<p>');
     
 
-    // Expression's
+    // EXPRESSION's
     let testExpression = parseExpression("2xy -1 + 3x^2z -4x - y +g +1");
     console.log(testExpression)
 
@@ -139,9 +140,54 @@
     appendString(d, " = ")
     expression1.simplify().sort().insertIntoDiv(d);
     
+    // add to Expression
+    let exp1 = parseExpression("3x + 2xy^2 + 4");
+    let exp2 = parseExpression("6");
+    let exp3 = parseExpression("3x^2y");
+    let exp4 = parseExpression("6xy^2");
+    let exp5 = parseExpression("x - 8");
+    d = document.createElement('div');
+    div.appendChild(d);
+    appendHTML(d, " Add Expressions <br> (");
+    exp1.insertIntoDiv(d);
+    appendString(d, ") + (");
+    exp2.insertIntoDiv(d);
+    appendString(d, ") = ");
+    exp1.add(exp2).insertIntoDiv(d);
+
+    appendHTML(d, " <br> (");
+    exp1.insertIntoDiv(d);
+    appendString(d, ") + (");
+    exp3.insertIntoDiv(d);
+    appendString(d, ") = ");
+    exp1.add(exp3).sort().insertIntoDiv(d);
+
+    appendHTML(d, " <br> (");
+    exp1.insertIntoDiv(d);
+    appendString(d, ") + (");
+    exp4.insertIntoDiv(d);
+    appendString(d, ") = ");
+    exp1.add(exp4).sort().insertIntoDiv(d);
+
+    appendHTML(d, " <br> (");
+    exp1.insertIntoDiv(d);
+    appendString(d, ") + (");
+    exp5.insertIntoDiv(d);
+    appendString(d, ") = ");
+    exp1.add(exp5).sort().insertIntoDiv(d);
+
+    // add term
+    appendHTML(d, " <br> add term (");
+    exp3.insertIntoDiv(d);
+    appendString(d, ") + (");
+    term1.insertIntoDiv(d);
+    appendString(d, ") = ");
+    exp3.add(term1).sort().insertIntoDiv(d);
+
+    appendHTML(d, '<p>');
     
 
-    // Equation's
+    // EQUATION's
     let testEquation = parseEquation("3x^2 - 5x = 2x - 3")
     console.log("testEquation", testEquation);
     

@@ -148,7 +148,6 @@ class Term {
             }
             if (l_addToList) vSimp.push(v);
         }
-        console.log('Simplify vSimp:', vSimp);
 
         return new Term({
             coeff: this.coeff, 
@@ -278,6 +277,20 @@ class AlgebraicExpression {
         })
     }
 
+    add(e){ //add Expression or Term (e) to this Expression
+        if (e instanceof Term){ //if Term make Expression
+            e = new AlgebraicExpression({terms:[e]});
+        }
+        if (!(e instanceof AlgebraicExpression)){
+            console.log("add: e needs to be an Expression.")
+            return false;
+        }
+
+        let expr = new AlgebraicExpression({terms: this.terms.concat(e.terms)});
+        expr = expr.simplify();
+        return expr;
+    }
+
     toString(){
         let s = this.terms[0].toString();
         for (let [i, t] of this.terms.entries()){
@@ -300,8 +313,7 @@ class AlgebraicExpression {
             }
             if (l_addToList) eSimp.push(t);
         }
-        console.log('Simplify Expression:', eSimp);
-
+        
         return new AlgebraicExpression({
             terms: eSimp
         });
@@ -402,12 +414,11 @@ class Equation{
 
     insertIntoGrid(gridDiv, {showDots=false, gridRow=1}={}){
         // div is either the Element or the element's id
-        console.log("gridDiv", gridDiv);
+        
         if (checkForString(gridDiv)){ // if string assume it's the element id
             gridDiv = document.getElementById(gridDiv);
         } 
-        console.log("gridDiv", gridDiv);
-
+        
         let g = document.createElement('div');
         // style div
         g.style.display = "grid";
@@ -492,5 +503,13 @@ function appendString(div, s, {margin="4px"}={}){
     spn.style.marginLeft = margin;
     spn.style.marginRight = margin;
     spn.textContent = s;
+    div.appendChild(spn);
+}
+
+function appendHTML(div, html, {margin="4px"}={}){
+    let spn = document.createElement('span');
+    spn.style.marginLeft = margin;
+    spn.style.marginRight = margin;
+    spn.innerHTML = html;
     div.appendChild(spn);
 }
