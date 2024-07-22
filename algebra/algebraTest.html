@@ -82,18 +82,28 @@
     let term1 = parseTerm("7 x^2 y");
     let term2 = parseTerm("y x^2");
     let term3 = parseTerm("x y");
+    let term4 = parseTerm("4");
+    let term5 = parseTerm("5");
     d = document.createElement('div');
     div.appendChild(d);
     term1.insertIntoDiv(d);
     appendString(d, " is similar to ")
     term2.insertIntoDiv(d);
     appendString(d, `? ${term1.isSimilarTo(term2)}`);
+
     d = document.createElement('div');
     div.appendChild(d);
     term1.insertIntoDiv(d);
     appendString(d, " is similar to ")
     term3.insertIntoDiv(d);
     appendString(d, `? ${term1.isSimilarTo(term3)}`);
+    
+    d = document.createElement('div');
+    div.appendChild(d);
+    term4.insertIntoDiv(d);
+    appendString(d, " is similar to ")
+    term5.insertIntoDiv(d);
+    appendString(d, `? ${term4.isSimilarTo(term5)}`);
     
 
     // Expression's
@@ -111,6 +121,17 @@
     s = s + testExpression.toString();
     d.innerHTML = s;
     div.appendChild(d);
+
+    // simplify
+    let expression1 = parseExpression(" 3x + 2 - 7x +5x^2y -x^2y");
+    d = document.createElement('div');
+    div.appendChild(d);
+    appendString(d, " Simplify:  ")
+    expression1.insertIntoDiv(d);
+    appendString(d, " = ")
+    expression1.simplify().insertIntoDiv(d);
+    
+
 
     // Equation's
     let testEquation = parseEquation("3x^2 - 5x = 2x - 3")

@@ -124,6 +124,17 @@ class Term {
         return true; // if it passes all checks
     }
 
+    add(t){ // add term (t) to this term
+        if (this.isSimilarTo(t)){
+            let c = this.coeff + t.coeff;
+            return new Term({
+                coeff: c,
+                variables: this.variables
+            })
+        }
+        return false; // if not similar
+    }
+
     simplify(){
         //combine varaibles x^2·x^3 = x^5
         let vSimp = [];
@@ -175,13 +186,15 @@ class Term {
         let signSpan = document.createElement('span');
 
         let sign = "";
-        if (showSign){
+        if (showSign || this.coeff < 0){
             sign = this.coeff > 0 ? "+" : "−";
         }
 
         //coefficient
         let c = Math.abs(this.coeff) + "";
-        if (c === "1" && this.variables.length > 0) c = "";
+        if (c === "1" && this.variables.length > 0) {
+            c =  "";
+        }
         
         signSpan.innerHTML = sign + c;
         signSpan.style.marginRight = signSpace;
@@ -250,7 +263,7 @@ function parseTerm(input="x"){
     })
 }
 
-class AlgebraicExperssion {
+class AlgebraicExpression {
     constructor({
         terms = []      // a list of Term's
     }) {
@@ -265,6 +278,25 @@ class AlgebraicExperssion {
             } 
         }
         return s;
+    }
+
+    simplify(){ // combine like terms
+        let eSimp = [];
+        for (let t of this.terms){
+            let l_addToList = true;
+            for (let [i,ts] of eSimp.entries()){
+                if (t.isSimilarTo(ts)) {
+                    l_addToList = false;
+                    eSimp[i] = t.add(ts);
+                }
+            }
+            if (l_addToList) eSimp.push(t);
+        }
+        console.log('Simplify Expression:', eSimp);
+
+        return new AlgebraicExpression({
+            terms: eSimp
+        });
     }
 
     getDiv({showDots=false}={}){
@@ -320,7 +352,7 @@ function parseExpression(s){
         }
     }
     terms.push(parseTerm(t));
-    return new AlgebraicExperssion({terms:terms});
+    return new AlgebraicExpression({terms:terms});
 }
 
 
