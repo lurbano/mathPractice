@@ -38,6 +38,7 @@
 
 <script>
 
+    // Term's
     let testTerm = parseTerm("-43 x^22yz^3");
     console.log("testTerm:", testTerm);
 
@@ -52,22 +53,33 @@
     div.appendChild(d);
     testTerm.insertIntoDiv(d, {showDots:true});
 
-    //sort
+    //sortVariables
     testTerm = parseTerm("3yxg^2");
     d = document.createElement('div');
-    d.textContent = "Sort Terms: ";
+    d.textContent = "Sort Variables in Term: ";
     div.appendChild(d);
     testTerm.insertIntoDiv(d, {showDots:false});
-    
+    appendString(d, "=");
+    testTerm.sortVariables().insertIntoDiv(d, {showDots:false});
+
     //toString 
     d = document.createElement('div');
     let s = " To String: ";
     s = s + testTerm.toString();
     d.innerHTML = s;
     div.appendChild(d);
-    
 
-    let testExpression = parseExpression("2xy + 3x^2z -4x - y +g");
+    //simplify terms
+    testTerm = parseTerm("3 y x^2 x^3 y");
+    d = document.createElement('div');
+    d.textContent = "Simplify Terms: ";
+    div.appendChild(d);
+    testTerm.insertIntoDiv(d);
+    appendString(d, "=");
+    testTerm.simplify().insertIntoDiv(d, {showDots:false});
+    
+    // Expression's
+    let testExpression = parseExpression("2xy -1 + 3x^2z -4x - y +g +1");
     console.log(testExpression)
 
     d = document.createElement('div');
@@ -82,6 +94,7 @@
     d.innerHTML = s;
     div.appendChild(d);
 
+    // Equation's
     let testEquation = parseEquation("3x^2 - 5x = 2x - 3")
     console.log("testEquation", testEquation);
     
@@ -90,15 +103,6 @@
     div.appendChild(d);
     testEquation.insertIntoDiv(d);
 
-    // let gridArea = document.getElementById('gridArea');
-    // let g = document.createElement('div');
-    // g.classList.add('equationGrid');
-    // g.style.display = "grid";
-    // g.style.gridTemplateColumns =  'min-content 1.5em min-content'; //'repeat(auto-fill,  minmax(3em, 10em))'; //`repeat(30, auto)`;
-    // g.style.gridTemplateRows = 'repeat(10, 1fr)';
-    // g.style.alignItems = "end";
-    // gridArea.appendChild(g);
-    // testEquation.insertIntoGrid(g, {gridRow:1});
     testEquation.insertIntoGrid('gridArea', {gridRow:1});
 
     //toString 
@@ -107,6 +111,8 @@
     s = s + testEquation.toString();
     d.innerHTML = s;
     div.appendChild(d);
+
+    
 
 </script>
 </html>

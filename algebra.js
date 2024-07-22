@@ -90,15 +90,40 @@ function getVariables(s){
 class Term {
     constructor({
         coeff = 1,          // a coefficient
-        variables = []      // a list of Varaibles
-    }) {
+        variables = [],      // a list of Varaibles
+    }={}) {
         this.coeff = coeff;
         this.variables = variables;
-        this.sortVariables();
     }
 
     sortVariables(){
-        this.variables.sort((a, b) => a.character.localeCompare(b.character));
+        let tmp = this.variables;
+        tmp.sort((a, b) => a.character.localeCompare(b.character));
+        return new Term({
+            coeff: this.coeff,
+            variables: tmp
+        });
+    }
+
+    simplify(){
+        //combine varaibles x^2·x^3 = x^5
+        let vSimp = [];
+        for (let v of this.variables){
+            let l_addToList = true;
+            for (let [i,vs] of vSimp.entries()){
+                if (v.character === vs.character) {
+                    l_addToList = false;
+                    vSimp[i].exp += v.exp;
+                }
+            }
+            if (l_addToList) vSimp.push(v);
+        }
+        console.log('Simplify vSimp:', vSimp);
+
+        return new Term({
+            coeff: this.coeff, 
+            variables: vSimp
+        });
     }
 
     toString(showSign=false){
@@ -110,7 +135,8 @@ class Term {
 
         //coefficient
         let c = Math.abs(this.coeff) + "";
-        if (c === "1") c = "";
+        
+        if (c === "1" && this.variables.length > 0) c = "";
 
         let s = sign + c;
 
@@ -136,7 +162,7 @@ class Term {
 
         //coefficient
         let c = Math.abs(this.coeff) + "";
-        if (c === "1") c = "";
+        if (c === "1" && this.variables.length > 0) c = "";
         
         signSpan.innerHTML = sign + c;
         signSpan.style.marginRight = signSpace;
