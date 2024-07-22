@@ -13,6 +13,10 @@ class Variable {
         this.character = character;
         this.exp = parseFloat(exp);
     }
+    isSameAs(v){
+        let test = ((this.character === v.character) && (this.exp === v.exp)) ? true : false;
+        return test;
+    }
     toString(){
         let s = this.character;
         if (String(this.exp) !== '1'){
@@ -103,6 +107,21 @@ class Term {
             coeff: this.coeff,
             variables: tmp
         });
+    }
+
+    isSimilarTo(term){
+        // is term similar to (has the same variables as) this Term
+        if (this.variables.length !== term.variables.length){
+            return false;
+        }
+        let v1 = this.sortVariables().variables;
+        let v2 = term.sortVariables().variables;
+        for (let i in v1){
+            if (!v1[i].isSameAs(v2[i])){
+                return false;
+            }
+        }
+        return true; // if it passes all checks
     }
 
     simplify(){

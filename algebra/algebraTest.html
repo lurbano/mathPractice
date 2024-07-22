@@ -78,6 +78,24 @@
     appendString(d, "=");
     testTerm.simplify().insertIntoDiv(d, {showDots:false});
     
+    //isSimilarTo
+    let term1 = parseTerm("7 x^2 y");
+    let term2 = parseTerm("y x^2");
+    let term3 = parseTerm("x y");
+    d = document.createElement('div');
+    div.appendChild(d);
+    term1.insertIntoDiv(d);
+    appendString(d, " is similar to ")
+    term2.insertIntoDiv(d);
+    appendString(d, `? ${term1.isSimilarTo(term2)}`);
+    d = document.createElement('div');
+    div.appendChild(d);
+    term1.insertIntoDiv(d);
+    appendString(d, " is similar to ")
+    term3.insertIntoDiv(d);
+    appendString(d, `? ${term1.isSimilarTo(term3)}`);
+    
+
     // Expression's
     let testExpression = parseExpression("2xy -1 + 3x^2z -4x - y +g +1");
     console.log(testExpression)
