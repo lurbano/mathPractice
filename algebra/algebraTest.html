@@ -53,14 +53,14 @@
     div.appendChild(d);
     testTerm.insertIntoDiv(d, {showDots:true});
 
-    //sortVariables
+    //sort Variables
     testTerm = parseTerm("3yxg^2");
     d = document.createElement('div');
     d.textContent = "Sort Variables in Term: ";
     div.appendChild(d);
     testTerm.insertIntoDiv(d, {showDots:false});
     appendString(d, "=");
-    testTerm.sortVariables().insertIntoDiv(d, {showDots:false});
+    testTerm.sort().insertIntoDiv(d, {showDots:false});
 
     //toString 
     d = document.createElement('div');
@@ -122,16 +122,24 @@
     d.innerHTML = s;
     div.appendChild(d);
 
+    // sort Expression
+    d = document.createElement('div');
+    div.appendChild(d);
+    appendString(d, " Sort:  ");
+    testExpression.sort().insertIntoDiv(d);
+
     // simplify
     let expression1 = parseExpression(" 3x + 2 - 7x +5x^2y -x^2y");
     d = document.createElement('div');
     div.appendChild(d);
-    appendString(d, " Simplify:  ")
+    appendString(d, " Simplify and sort:  ")
     expression1.insertIntoDiv(d);
     appendString(d, " = ")
     expression1.simplify().insertIntoDiv(d);
+    appendString(d, " = ")
+    expression1.simplify().sort().insertIntoDiv(d);
     
-
+    
 
     // Equation's
     let testEquation = parseEquation("3x^2 - 5x = 2x - 3")

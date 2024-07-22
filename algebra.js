@@ -100,7 +100,7 @@ class Term {
         this.variables = variables;
     }
 
-    sortVariables(){
+    sort(){ //sort variables
         let tmp = this.variables;
         tmp.sort((a, b) => a.character.localeCompare(b.character));
         return new Term({
@@ -114,8 +114,8 @@ class Term {
         if (this.variables.length !== term.variables.length){
             return false;
         }
-        let v1 = this.sortVariables().variables;
-        let v2 = term.sortVariables().variables;
+        let v1 = this.sort().variables;
+        let v2 = term.sort().variables;
         for (let i in v1){
             if (!v1[i].isSameAs(v2[i])){
                 return false;
@@ -268,6 +268,14 @@ class AlgebraicExpression {
         terms = []      // a list of Term's
     }) {
         this.terms = terms;
+    }
+
+    sort(){
+        let tmp = this.terms;
+        tmp.sort((a, b) => a.variables.length - b.variables.length);
+        return new AlgebraicExpression({
+            terms: tmp
+        })
     }
 
     toString(){
