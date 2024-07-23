@@ -124,6 +124,20 @@ class Term {
         return true; // if it passes all checks
     }
 
+    isConstant(){
+        return this.variables.length > 0 ? false : true; 
+    }
+
+    divideByConstant(c){
+        console.log("this.coeff, c:", this.coeff, c)
+        c = this.coeff / c;
+        console.log("c:", c)
+        return new Term({
+            coeff: c,
+            variables: this.variables
+        });
+    }
+
     add(t){ // add term (t) to this term
         if (this.isSimilarTo(t)){
             let c = this.coeff + t.coeff;
@@ -277,6 +291,14 @@ class AlgebraicExpression {
         })
     }
 
+    divideByConstant(c){
+        let newTerms = [];
+        for (let t of this.terms){
+            newTerms.push(t.divideByConstant(c));
+        }
+        return new AlgebraicExpression({terms: newTerms});
+    }
+
     add(e){ //add Expression or Term (e) to this Expression
         if (e instanceof Term){ //if Term make Expression
             e = new AlgebraicExpression({terms:[e]});
@@ -313,9 +335,17 @@ class AlgebraicExpression {
             }
             if (l_addToList) eSimp.push(t);
         }
+
+        // remove zero terms
+        let simpTerms = [];
+        for (let t of eSimp){
+            if (String(t.coeff) !== "0"){
+                simpTerms.push(t);
+            }
+        }
         
         return new AlgebraicExpression({
-            terms: eSimp
+            terms: simpTerms
         });
     }
 
@@ -383,6 +413,110 @@ class Equation{
         this.expressions = expressions;
     }
 
+    solveOneSimilarVariable(){
+        let eq = this.simplify();
+        console.log("hasOneSimilarVariable:", eq.hasOneSimilarVariable());
+        if (eq.hasOneSimilarVariable() === false){
+            console.log("solveOneSimilarVariable: Error. multiple variables", this.toString());
+            return undefined;
+        }
+
+        // get all variable terms to the left hand side
+        eq = eq.removeAllFromSide({whatToRemove:"variables", side:1});
+
+        // remove constants from left hand side
+        eq = eq.removeAllFromSide({whatToRemove:"constants", side:0});
+
+        // divide by coefficient
+        let coeff = eq.expressions[0].terms[0].coeff;
+        console.log("coeff:", coeff);
+        console.log("eq:", eq.toString())
+
+        eq = eq.divideByConstant(coeff);
+        console.log("eq:", eq.toString());
+
+        return eq;
+
+    }
+
+    divideByConstant(c){
+        let expr = [];
+        for (let e of this.expressions){
+            expr.push(e.divideByConstant(c));
+        }
+        return new Equation({
+            expressions: expr
+        });
+    }
+
+    removeAllFromSide({whatToRemove="variables", side=1}={}){ 
+        //move all "variables" or "constants" (whatToRemove) from given side of equation: side: (left=0) (right=1)
+
+        let expr = this.expressions;
+        for (let [i, t] of this.expressions[side].terms.entries()){
+            let test = t.isConstant();
+            if (whatToRemove === "variables") test = !test;
+            if (test){
+                for (let [j, e] of this.expressions.entries()){
+                    let newTerm = new Term({
+                        coeff: t.coeff * -1,
+                        variables: t.variables
+                    })
+                    expr[j] = expr[j].add(newTerm);
+                }
+            }
+        }
+        return new Equation({
+            expressions: expr
+        })
+    }
+
+    removeVariables(col=1){ //move all variables from given side of equation: col: (left=0) (right=1)
+        let expr = this.expressions;
+        for (let [i, t] of this.expressions[col].terms.entries()){
+            console.log('i,t:', i,t);
+            if (t.isConstant() === false){
+                for (let [j, e] of this.expressions.entries()){
+                    let newTerm = new Term({
+                        coeff: t.coeff * -1,
+                        variables: t.variables
+                    })
+                    expr[j] = expr[j].add(newTerm);
+                }
+            }
+        }
+        console.log('expr: ', expr[0].toString(), expr[1].toString());
+        return new Equation({
+            expressions: expr
+        })
+    }
+
+    simplify(){
+        let simpleExpressions = [];
+        for (let e of this.expressions){
+            simpleExpressions.push(e.simplify());
+        }
+        return new Equation({expressions: simpleExpressions});
+    }
+
+    hasOneSimilarVariable(){
+        let testTerm = "";
+        for (let e of this.expressions){
+            for (let t of e.terms){
+                if (t.isConstant() === false){
+                    if (testTerm === ""){
+                        testTerm = t;
+                    } else {
+                        if (testTerm.isSimilarTo(t) === false){
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true; //passed checks
+    }
+
     toString(){
         let s = '';
         for (let [i,e] of this.expressions.entries()){
@@ -419,7 +553,8 @@ class Equation{
             gridDiv = document.getElementById(gridDiv);
         } 
         
-        let g = document.createElement('div');
+        // let g = document.createElement('div');
+        let g = gridDiv;
         // style div
         g.style.display = "grid";
         g.style.gridTemplateColumns =  'min-content 1.5em min-content'; 
@@ -429,11 +564,15 @@ class Equation{
         let mods = {showDots:showDots};
         let margin = "4px";
         let c = 1;
+        
         for (let [i, e] of this.expressions.entries()){
             let eDiv = e.getDiv();
             eDiv.classList.add("grid-item");
             eDiv.style.gridRow = gridRow;
             eDiv.style.gridColumn = c;
+            let just = (i === 0) ? 'end' : 'start';
+            eDiv.style.justifySelf = just;
+            
             c = c + 1 ;
             g.appendChild(eDiv);
             // e.insertIntoDiv(d, mods);
@@ -451,7 +590,7 @@ class Equation{
                 g.appendChild(spn);
             }
         }
-        gridDiv.appendChild(g);
+        //gridDiv.appendChild(g);
 
     }
 }

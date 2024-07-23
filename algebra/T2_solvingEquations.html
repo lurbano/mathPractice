@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../algebra.js"></script>
+    <style>
+        .grid-item {
+            /* border: 2px solid black; Add border to each grid item */
+            padding: 1px;
+            text-align: center;
+        }
+        .equationGrid {
+            display: grid;
+            grid-template-columns: min-content 1.5em min-content;
+            /* grid-template-rows: repeat(2, 1.5em); */
+            align-items: end;
+        }
+        #tests {
+            border: 1px solid green;
+        }
+        #gridArea {
+            border: 1px solid red;
+        }
+    </style>
+    <title>Document</title>
+</head>
+<body>
+    <h3>Algebra</h3>
+    <div id="tests"></div>
+    <hr>
+    Grid Area:
+    <div id = 'gridArea'></div>
+    <hr>
+    <div id="testEqn"></div>
+</body>
+
+<script>
+
+    let div = document.getElementById('tests');
+
+    // EQUATION's
+    let testEquation = parseEquation("3x^2 - 5x = 2x - 3")
+    console.log("testEquation", testEquation);
+    
+    d = document.createElement('div');
+    d.textContent = "Parse Equation: ";
+    div.appendChild(d);
+    testEquation.insertIntoDiv(d);
+
+    testEquation.insertIntoGrid('gridArea', {gridRow:1});
+
+    //toString 
+    d = document.createElement('div');
+    s = " To String: ";
+    s = s + testEquation.toString();
+    d.innerHTML = s;
+    div.appendChild(d);
+
+    
+
+    div = document.getElementById('testEqn');
+    let eq1 = parseEquation("a + 2a + 5 = 8 - a");
+    eq1.insertIntoGrid('testEqn', {gridRow:1});
+    eq1.simplify().insertIntoGrid('testEqn', {gridRow:3});
+    console.log("remove varaibles")
+    eq1.simplify()
+       .removeAllFromSide({whatToRemove:"variables", side:1})
+       .insertIntoGrid('testEqn', {gridRow:5});
+    console.log('remove constants')
+    eq1.simplify()
+       .removeAllFromSide({whatToRemove:"variables", side:1})
+       .removeAllFromSide({whatToRemove:"constants", side:0})
+       .insertIntoGrid('testEqn', {gridRow:7});
+    eq1.solveOneSimilarVariable().insertIntoGrid('testEqn', {gridRow:9});
+
+</script>
+</html>
