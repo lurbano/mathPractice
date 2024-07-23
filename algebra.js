@@ -413,26 +413,81 @@ class Equation{
         this.expressions = expressions;
     }
 
-    solveOneSimilarVariable(){
+    solveOneSimilarVariable({showSteps=false, div=""}={}){
+        let gridDiv = div;
+        let gridRow = 1;
+        if (showSteps) {
+            if (checkForString(div)){ // if string assume it's the element id
+                gridDiv = document.getElementById(div);
+            } 
+            if (gridDiv === null){
+                console.log("Invalid div:", div);
+                return false;
+            }
+        }
+        
+        if (showSteps) {
+            gridRow = this.addCommentToGrid({
+                gridDiv: gridDiv, 
+                gridRow: gridRow, 
+                comment: "Solve:"
+            })
+            gridRow = this.insertIntoGrid(gridDiv, {gridRow: gridRow})
+        };
+
+        // SIMPLIFY
         let eq = this.simplify();
-        console.log("hasOneSimilarVariable:", eq.hasOneSimilarVariable());
+        console.log("eq:", eq.toString());
+        if (showSteps) {
+            gridRow = eq.addCommentToGrid({
+                gridDiv: gridDiv, 
+                gridRow: gridRow, 
+                comment: "Simplify"
+            })
+            gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
+        }
+        
         if (eq.hasOneSimilarVariable() === false){
             console.log("solveOneSimilarVariable: Error. multiple variables", this.toString());
             return undefined;
         }
 
+        // CONSOLIDATE VARIABLE ON LEFT HAND SIDE
         // get all variable terms to the left hand side
         eq = eq.removeAllFromSide({whatToRemove:"variables", side:1});
+        if (showSteps) {
+            gridRow = eq.addCommentToGrid({
+                gridDiv: gridDiv, 
+                gridRow: gridRow, 
+                comment: "Move variables to left hand side:"
+            })
+            gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
+        }
 
+        
         // remove constants from left hand side
         eq = eq.removeAllFromSide({whatToRemove:"constants", side:0});
+        if (showSteps) {
+            gridRow = eq.addCommentToGrid({
+                gridDiv: gridDiv, 
+                gridRow: gridRow, 
+                comment: "Move constants to right hand side:"
+            })
+            gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
+        }
 
         // divide by coefficient
         let coeff = eq.expressions[0].terms[0].coeff;
-        console.log("coeff:", coeff);
-        console.log("eq:", eq.toString())
-
+    
         eq = eq.divideByConstant(coeff);
+        if (showSteps) {
+            gridRow = eq.addCommentToGrid({
+                gridDiv: gridDiv, 
+                gridRow: gridRow, 
+                comment: "Divide by coefficient"
+            })
+            gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
+        }
         console.log("eq:", eq.toString());
 
         return eq;
@@ -546,6 +601,21 @@ class Equation{
         div.appendChild(d);
     }
 
+    styleEquationGrid({div=undefined}={}){
+        div.style.display = "grid";
+        div.style.gridTemplateColumns =  '1.5em min-content 1.5em min-content'; 
+        // g.style.gridTemplateRows = 'repeat(10, 1fr)';
+        div.style.alignItems = "end";
+    }
+
+    addCommentToGrid({gridDiv=undefined, gridRow=1, comment=""}){
+        let d = document.createElement('div');
+        d.style.gridColumn = '1 / -1';
+        d.style.gridRow = gridRow;
+        d.innerHTML = comment;
+        gridDiv.appendChild(d);
+        return gridRow + 1;
+    }
     insertIntoGrid(gridDiv, {showDots=false, gridRow=1}={}){
         // div is either the Element or the element's id
         
@@ -553,17 +623,12 @@ class Equation{
             gridDiv = document.getElementById(gridDiv);
         } 
         
-        // let g = document.createElement('div');
-        let g = gridDiv;
-        // style div
-        g.style.display = "grid";
-        g.style.gridTemplateColumns =  'min-content 1.5em min-content'; 
-        // g.style.gridTemplateRows = 'repeat(10, 1fr)';
-        g.style.alignItems = "end";
+
+        this.styleEquationGrid({div: gridDiv});
 
         let mods = {showDots:showDots};
         let margin = "4px";
-        let c = 1;
+        let c = 2;
         
         for (let [i, e] of this.expressions.entries()){
             let eDiv = e.getDiv();
@@ -574,7 +639,7 @@ class Equation{
             eDiv.style.justifySelf = just;
             
             c = c + 1 ;
-            g.appendChild(eDiv);
+            gridDiv.appendChild(eDiv);
             // e.insertIntoDiv(d, mods);
             if (i < this.expressions.length-1){
                 // appendString(d, "=");
@@ -587,11 +652,11 @@ class Equation{
                 spn.classList.add("grid-item");
                 c = c + 1;
                 
-                g.appendChild(spn);
+                gridDiv.appendChild(spn);
             }
         }
         //gridDiv.appendChild(g);
-
+        return gridRow + 1;
     }
 }
 
