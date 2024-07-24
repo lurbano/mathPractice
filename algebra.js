@@ -413,7 +413,7 @@ class Equation{
         this.expressions = expressions;
     }
 
-    solveOneSimilarVariable({showSteps=false, div=""}={}){
+    solveOneSimilarVariable({showSteps=false, showComments=true, div=""}={}){
         let gridDiv = div;
         let gridRow = 1;
         if (showSteps) {
@@ -427,11 +427,13 @@ class Equation{
         }
         
         if (showSteps) {
-            gridRow = this.addCommentToGrid({
-                gridDiv: gridDiv, 
-                gridRow: gridRow, 
-                comment: "Solve:"
-            })
+            if (showComments){
+                gridRow = this.addCommentToGrid({
+                    gridDiv: gridDiv, 
+                    gridRow: gridRow, 
+                    comment: "Solve:"
+                })
+            }
             gridRow = this.insertIntoGrid(gridDiv, {gridRow: gridRow})
         };
 
@@ -439,11 +441,13 @@ class Equation{
         let eq = this.simplify();
         console.log("eq:", eq.toString());
         if (showSteps) {
-            gridRow = eq.addCommentToGrid({
-                gridDiv: gridDiv, 
-                gridRow: gridRow, 
-                comment: "Simplify"
-            })
+            if (showComments){
+                gridRow = eq.addCommentToGrid({
+                    gridDiv: gridDiv, 
+                    gridRow: gridRow, 
+                    comment: "Simplify"
+                })
+            }
             gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
         }
         
@@ -456,11 +460,13 @@ class Equation{
         // get all variable terms to the left hand side
         eq = eq.removeAllFromSide({whatToRemove:"variables", side:1});
         if (showSteps) {
-            gridRow = eq.addCommentToGrid({
-                gridDiv: gridDiv, 
-                gridRow: gridRow, 
-                comment: "Move variables to left hand side:"
-            })
+            if (showComments){
+                gridRow = eq.addCommentToGrid({
+                    gridDiv: gridDiv, 
+                    gridRow: gridRow, 
+                    comment: "Move variables to left hand side:"
+                })
+            }
             gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
         }
 
@@ -468,11 +474,13 @@ class Equation{
         // remove constants from left hand side
         eq = eq.removeAllFromSide({whatToRemove:"constants", side:0});
         if (showSteps) {
-            gridRow = eq.addCommentToGrid({
-                gridDiv: gridDiv, 
-                gridRow: gridRow, 
-                comment: "Move constants to right hand side:"
-            })
+            if (showComments){
+                gridRow = eq.addCommentToGrid({
+                    gridDiv: gridDiv, 
+                    gridRow: gridRow, 
+                    comment: "Move constants to right hand side:"
+                })
+            }
             gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
         }
 
@@ -481,11 +489,13 @@ class Equation{
     
         eq = eq.divideByConstant(coeff);
         if (showSteps) {
-            gridRow = eq.addCommentToGrid({
-                gridDiv: gridDiv, 
-                gridRow: gridRow, 
-                comment: "Divide by coefficient"
-            })
+            if (showComments) {
+                gridRow = eq.addCommentToGrid({
+                    gridDiv: gridDiv, 
+                    gridRow: gridRow, 
+                    comment: "Divide by coefficient"
+                })
+            }
             gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
         }
         console.log("eq:", eq.toString());
@@ -616,6 +626,12 @@ class Equation{
         gridDiv.appendChild(d);
         return gridRow + 1;
     }
+    getGridId(r, c){
+        let id = `eq_r${r}_c${c}`;
+        let element = document.getElementById(id);
+        if (element) element.remove();
+        return id;
+    }
     insertIntoGrid(gridDiv, {showDots=false, gridRow=1}={}){
         // div is either the Element or the element's id
         
@@ -632,9 +648,11 @@ class Equation{
         
         for (let [i, e] of this.expressions.entries()){
             let eDiv = e.getDiv();
+            eDiv.id = this.getGridId(gridRow,c);
             eDiv.classList.add("grid-item");
             eDiv.style.gridRow = gridRow;
             eDiv.style.gridColumn = c;
+            
             let just = (i === 0) ? 'end' : 'start';
             eDiv.style.justifySelf = just;
             
@@ -645,8 +663,7 @@ class Equation{
                 // appendString(d, "=");
                 let spn = document.createElement('div');
                 spn.textContent = "=";
-                // spn.style.marginLeft = margin;
-                // spn.style.marginRight = margin;
+                spn.id = this.getGridId(gridRow,c);
                 spn.style.gridRow = gridRow;
                 spn.style.gridColumn = c;
                 spn.classList.add("grid-item");
@@ -685,7 +702,7 @@ class AlgebraQuestion {
         instructions = "Solve:"
      }={}) {
         let input = equation;
-        let inputDiv = div;
+        let initDiv = div;
 
         //error checking
         if (checkForString(equation)) equation = parseEquation(equation);
@@ -693,10 +710,11 @@ class AlgebraQuestion {
         if (div instanceof Element){
             this.div = div;
         } else {
-            throw new Error(`AlgebraQuestion: div is not an Element on the page: ${inputDiv}`);
+            throw new Error(`AlgebraQuestion: div is not an Element on the page: ${initDiv}`);
         }
         if (equation instanceof Equation){
-            this.equaton = equation;
+            this.equation = equation;
+            this.solvedEquation = this.equation.solveOneSimilarVariable();
         } else {
             throw new Error(`${input}, is not a valid Equation instance.`)
         }
@@ -704,9 +722,68 @@ class AlgebraQuestion {
         //style div
         //this.div.style.display = 'grid';
         
-        equation.insertIntoGrid(this.div, {gridRow:1});
+        this.gridRow = equation.insertIntoGrid(this.div, {gridRow:1});
 
+        this.insertAnswerInput();
 
+    }
+
+    insertAnswerInput(){
+        let c = 5;
+        this.answerRow = this.gridRow+2;
+        this.inputDiv = document.createElement("input");
+
+        this.inputDiv.type = "text";
+        this.inputDiv.style.gridRow = this.answerRow;
+        this.inputDiv.style.gridColumn = c;
+        this.inputDiv.style.width = '10em';
+        this.inputDiv.style.backgroundColor = "lightblue";
+
+        // this.inputDiv.classList.add("answerTextInput");
+
+        this.inputDiv.addEventListener("keyup", () => {
+            this.userEquation = parseEquation(this.inputDiv.value);
+            this.userEquation.insertIntoGrid(this.div, {gridRow:this.answerRow})
+        })
+
+        this.inputDiv.addEventListener("change", () => {
+            this.userEquation = parseEquation(this.inputDiv.value);
+            console.log("userAnser", this.userEquation.expressions[0], this.userEquation.expressions[1]);
+            
+            let isValid = this.checkIfValidAnswer(this.solvedEquation, this.userEquation);
+            console.log("isValid? ", isValid);
+            
+        });
+        this.div.appendChild(this.inputDiv);
+    }
+
+    checkIfValidAnswer(userEqn){
+        let ansLHS = this.solvedEquation.expressions[0];
+        let ansRHS = this.solvedEquation.expressions[1];
+        let usrLHS = userEqn.expressions[0];
+        let usrRHS = userEqn.expressions[1];
+        //check if equation is valid: has two expressions 
+        if (!(usrLHS instanceof AlgebraicExpression && usrRHS instanceof AlgebraicExpression)){
+            console.log("Invalid equation:", userEqn.toString());
+            return false;
+        }
+        // check if left hand side is a single variable
+        if (usrLHS.terms.length !== 1){
+            console.log("A single variable (Term) should be to the left of the = sign.")
+            return false;
+        }
+        // check if right hand side is a single constant
+        if (usrRHS.terms.length !== 1){
+            console.log("A single value should be to the right of the = sign")
+            return false;
+        } else {
+            if (!usrRHS.terms[0].isConstant()){
+                console.log("The left side of the equation should be a constant");
+                return false;
+            }
+        }
+        console.log("Valid equation entered;", userEqn.toString())
+        return true;
     }
 
 }
@@ -761,4 +838,9 @@ function appendHTML(div, html, {margin="4px"}={}){
     spn.style.marginRight = margin;
     spn.innerHTML = html;
     div.appendChild(spn);
+}
+
+function removeElement(id){
+    let element = document.getElementById(id);
+    if (element) element.remove();
 }
