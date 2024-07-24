@@ -677,6 +677,51 @@ function parseEquation(s) {
 }
 
 
+class AlgebraQuestion {
+
+    constructor({
+        equation = new Equation(),
+        div = "",
+        instructions = "Solve:"
+     }={}) {
+        let input = equation;
+        let inputDiv = div;
+
+        //error checking
+        if (checkForString(equation)) equation = parseEquation(equation);
+        if (checkForString(div)) div = document.getElementById(div);
+        if (div instanceof Element){
+            this.div = div;
+        } else {
+            throw new Error(`AlgebraQuestion: div is not an Element on the page: ${inputDiv}`);
+        }
+        if (equation instanceof Equation){
+            this.equaton = equation;
+        } else {
+            throw new Error(`${input}, is not a valid Equation instance.`)
+        }
+
+        //style div
+        //this.div.style.display = 'grid';
+        
+        equation.insertIntoGrid(this.div, {gridRow:1});
+
+
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
 //  UTILITY FUNCTIONS
 function checkForString(input){
     //check for valid input string
