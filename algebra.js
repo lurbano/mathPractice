@@ -109,6 +109,14 @@ class Term {
         });
     }
 
+    isSameAs(term){
+        if (term.coeff == this.coeff && this.isSimilarTo(term)){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     isSimilarTo(term){
         // is term similar to (has the same variables as) this Term
         if (this.variables.length !== term.variables.length){
@@ -129,9 +137,7 @@ class Term {
     }
 
     divideByConstant(c){
-        console.log("this.coeff, c:", this.coeff, c)
         c = this.coeff / c;
-        console.log("c:", c)
         return new Term({
             coeff: c,
             variables: this.variables
@@ -738,51 +744,106 @@ class AlgebraQuestion {
         this.inputDiv.style.gridColumn = c;
         this.inputDiv.style.width = '10em';
         this.inputDiv.style.backgroundColor = "lightblue";
+        this.inputDiv.style.marginLeft = '2em';
 
         // this.inputDiv.classList.add("answerTextInput");
 
         this.inputDiv.addEventListener("keyup", () => {
             this.userEquation = parseEquation(this.inputDiv.value);
             this.userEquation.insertIntoGrid(this.div, {gridRow:this.answerRow})
+
+            let isValid = this.checkIfValidAnswer(this.userEquation);
+
+            if (isValid){
+                setValidStyle(this.inputDiv);
+            } else {
+                setInvalidStyle(this.inputDiv);
+            }
         })
 
         this.inputDiv.addEventListener("change", () => {
             this.userEquation = parseEquation(this.inputDiv.value);
             console.log("userAnser", this.userEquation.expressions[0], this.userEquation.expressions[1]);
             
-            let isValid = this.checkIfValidAnswer(this.solvedEquation, this.userEquation);
+            let isValid = this.checkIfValidAnswer(this.userEquation, {printConsole:true});
+
             console.log("isValid? ", isValid);
             
+            if (isValid){
+                let result = this.checkAnswer(this.userEquation);
+                if (result.isCorrect){
+
+                }
+            }
         });
         this.div.appendChild(this.inputDiv);
     }
 
-    checkIfValidAnswer(userEqn){
+    checkAnswer(userAnswer){
+        let note = "";
+        let isCorrect = false;
+        let score = 0;
+
+
+        // check for correct value
+        let correctValue = this.solvedEquation.expressions[1].terms[0].coeff;
+        let userValue = userAnswer.expressions[1].terms[0].coeff;
+        if (correctValue == userValue){
+            isCorrect = true;
+            score += 8;
+        }
+
+        // check for correct variable
+        let correctTerm = this.solvedEquation.expressions[0].terms[0];
+        let userTerm = userAnswer.expressions[0].terms[0];
+        if (correctTerm.isSameAs(userTerm)){
+            score += 2;
+        }
+
+        console.log("Check answer:", correctValue, userValue, isCorrect, score);
+
+
+        return new AlgebraResult({
+            userAnswer: userAnswer,
+            correctAnswer: this.solvedEquation,
+            note: note,
+            isCorrect: isCorrect,
+            score: score
+        })
+    }
+
+    checkIfValidAnswer(userEqn, {printConsole=false}={}){
         let ansLHS = this.solvedEquation.expressions[0];
         let ansRHS = this.solvedEquation.expressions[1];
         let usrLHS = userEqn.expressions[0];
         let usrRHS = userEqn.expressions[1];
         //check if equation is valid: has two expressions 
         if (!(usrLHS instanceof AlgebraicExpression && usrRHS instanceof AlgebraicExpression)){
-            console.log("Invalid equation:", userEqn.toString());
+            if (printConsole) 
+                console.log("Invalid equation:", userEqn.toString());
             return false;
         }
         // check if left hand side is a single variable
         if (usrLHS.terms.length !== 1){
-            console.log("A single variable (Term) should be to the left of the = sign.")
+            if (printConsole)
+                console.log("A single variable (Term) should be to the left of the = sign.")
             return false;
         }
         // check if right hand side is a single constant
-        if (usrRHS.terms.length !== 1){
-            console.log("A single value should be to the right of the = sign")
+        if (usrRHS.terms[0].variables.length !== 0){
+            if (printConsole) 
+                console.log("A single value should be to the right of the = sign")
             return false;
         } else {
             if (!usrRHS.terms[0].isConstant()){
-                console.log("The left side of the equation should be a constant");
+                if (printConsole)
+                    console.log("The left side of the equation should be a constant");
                 return false;
             }
         }
-        console.log("Valid equation entered;", userEqn.toString())
+        if (printConsole) 
+            console.log("Valid equation entered;", userEqn.toString())
+
         return true;
     }
 
@@ -843,4 +904,29 @@ function appendHTML(div, html, {margin="4px"}={}){
 function removeElement(id){
     let element = document.getElementById(id);
     if (element) element.remove();
+}
+
+function setValidStyle(div){
+    div.style.backgroundColor = "lightblue";
+}
+function setInvalidStyle(div){
+    div.style.backgroundColor = "darksalmon";
+}
+
+
+class AlgebraResult {
+
+    constructor({
+        userAnswer = undefined,
+        correctAnswer = undefined,
+        note = "",
+        isCorrect = undefined, 
+        score = 0
+    }){
+        this.userAnswer = userAnswer;
+        this.correctAnswer = correctAnswer;
+        this.note = note;
+        this.isCorrect = isCorrect;
+        this.score = score;
+    }
 }
