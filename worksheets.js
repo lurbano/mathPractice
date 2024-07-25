@@ -54,6 +54,10 @@ class Worksheet {
             if (question instanceof FractionQuestion){
                 question.insertIntoDiv(qArea.id);
             }
+
+            if (question instanceof AlgebraQuestion) {
+                question.insertIntoDiv({div:qArea.id});
+            }
             
             
         }

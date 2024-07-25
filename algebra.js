@@ -620,12 +620,7 @@ class Equation{
         return s;
     }
 
-    insertIntoDiv(div, {showDots=false}={}){
-        // div is either the Element or the element's id
-
-        if (checkForString(div)){ // if string assume it's the element id
-            div = document.getElementById(div);
-        } 
+    getElement({showDots=false}={}){
         let d = document.createElement('span');
 
         let mods = {showDots:showDots};
@@ -635,6 +630,17 @@ class Equation{
                 appendString(d, "=");
             }
         }
+        return d;
+    }
+
+    insertIntoDiv(div, {showDots=false}={}){
+        // div is either the Element or the element's id
+
+        if (checkForString(div)){ // if string assume it's the element id
+            div = document.getElementById(div);
+        } 
+        
+        let d = this.getElement({showDots:showDots});
         div.appendChild(d);
     }
 
@@ -714,52 +720,6 @@ class Equation{
         return gridRow + 1;
     }
 
-    // insertIntoGrid(gridDiv, {showDots=false, gridRow=1}={}){
-    //     // div is either the Element or the element's id
-        
-    //     if (checkForString(gridDiv)){ // if string assume it's the element id
-    //         gridDiv = document.getElementById(gridDiv);
-    //     } 
-        
-
-    //     this.styleEquationGrid({div: gridDiv});
-
-    //     let mods = {showDots:showDots};
-    //     let margin = "4px";
-    //     let c = 2;
-        
-    //     for (let [i, e] of this.expressions.entries()){
-    //         let eDiv = e.getDiv();
-    //         // eDiv.id = this.getGridId(gridRow,c);
-    //         eDiv.classList.add("grid-item");
-    //         eDiv.style.padding = '1px';
-    //         eDiv.style.textAlign = 'center';
-
-    //         eDiv.style.gridRow = gridRow;
-    //         eDiv.style.gridColumn = c;
-            
-    //         let just = (i === 0) ? 'end' : 'start';
-    //         eDiv.style.justifySelf = just;
-            
-    //         c = c + 1 ;
-    //         gridDiv.appendChild(eDiv);
-    //         // e.insertIntoDiv(d, mods);
-    //         if (i < this.expressions.length-1){
-    //             // appendString(d, "=");
-    //             let spn = document.createElement('div');
-    //             spn.textContent = "=";
-    //             // spn.id = this.getGridId(gridRow,c);
-    //             spn.style.gridRow = gridRow;
-    //             spn.style.gridColumn = c;
-    //             spn.classList.add("grid-item");
-    //             c = c + 1;
-                
-    //             gridDiv.appendChild(spn);
-    //         }
-    //     }
-    //     //gridDiv.appendChild(g);
-    //     return gridRow + 1;
-    // }
 }
 
 function parseEquation(s) {
@@ -788,6 +748,7 @@ class AlgebraQuestion {
      }={}) {
         let input = equation;
         let initDiv = div;
+        this.userResults = [];
 
         //error checking and conversion
         if (checkForString(equation)) equation = parseEquation(equation);
@@ -800,42 +761,41 @@ class AlgebraQuestion {
 
 
         if (div !== undefined) {
-            this.insertQuestion(div, 1);
-            // if (checkForString(div)) div = document.getElementById(div);
-            // if (div instanceof Element){
-            //     if (div.id !== ""){
-            //         this.div = div;
-            //     } else {
-            //         throw new Error('div.id is undefined');
-            //     }
-                
-            // } else {
-            //     throw new Error(`AlgebraQuestion: div is not an Element on the page: ${initDiv}`);
-            // }
-            
-            // this.gridRow = this.equation.insertIntoGrid(this.div, {gridRow:1});
-
-            // this.insertAnswerInput();
+            this.divContainer = div;
+            this.insertIntoDiv({div:this.divContainer, gridRow:1});
         }
 
     }
 
-    insertQuestion(div, gridRow=1){
+    insertIntoDiv({div="", gridRow=1}){
         if (checkForString(div)) div = document.getElementById(div);
-            if (div instanceof Element){
-                if (div.id !== ""){
-                    this.div = div;
-                } else {
-                    throw new Error('div.id is undefined');
-                }
-                
-            } else {
-                throw new Error(`AlgebraQuestion: div is not an Element on the page: ${initDiv}`);
-            }
-            
-            this.gridRow = this.equation.insertIntoGrid(this.div, {gridRow:gridRow});
 
-            this.insertAnswerInput();
+        if (div instanceof Element){
+            if (div.id !== ""){
+                this.divContainer = div;
+            } else {
+                throw new Error('div.id is undefined');
+            }
+        } else {
+            throw new Error(`AlgebraQuestion: div is not an Element on the page: ${initDiv}`);
+        }
+
+        this.divContainer.style.border = '1px solid red';
+        
+        // create div for question
+        this.qDiv = document.createElement('div');
+        this.qDiv.id = `${this.divContainer.id}_q`;
+        this.divContainer.appendChild(this.qDiv);
+
+        this.gridRow = this.equation.insertIntoGrid(this.qDiv, {gridRow:gridRow});
+
+        this.insertAnswerInput();
+
+        this.userResultsDiv = doc.createElement('div');
+        this.userResultsDiv.style.border = '1px solid green';
+        this.userResultsDiv.innerHTML = "Results: "
+        this.divContainer.appendChild(this.userResultsDiv);
+            
     }
 
     insertAnswerInput(){
@@ -854,7 +814,7 @@ class AlgebraQuestion {
 
         this.inputDiv.addEventListener("keyup", () => {
             this.userEquation = parseEquation(this.inputDiv.value);
-            this.userEquation.insertIntoGrid(this.div, {gridRow:this.answerRow})
+            this.userEquation.insertIntoGrid(this.qDiv, {gridRow:this.answerRow})
 
             let isValid = this.checkIfValidAnswer(this.userEquation);
 
@@ -880,7 +840,7 @@ class AlgebraQuestion {
                 }
             }
         });
-        this.div.appendChild(this.inputDiv);
+        this.qDiv.appendChild(this.inputDiv);
     }
 
     checkAnswer(userAnswer){
@@ -895,25 +855,48 @@ class AlgebraQuestion {
         if (correctValue == userValue){
             isCorrect = true;
             score += 8;
+            note = note + " is correct."
+        } else {
+            note = note + ' is incorrect.'
         }
 
         // check for correct variable
         let correctTerm = this.solvedEquation.expressions[0].terms[0];
         let userTerm = userAnswer.expressions[0].terms[0];
         if (correctTerm.isSameAs(userTerm)){
-            score += 2;
+            score += 2; 
+        } else {
+            note = note + " However, you used the wrong variable."
         }
 
         console.log("Check answer:", correctValue, userValue, isCorrect, score);
 
-
-        return new AlgebraResult({
+        let r = new AlgebraResult({
             userAnswer: userAnswer,
             correctAnswer: this.solvedEquation,
             note: note,
             isCorrect: isCorrect,
             score: score
         })
+
+        this.userResults.push(r);
+        this.insertResults();
+        
+        return r;
+    }
+
+    insertResults(){
+        this.userResultsDiv.innerHTML = "";
+        for (const result of this.userResults) {
+            let div = doc.createElement('div');
+            // div.appendChild(result['userAnswer'].getElement());
+            result['userAnswer'].insertIntoDiv(div);
+            div.appendChild(doc.createTextNode(result['note']));
+
+            div.style.backgroundColor = result['isCorrect'] ? 'lightGreen' : 'darkSalmon';
+            this.userResultsDiv.appendChild(div);
+        }
+
     }
 
     checkIfValidAnswer(userEqn, {printConsole=false}={}){
