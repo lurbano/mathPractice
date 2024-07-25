@@ -95,9 +95,14 @@ class Term {
     constructor({
         coeff = 1,          // a coefficient
         variables = [],      // a list of Varaibles
+        cFrac = undefined   // coefficient as a fraction if applicable
     }={}) {
         this.coeff = coeff;
         this.variables = variables;
+        this.cFrac = cFrac;
+        if (cFrac instanceof Fraction){
+            coeff = cFrac.toFloat();
+        }
     }
 
     sort(){ //sort variables
@@ -214,8 +219,15 @@ class Term {
         if (c === "1" && this.variables.length > 0) {
             c =  "";
         }
+
+        if (this.cFrac instanceof Fraction){
+            let fDiv = this.cFrac.getElement();
+            signSpan.appendChild(fDiv);
+        } else {
+            signSpan.innerHTML = sign + c;
+        }
         
-        signSpan.innerHTML = sign + c;
+        
         signSpan.style.marginRight = signSpace;
         div.appendChild(signSpan);
 
@@ -237,6 +249,7 @@ function parseTerm(input="x"){
     // term must have coefficient first then variables, no mixing of coefficients and variables in the input string.
     let sign = 1;
     let c = "";
+    let cFrac = undefined;
     let variables = [];
     //check for valid input string
     if (typeof input !== 'string' || input.trim() === '') {
@@ -249,7 +262,7 @@ function parseTerm(input="x"){
         
         // get constant
         for (const char of s){
-            if ("0123456789.+-".includes(char)){
+            if ("0123456789.+-/".includes(char)){
                 c = c + char;
                 s = s.slice(1);
             } else {
@@ -263,6 +276,13 @@ function parseTerm(input="x"){
             c = 1;
         } else if (c === '-'){
             c = -1;
+        } else if (c.includes('/')){
+            let frac = c.split("/");
+            c = parseFloat(frac[0]) / parseFloat(frac[1]);
+            if (frac.length === 2) {
+                cFrac = new Fraction(parseInt(frac[0]), parseInt(frac[1]));
+            }
+            
         } else {
             c = parseFloat(c);
         }
@@ -278,7 +298,8 @@ function parseTerm(input="x"){
     
     return new Term({
         coeff: c,
-        variables: variables
+        variables: variables,
+        cFrac: cFrac
     })
 }
 
