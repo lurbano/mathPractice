@@ -653,8 +653,8 @@ class Equation{
         gridDiv.appendChild(d);
         return gridRow + 1;
     }
-    getGridId(r, c){
-        let id = `eq_r${r}_c${c}`;
+    getGridId(prefix, r, c){
+        let id = `${prefix}_r${r}_c${c}`;
         let element = document.getElementById(id);
         if (element) element.remove();
         return id;
@@ -663,8 +663,16 @@ class Equation{
         // div is either the Element or the element's id
         
         if (checkForString(gridDiv)){ // if string assume it's the element id
-            gridDiv = document.getElementById(gridDiv);
-        } 
+            let gridDiv_id = gridDiv;
+            gridDiv = document.getElementById(gridDiv_id);
+            gridDiv.id = gridDiv_id;
+        } else {
+            console.log("gridDiv.id:", gridDiv.id);
+            if (gridDiv.id === ''){
+                throw new Error('gridDiv.id is undefined. Give the div an id.')
+            }
+           
+        }
         
 
         this.styleEquationGrid({div: gridDiv});
@@ -675,8 +683,11 @@ class Equation{
         
         for (let [i, e] of this.expressions.entries()){
             let eDiv = e.getDiv();
-            eDiv.id = this.getGridId(gridRow,c);
+            eDiv.id = this.getGridId(gridDiv.id, gridRow,c);
             eDiv.classList.add("grid-item");
+            eDiv.style.padding = '1px';
+            eDiv.style.textAlign = 'center';
+
             eDiv.style.gridRow = gridRow;
             eDiv.style.gridColumn = c;
             
@@ -690,7 +701,7 @@ class Equation{
                 // appendString(d, "=");
                 let spn = document.createElement('div');
                 spn.textContent = "=";
-                spn.id = this.getGridId(gridRow,c);
+                spn.id = this.getGridId(gridDiv.id, gridRow,c);
                 spn.style.gridRow = gridRow;
                 spn.style.gridColumn = c;
                 spn.classList.add("grid-item");
@@ -702,6 +713,53 @@ class Equation{
         //gridDiv.appendChild(g);
         return gridRow + 1;
     }
+
+    // insertIntoGrid(gridDiv, {showDots=false, gridRow=1}={}){
+    //     // div is either the Element or the element's id
+        
+    //     if (checkForString(gridDiv)){ // if string assume it's the element id
+    //         gridDiv = document.getElementById(gridDiv);
+    //     } 
+        
+
+    //     this.styleEquationGrid({div: gridDiv});
+
+    //     let mods = {showDots:showDots};
+    //     let margin = "4px";
+    //     let c = 2;
+        
+    //     for (let [i, e] of this.expressions.entries()){
+    //         let eDiv = e.getDiv();
+    //         // eDiv.id = this.getGridId(gridRow,c);
+    //         eDiv.classList.add("grid-item");
+    //         eDiv.style.padding = '1px';
+    //         eDiv.style.textAlign = 'center';
+
+    //         eDiv.style.gridRow = gridRow;
+    //         eDiv.style.gridColumn = c;
+            
+    //         let just = (i === 0) ? 'end' : 'start';
+    //         eDiv.style.justifySelf = just;
+            
+    //         c = c + 1 ;
+    //         gridDiv.appendChild(eDiv);
+    //         // e.insertIntoDiv(d, mods);
+    //         if (i < this.expressions.length-1){
+    //             // appendString(d, "=");
+    //             let spn = document.createElement('div');
+    //             spn.textContent = "=";
+    //             // spn.id = this.getGridId(gridRow,c);
+    //             spn.style.gridRow = gridRow;
+    //             spn.style.gridColumn = c;
+    //             spn.classList.add("grid-item");
+    //             c = c + 1;
+                
+    //             gridDiv.appendChild(spn);
+    //         }
+    //     }
+    //     //gridDiv.appendChild(g);
+    //     return gridRow + 1;
+    // }
 }
 
 function parseEquation(s) {
@@ -725,20 +783,14 @@ class AlgebraQuestion {
 
     constructor({
         equation = new Equation(),
-        div = "",
+        div = undefined,
         instructions = "Solve:"
      }={}) {
         let input = equation;
         let initDiv = div;
 
-        //error checking
+        //error checking and conversion
         if (checkForString(equation)) equation = parseEquation(equation);
-        if (checkForString(div)) div = document.getElementById(div);
-        if (div instanceof Element){
-            this.div = div;
-        } else {
-            throw new Error(`AlgebraQuestion: div is not an Element on the page: ${initDiv}`);
-        }
         if (equation instanceof Equation){
             this.equation = equation;
             this.solvedEquation = this.equation.solveOneSimilarVariable();
@@ -746,13 +798,44 @@ class AlgebraQuestion {
             throw new Error(`${input}, is not a valid Equation instance.`)
         }
 
-        //style div
-        //this.div.style.display = 'grid';
-        
-        this.gridRow = equation.insertIntoGrid(this.div, {gridRow:1});
 
-        this.insertAnswerInput();
+        if (div !== undefined) {
+            this.insertQuestion(div, 1);
+            // if (checkForString(div)) div = document.getElementById(div);
+            // if (div instanceof Element){
+            //     if (div.id !== ""){
+            //         this.div = div;
+            //     } else {
+            //         throw new Error('div.id is undefined');
+            //     }
+                
+            // } else {
+            //     throw new Error(`AlgebraQuestion: div is not an Element on the page: ${initDiv}`);
+            // }
+            
+            // this.gridRow = this.equation.insertIntoGrid(this.div, {gridRow:1});
 
+            // this.insertAnswerInput();
+        }
+
+    }
+
+    insertQuestion(div, gridRow=1){
+        if (checkForString(div)) div = document.getElementById(div);
+            if (div instanceof Element){
+                if (div.id !== ""){
+                    this.div = div;
+                } else {
+                    throw new Error('div.id is undefined');
+                }
+                
+            } else {
+                throw new Error(`AlgebraQuestion: div is not an Element on the page: ${initDiv}`);
+            }
+            
+            this.gridRow = this.equation.insertIntoGrid(this.div, {gridRow:gridRow});
+
+            this.insertAnswerInput();
     }
 
     insertAnswerInput(){

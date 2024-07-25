@@ -24,20 +24,84 @@
             border: 1px solid red;
         }
     </style>
-    <title>Alg. Question</title>
+    <title>T3:Alg. Question</title>
 </head>
 <body>
     <h3>Algebra Question</h3>
     <div id="tests"></div>
+    <!-- <div id="q1"></div>
+    <div id="q2"></div>
+    <div id="q3"></div> -->
+    
 
 </body>
 
 <script>
 
     let div = document.getElementById('tests');
-    let eq1 = parseEquation("a + 2a + 5 = 8 - a");
+    let qdiv = document.createElement('div');
+    qdiv.id = 'q1';
+    div.appendChild(qdiv);
+    let q1 = new AlgebraQuestion({
+        equation: "a + 2a + 5 = 8 - a", 
+        div: qdiv
+    })
 
-    let algQuest = new AlgebraQuestion({equation: eq1, div: div})
+    qdiv = document.createElement('div');
+    qdiv.id = "q2";
+    div.appendChild(qdiv);
+    let q2 = new AlgebraQuestion({
+        equation: "x+3=10", 
+        div: qdiv
+    })
+
+    qdiv = document.createElement('div');
+    qdiv.id = "q3";
+    div.appendChild(qdiv);
+    let q3 = new AlgebraQuestion({
+        equation: "y-5=1"
+    })
+    q3.insertQuestion(qdiv);
+
+
+    // let div = document.getElementById('tests');
+
+    // let eqDiv = document.createElement('div');
+    // eqDiv.style.backgroundColor = 'yellow';
+    // div.appendChild(eqDiv);
+    
+    // let algQuest = new AlgebraQuestion({
+    //     equation: "a + 2a + 5 = 8 - a", 
+    //     div: eqDiv
+    // })
+
+    // let line = document.createElement('div');
+    // line.innerHTML = '<hr>';
+    // div.appendChild(line);
+
+    // let eqDiv2 = document.createElement('div');
+    // div.appendChild(eqDiv2);
+    
+    // let algQuest2 = new AlgebraQuestion({
+    //     equation: "x + 5 = 7", 
+    //     div: eqDiv2
+    // })
+
+
+    // line = document.createElement('div');
+    // line.innerHTML = '<hr>';
+    // div.appendChild(line);
+
+    // eqDiv2 = document.createElement('div');
+    // div.appendChild(eqDiv2);
+    
+    // algQuest2 = new AlgebraQuestion({
+    //     equation: "y + 5 = 7", 
+    //     div: eqDiv2
+    // })
+
+
+
 
 </script>
 </html>
