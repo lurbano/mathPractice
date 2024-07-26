@@ -1181,7 +1181,7 @@ class DivisionQuestion extends FractionQuestion {
 
 
 // generate a random fraction
-function randFrac({
+function randomFraction({
         minNumerator = 0,
         maxNumerator = 9,
         minDenominator = 1,
@@ -1234,7 +1234,7 @@ class RandomFractionQuestion extends FractionQuestion {
         positiveResultForSubtraction = true
     }){
 
-        let f1 = randFrac({
+        let f1 = randomFraction({
             minNumerator: minNumerator,
             maxNumerator: maxNumerator,
             minDenominator: minDenominator,
@@ -1245,7 +1245,7 @@ class RandomFractionQuestion extends FractionQuestion {
             noWholeNumber: noWholeNumber
         })
 
-        let f2 = randFrac({
+        let f2 = randomFraction({
             minNumerator: minNumerator2,
             maxNumerator: maxNumerator2,
             minDenominator: minDenominator2,
@@ -1264,7 +1264,7 @@ class RandomFractionQuestion extends FractionQuestion {
         ){
             let ct = 0;
             while ((f1.toFloat() < f2.toFloat()) && ct < 20){
-                f1 = randFrac({
+                f1 = randomFraction({
                     minNumerator: minNumerator,
                     maxNumerator: maxNumerator,
                     minDenominator: minDenominator,
@@ -1275,7 +1275,7 @@ class RandomFractionQuestion extends FractionQuestion {
                     noWholeNumber: noWholeNumber
                 })
         
-                f2 = randFrac({
+                f2 = randomFraction({
                     minNumerator: minNumerator2,
                     maxNumerator: maxNumerator2,
                     minDenominator: minDenominator2,
@@ -2211,7 +2211,7 @@ class AlgebraQuestion {
         if (correctValue == userValue){
             isCorrect = true;
             score += 8;
-            note = note + " The value is correct."
+            // note = note + " The value is correct."
         } else {
             note = note + ' is incorrect.'
         }
@@ -2221,8 +2221,10 @@ class AlgebraQuestion {
         let userTerm = userAnswer.expressions[0].terms[0];
         if (correctTerm.isSameAs(userTerm)){
             score += 2; 
+            if (isCorrect) note = note + " is correct."
         } else {
-            note = note + " Note: you used a variable not in the equation."
+            note = isCorrect? note + " Correct value, but you used a variable not in the equation." 
+                            : note + " And you used a variable not in the equation."
         }
 
         console.log("Check answer:", correctValue, userValue, isCorrect, score);
@@ -2322,9 +2324,12 @@ class RandomAlgebraQuestion extends AlgebraQuestion{
         variableSide = 'left',
         minConst = 0,
         maxConst = 10,
-        variableComesFirst = true
+        variableComesFirst = true,
+        useIntegers = true, 
+        decimalPlaces = 1
     }){
         let str = '';
+        console.log("operation:", operation)
 
         if (type === 'Single Step'){
             let x = getRandomVariableLetter();
@@ -2347,7 +2352,7 @@ class RandomAlgebraQuestion extends AlgebraQuestion{
                     str = osc + "=" + vs;
                 }
             } 
-            else if (operation = '-'){
+            else if (operation === '-'){
                 let vsc = randInt(0, maxConst); //variable side constant
                 let osc = result - vsc;
                 let vs = x + operation + vsc;
@@ -2357,10 +2362,25 @@ class RandomAlgebraQuestion extends AlgebraQuestion{
                 } else {
                     str = osc + "=" + vs;
                 }
+            } else if (operation === 'x'){
+                let vsc = randInt(minConst, maxConst, true); //variable side constant
+                let ct = 0;
+                while (ct < 20 && vsc === 1){ //try to exclude 1
+                    vsc = randInt(minConst, maxConst, true);
+                }
+                let osc = result * vsc;
+
+                let vs = vsc + operation;
+                
+                if (variableSide === 'left'){
+                    str = vs + "=" + osc;
+                } else {
+                    str = osc + "=" + vs;
+                }
             }
         }
 
-        console.log("Random equation:", str);
+        console.log(`Random (${operation}) equation:`, str);
         let eq = parseEquation(str);
         super({equation: eq});
     }
