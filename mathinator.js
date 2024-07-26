@@ -1540,7 +1540,7 @@ class Term {
     toString(showSign=false){
         
         let sign = "";
-        if (showSign){
+        if (showSign || this.coeff < 0){
             sign = this.coeff > 0 ? "+" : "−";
         }
 
@@ -1611,7 +1611,8 @@ function parseTerm(input="x"){
     //check for valid input string
     if (typeof input !== 'string' || input.trim() === '') {
         console.log("parseFraction Error: ", input);
-        return false;
+        throw new Error("parseTerm Error.")
+        // return false;
     }
     try {
         let s = input.trim();
@@ -1776,9 +1777,10 @@ function parseExpression(s){
     s = s.replace(/\s/g, '');; // remove spaces
     let t = "";
     let terms = [];
+    // console.log("s:", s)
     for (let c of s){
-        //console.log(c);
-        if ('+-'.includes(c)){
+        // console.log("c,t:", c, t, t.length);
+        if ('+-'.includes(c) && t.length > 0){
             terms.push(parseTerm(t));
             t = c;
         } else {
@@ -1823,7 +1825,7 @@ class Equation{
 
         // SIMPLIFY
         let eq = this.simplify();
-        console.log("eq:", eq.toString());
+        // console.log("eq:", eq.toString());
         if (showSteps) {
             if (showComments){
                 gridRow = eq.addCommentToGrid({
@@ -1882,7 +1884,7 @@ class Equation{
             }
             gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
         }
-        console.log("eq:", eq.toString());
+        console.log("eq:", this.simplify().toString(), "||", eq.toString(), eq);
 
         return eq;
 
@@ -2030,7 +2032,6 @@ class Equation{
             gridDiv = document.getElementById(gridDiv_id);
             gridDiv.id = gridDiv_id;
         } else {
-            console.log("gridDiv.id:", gridDiv.id);
             if (gridDiv.id === ''){
                 throw new Error('gridDiv.id is undefined. Give the div an id.')
             }
