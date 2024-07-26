@@ -1785,14 +1785,18 @@ function parseExpression(s){
 
 class Equation{
     constructor({
-        expressions = []    //list of AlgebraicExpressions
+        expressions = [],    //list of AlgebraicExpressions
+        textExpressions = false  // if the array of expressions are text
     }){
         this.expressions = expressions;
+        this.textExpressions = textExpressions;
+        this.gridStartCol = 2;
     }
 
     solveOneSimilarVariable({showSteps=false, showComments=true, div=""}={}){
         let gridDiv = div;
         let gridRow = 1;
+        
         if (showSteps) {
             if (checkForString(div)){ // if string assume it's the element id
                 gridDiv = document.getElementById(div);
@@ -1804,27 +1808,28 @@ class Equation{
         }
         
         if (showSteps) {
-            if (showComments){
-                gridRow = this.addCommentToGrid({
-                    gridDiv: gridDiv, 
-                    gridRow: gridRow, 
-                    comment: "Solve:"
-                })
-            }
+            // if (showComments){
+            //     gridRow = this.addCommentToGrid({
+            //         gridDiv: gridDiv, 
+            //         gridRow: gridRow, 
+            //         comment: "Solve:"
+            //     })
+            // }
             gridRow = this.insertIntoGrid(gridDiv, {gridRow: gridRow})
         };
 
         // console.log("Solving -1.", this.expressions[1]);
         // SIMPLIFY
+        let oldEqString = this.toString();
         let eq = this.simplify();
-        // console.log("Solving 0.", eq.expressions[1]);
+        console.log("Solving 0.", this.toString(), eq.toString(), this.isSameAs(eq));
 
-        if (showSteps) {
+        if (showSteps && oldEqString !== eq.toString()) {
             if (showComments){
                 gridRow = eq.addCommentToGrid({
                     gridDiv: gridDiv, 
                     gridRow: gridRow, 
-                    comment: "Simplify"
+                    comment: "Simplify by combining like terms and constants."
                 })
             }
             gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
@@ -1838,53 +1843,73 @@ class Equation{
         
         // CONSOLIDATE VARIABLE ON LEFT HAND SIDE
         // get all variable terms to the left hand side
-        eq = eq.removeAllFromSide({whatToRemove:"variables", side:1});
-        if (showSteps) {
+        oldEqString = eq.toString();
+        let result = eq.removeAllFromSide({whatToRemove:"variables", side:1});
+        eq = result.equation;
+    
+        if (showSteps && oldEqString !== eq.toString()) {
             if (showComments){
                 gridRow = eq.addCommentToGrid({
                     gridDiv: gridDiv, 
                     gridRow: gridRow, 
                     comment: "Move variables to left hand side:"
                 })
+                gridRow = result.removedEquation.insertIntoGrid(gridDiv, {gridRow: gridRow-1});
             }
             gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
         }
 
-        // console.log("Solving 1.", eq.expressions[1]);
-        
+        console.log("Solving 1.", oldEqString, eq.toString());
+
         // remove constants from left hand side
-        eq = eq.removeAllFromSide({whatToRemove:"constants", side:0});
-        if (showSteps) {
+        oldEqString = eq.toString();
+        result = eq.removeAllFromSide({whatToRemove:"constants", side:0});
+        eq = result.equation;
+        if (showSteps && oldEqString !== eq.toString()) {
             if (showComments){
                 gridRow = eq.addCommentToGrid({
                     gridDiv: gridDiv, 
                     gridRow: gridRow, 
                     comment: "Move constants to right hand side:"
                 })
+                gridRow = result.removedEquation.insertIntoGrid(gridDiv, {gridRow: gridRow-1});
             }
             gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
         }
 
-        // console.log("Solving 2.", eq.expressions[1])
+        console.log("Solving 2.", oldEqString, eq.toString());
+
         // divide by coefficient
         let coeff = eq.expressions[0].terms[0].coeff;
     
-        eq = eq.divideByConstant(coeff);
-        if (showSteps) {
+        oldEqString = eq.toString();
+        result = eq.divideByConstant(coeff);
+        eq = result.equation;
+        if (showSteps && oldEqString !== eq.toString()) {
             if (showComments) {
                 gridRow = eq.addCommentToGrid({
                     gridDiv: gridDiv, 
                     gridRow: gridRow, 
                     comment: "Divide by coefficient"
                 })
+                
+                gridRow = result.removedEquation.insertIntoGrid(gridDiv, {gridRow: gridRow-1});
             }
             gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
         }
-        // console.log("Solving 3.", eq);
+        console.log("Solving 3.", oldEqString, eq.toString());
         // console.log("eq:", this.simplify().toString(), "||", eq.toString(), eq);
 
         return eq;
 
+    }
+
+    isSameAs(eq){
+        if (this.toString() === eq.toString()){
+            return true;
+        } else {
+            return false;
+        }
     }
 
     divideByConstant(c){
@@ -1892,14 +1917,19 @@ class Equation{
         for (let e of this.expressions){
             expr.push(e.divideByConstant(c));
         }
-        return new Equation({
+        let newEqn = new Equation({
             expressions: expr
-        });
+        })
+        let divideEqn = new Equation({
+            expressions: ["÷"+c, "÷"+c],
+            textExpressions: true
+        })
+        return {equation: newEqn, removedEquation: divideEqn};
     }
 
     removeAllFromSide({whatToRemove="variables", side=1}={}){ 
         //move all "variables" or "constants" (whatToRemove) from given side of equation: side: (left=0) (right=1)
-
+        let removedTerms = [];
         let expr = this.expressions;
         for (let [i, t] of this.expressions[side].terms.entries()){
             let test = t.isConstant();
@@ -1911,32 +1941,15 @@ class Equation{
                         variables: t.variables
                     })
                     expr[j] = expr[j].add(newTerm);
+                    if (j === 0) removedTerms.push(newTerm);
                 }
             }
         }
-        return new Equation({
-            expressions: expr
-        })
-    }
 
-    removeVariables(col=1){ //move all variables from given side of equation: col: (left=0) (right=1)
-        let expr = this.expressions;
-        for (let [i, t] of this.expressions[col].terms.entries()){
-            console.log('i,t:', i,t);
-            if (t.isConstant() === false){
-                for (let [j, e] of this.expressions.entries()){
-                    let newTerm = new Term({
-                        coeff: t.coeff * -1,
-                        variables: t.variables
-                    })
-                    expr[j] = expr[j].add(newTerm);
-                }
-            }
-        }
-        console.log('expr: ', expr[0].toString(), expr[1].toString());
-        return new Equation({
-            expressions: expr
-        })
+        let newEq = new Equation({expressions: expr});
+        let removedExpression = new AlgebraicExpression({terms: removedTerms});
+        let removedEquation = new Equation({expressions: [removedExpression, removedExpression]});
+        return { equation: newEq, removedEquation: removedEquation };
     }
 
     simplify(){
@@ -2009,20 +2022,22 @@ class Equation{
 
     addCommentToGrid({gridDiv=undefined, gridRow=1, comment=""}){
         let d = document.createElement('div');
-        d.style.gridColumn = '1 / -1';
+        d.style.gridColumn = this.gridStartCol + 2*this.expressions.length;
         d.style.gridRow = gridRow;
         d.innerHTML = comment;
         gridDiv.appendChild(d);
         return gridRow + 1;
     }
+
     getGridId(prefix, r, c){
         let id = `${prefix}_r${r}_c${c}`;
         let element = document.getElementById(id);
         if (element) element.remove();
         return id;
     }
-    insertIntoGrid(gridDiv, {showDots=false, gridRow=1}={}){
+    insertIntoGrid(gridDiv, {showDots=false, gridRow=1, rawExpressions=false}={}){
         // div is either the Element or the element's id
+        // rawExpressions = true is for if you want to put some text in instead of using the AlgebraicExpressions in the equation.
         
         if (checkForString(gridDiv)){ // if string assume it's the element id
             let gridDiv_id = gridDiv;
@@ -2032,7 +2047,6 @@ class Equation{
             if (gridDiv.id === ''){
                 throw new Error('gridDiv.id is undefined. Give the div an id.')
             }
-           
         }
         
 
@@ -2040,10 +2054,16 @@ class Equation{
 
         let mods = {showDots:showDots};
         let margin = "4px";
-        let c = 2;
+        let c = this.gridStartCol;
         
         for (let [i, e] of this.expressions.entries()){
-            let eDiv = e.getDiv();
+            let eDiv = "";
+            if (this.textExpressions) {
+                eDiv = document.createElement('div');
+                eDiv.innerHTML = e;
+            } else {
+                eDiv = e.getDiv();
+            }
             eDiv.id = this.getGridId(gridDiv.id, gridRow,c);
             eDiv.classList.add("grid-item");
             eDiv.style.padding = '1px';

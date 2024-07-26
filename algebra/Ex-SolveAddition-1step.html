@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../mathinator.js"></script>
+    <style>
+        /* #tests {
+            border: 1px solid green;
+        } */
+        #gridArea {
+            border: 1px solid red;
+        }
+    </style>
+    <title>Ex. Alg. Single Step Addition</title>
+</head>
+<body>
+    <h3>Algebra</h3>
+    <div id="example"></div>
+    <hr>
+    
+</body>
+
+<script>
+
+    let div = document.getElementById('example');
+
+    // EQUATION's
+    let testEquation = parseEquation("x + 3  + 2x = 8 + x")
+
+    testEquation.solveOneSimilarVariable({showSteps:true, div:"example"});
+
+</script>
+</html>
