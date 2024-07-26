@@ -30,7 +30,7 @@
     //LIST OF QUESTIONS
     let operation = "/";
     let questionsList = [
-        new AlgebraQuestion({equation: "a+2=5"}),
+        new AlgebraQuestion({equation: "5x = 3"}),
         new AlgebraQuestion({equation: "x+3=10"}),
         new AlgebraQuestion({equation: "y-5=5"}),
         new AlgebraQuestion({equation: "b-2=8"}),
@@ -39,7 +39,17 @@
         new AlgebraQuestion({equation: "b + 139 = 129"}),
         new AlgebraQuestion({equation: "7 = a-2"}),
         new AlgebraQuestion({equation: "2 = c+18"}),
-        new AlgebraQuestion({equation: "177 = x -43 "})
+        new AlgebraQuestion({equation: "177 = x -43 "}),
+        new RandomAlgebraQuestion({
+            type: 'Single Step',
+            operation: '+',
+            minResult: 0,
+            maxResult: 10,
+            variableSide: 'left',
+            minConst: 0,
+            maxConst: 10,
+            variableComesFirst: true
+        })
     ]
     
     let wksht = new Worksheet({

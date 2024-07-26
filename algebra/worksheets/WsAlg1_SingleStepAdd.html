@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alg. Add/Subtract</title>
+
+    <script src="../../mathinator.js"></script>
+    <link rel="stylesheet" href="../../worksheets.css">
+    <style>      
+        
+    </style>
+</head>
+<body>
+    <h2>Single Step Problems with Addition and Subtraction</h2>
+
+    <div id="Instructions">
+        Instructions: Enter answers as an equation like <span class="entryDemo">x = 4</span>. Have the variable on the left hand side and the solved value on the right. 
+        Instructions: You may use fractions for the value as in <span class="entryDemo">x = 1/3</span>. This is more accurate for repeating decimal numbers.
+    </div>
+    <div id="Questions"></div>
+
+    <div id="Score"></div>
+
+</body>
+
+<script>
+    doc = document;
+
+    //LIST OF QUESTIONS
+    let operation = "/";
+    let questionsList = [
+        new AlgebraQuestion({equation: "a+2=5"}),
+        new AlgebraQuestion({equation: "x-0=0"}),
+        // new AlgebraQuestion({equation: "y-5=5"}),
+        // new AlgebraQuestion({equation: "b-2=8"}),
+        // new AlgebraQuestion({equation: "x+7=4"}),
+        // new AlgebraQuestion({equation: "a-5=-3"}),
+        // new AlgebraQuestion({equation: "b + 139 = 129"}),
+        // new AlgebraQuestion({equation: "7 = a-2"}),
+        // new AlgebraQuestion({equation: "2 = c+18"}),
+        // new AlgebraQuestion({equation: "177 = x -43 "})
+
+        new RandomAlgebraQuestion({
+            type: 'Single Step',
+            operation: '+',
+            minResult: 0,
+            maxResult: 10,
+            variableSide: 'left',
+            minConst: 0,
+            maxConst: 10,
+            variableComesFirst: true
+        }), 
+        new RandomAlgebraQuestion({
+            type: 'Single Step'
+        }), 
+        new RandomAlgebraQuestion({
+            type: 'Single Step',
+            operation: '-'
+        }), 
+        new RandomAlgebraQuestion({
+            type: 'Single Step',
+            operation: '-'
+        }), 
+        new RandomAlgebraQuestion({
+            type: 'Single Step',
+            operation: '+',
+            minResult: 0,
+            maxResult: 10,
+            variableSide: 'right',
+            minConst: 0,
+            maxConst: 10,
+            variableComesFirst: true
+        }), 
+        new RandomAlgebraQuestion({
+            type: 'Single Step',
+            operation: '+',
+            minResult: 0,
+            maxResult: 10,
+            variableSide: 'left',
+            minConst: 0,
+            maxConst: 10,
+            variableComesFirst: false
+        }), 
+        new RandomAlgebraQuestion({
+            type: 'Single Step',
+            operation: '+',
+            minResult: 0,
+            maxResult: 10,
+            variableSide: 'right',
+            minConst: 0,
+            maxConst: 10,
+            variableComesFirst: true
+        }), 
+        new RandomAlgebraQuestion({
+            type: 'Single Step',
+            operation: '-',
+            minResult: 0,
+            maxResult: 10,
+            variableSide: 'right',
+            minConst: 0,
+            maxConst: 10,
+            variableComesFirst: false
+        }), 
+
+    ]
+    
+    let wksht = new Worksheet({
+        questionsList: questionsList
+    })
+    
+    
+
+</script>
+</html>

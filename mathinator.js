@@ -1178,21 +1178,7 @@ class DivisionQuestion extends FractionQuestion {
     }
 }
 
-function randInt(min, max, noZero=false) {
-    min = Math.ceil(min);   // Round up to ensure inclusive of the minimum
-    max = Math.floor(max);  // Round down to ensure inclusive of the maximum
-    
-    let n = Math.floor(Math.random() * (max - min + 1)) + min;
-    if (noZero && n === 0) {
-        let ct = 0;
-        while (n === 0 && ct < 10){
-            n = Math.floor(Math.random() * (max - min + 1)) + min;
-            ct++;
-        }
-    }
-    
-    return n;
-}
+
 
 // generate a random fraction
 function randFrac({
@@ -1729,6 +1715,10 @@ class AlgebraicExpression {
                 simpTerms.push(t);
             }
         }
+        // add a zero if not terms in expression
+        if (simpTerms.length === 0){
+            simpTerms.push(parseTerm("0"));
+        }
         
         return new AlgebraicExpression({
             terms: simpTerms
@@ -1824,9 +1814,11 @@ class Equation{
             gridRow = this.insertIntoGrid(gridDiv, {gridRow: gridRow})
         };
 
+        // console.log("Solving -1.", this.expressions[1]);
         // SIMPLIFY
         let eq = this.simplify();
-        // console.log("eq:", eq.toString());
+        // console.log("Solving 0.", eq.expressions[1]);
+
         if (showSteps) {
             if (showComments){
                 gridRow = eq.addCommentToGrid({
@@ -1843,6 +1835,7 @@ class Equation{
             return undefined;
         }
 
+        
         // CONSOLIDATE VARIABLE ON LEFT HAND SIDE
         // get all variable terms to the left hand side
         eq = eq.removeAllFromSide({whatToRemove:"variables", side:1});
@@ -1857,6 +1850,7 @@ class Equation{
             gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
         }
 
+        // console.log("Solving 1.", eq.expressions[1]);
         
         // remove constants from left hand side
         eq = eq.removeAllFromSide({whatToRemove:"constants", side:0});
@@ -1871,6 +1865,7 @@ class Equation{
             gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
         }
 
+        // console.log("Solving 2.", eq.expressions[1])
         // divide by coefficient
         let coeff = eq.expressions[0].terms[0].coeff;
     
@@ -1885,7 +1880,8 @@ class Equation{
             }
             gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
         }
-        console.log("eq:", this.simplify().toString(), "||", eq.toString(), eq);
+        // console.log("Solving 3.", eq);
+        // console.log("eq:", this.simplify().toString(), "||", eq.toString(), eq);
 
         return eq;
 
@@ -2113,6 +2109,7 @@ class AlgebraQuestion {
         if (checkForString(equation)) equation = parseEquation(equation);
         if (equation instanceof Equation){
             this.equation = equation;
+            console.log("AlgebraQuestion:", input, '||', this.equation);
             this.solvedEquation = this.equation.solveOneSimilarVariable();
         } else {
             throw new Error(`${input}, is not a valid Equation instance.`)
@@ -2214,7 +2211,7 @@ class AlgebraQuestion {
         if (correctValue == userValue){
             isCorrect = true;
             score += 8;
-            note = note + " is correct."
+            note = note + " The value is correct."
         } else {
             note = note + ' is incorrect.'
         }
@@ -2225,7 +2222,7 @@ class AlgebraQuestion {
         if (correctTerm.isSameAs(userTerm)){
             score += 2; 
         } else {
-            note = note + " However, you used the wrong variable."
+            note = note + " Note: you used a variable not in the equation."
         }
 
         console.log("Check answer:", correctValue, userValue, isCorrect, score);
@@ -2297,16 +2294,88 @@ class AlgebraQuestion {
 
 
 
+class AlgebraResult {
+
+    constructor({
+        userAnswer = undefined,
+        correctAnswer = undefined,
+        note = "",
+        isCorrect = undefined, 
+        score = 0
+    }){
+        this.userAnswer = userAnswer;
+        this.correctAnswer = correctAnswer;
+        this.note = note;
+        this.isCorrect = isCorrect;
+        this.score = score;
+    }
+}
+
+
+class RandomAlgebraQuestion extends AlgebraQuestion{
+
+    constructor({
+        type = 'Single Step',
+        operation = "+",
+        minResult = 0,
+        maxResult = 10,
+        variableSide = 'left',
+        minConst = 0,
+        maxConst = 10,
+        variableComesFirst = true
+    }){
+        let str = '';
+
+        if (type === 'Single Step'){
+            let x = getRandomVariableLetter();
+
+            //get variable side value
+            let result = randInt(minResult, maxResult);
+            
+            if (operation === '+') {
+                let vsc = randInt(0, maxConst); //variable side constant
+                let osc = result + vsc;
+                let vs = '';
+                if (variableComesFirst){
+                    vs = x + operation + vsc;
+                } else {
+                    vs = vsc + operation + x;
+                }
+                if (variableSide === 'left'){
+                    str = vs + "=" + osc;
+                } else {
+                    str = osc + "=" + vs;
+                }
+            } 
+            else if (operation = '-'){
+                let vsc = randInt(0, maxConst); //variable side constant
+                let osc = result - vsc;
+                let vs = x + operation + vsc;
+                
+                if (variableSide === 'left'){
+                    str = vs + "=" + osc;
+                } else {
+                    str = osc + "=" + vs;
+                }
+            }
+        }
+
+        console.log("Random equation:", str);
+        let eq = parseEquation(str);
+        super({equation: eq});
+    }
+
+}
 
 
 
 
-
-
-
-
-
+//
+//
 //  UTILITY FUNCTIONS
+//
+//
+
 function checkForString(input){
     //check for valid input string
     if (typeof input !== 'string' || input.trim() === '') {
@@ -2376,19 +2445,23 @@ function setInvalidStyle(div){
 }
 
 
-class AlgebraResult {
+function getRandomVariableLetter(str='xyzabcmnpqrst') { //get a random variable letter
+    const randomIndex = Math.floor(Math.random() * str.length);
+    return str.charAt(randomIndex);
+}
 
-    constructor({
-        userAnswer = undefined,
-        correctAnswer = undefined,
-        note = "",
-        isCorrect = undefined, 
-        score = 0
-    }){
-        this.userAnswer = userAnswer;
-        this.correctAnswer = correctAnswer;
-        this.note = note;
-        this.isCorrect = isCorrect;
-        this.score = score;
+function randInt(min, max, noZero=false) {
+    min = Math.ceil(min);   // Round up to ensure inclusive of the minimum
+    max = Math.floor(max);  // Round down to ensure inclusive of the maximum
+    
+    let n = Math.floor(Math.random() * (max - min + 1)) + min;
+    if (noZero && n === 0) {
+        let ct = 0;
+        while (n === 0 && ct < 10){
+            n = Math.floor(Math.random() * (max - min + 1)) + min;
+            ct++;
+        }
     }
+    
+    return n;
 }
