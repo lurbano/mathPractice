@@ -1,28 +1,29 @@
 .entryDemo{
-            border: 1px solid black;
-            background-color: lightblue;
-            padding: 2px 4px 2px 4px;
-        } 
-        #instructionArea {
-            max-width: 30em;
-            margin: 0.5em;
-            font-size: small;
-        }
-        .outerQuestionBox {
-            border: 3px outset black;
-            margin: 0.5em;
-            width: fit-content;
-        }
-        .questionBox {
-            border: 1px solid black;
-            align-items: center;
-            justify-items: center;
-            padding-left: 2em;
-        }
-        .scoreButton {
-            width: 50%;
-            height: 5em;
-            font-size: large;
-            border: 5px outset gray;
-            border-radius: 10px;
-        }
+    border: 1px solid black;
+    background-color: lightblue;
+    padding: 2px 4px 2px 4px;
+} 
+#instructionArea {
+    max-width: 30em;
+    margin: 0.5em;
+    font-size: small;
+}
+.outerQuestionBox {
+    border: 3px outset black;
+    margin: 0.5em;
+    width: fit-content;
+    min-width: 60%;
+}
+.questionBox {
+    border: 1px solid black;
+    align-items: center;
+    justify-items: center;
+    padding-left: 2em;
+}
+.scoreButton {
+    width: 50%;
+    height: 5em;
+    font-size: large;
+    border: 5px outset gray;
+    border-radius: 10px;
+}

@@ -1000,6 +1000,7 @@ class FractionQuestion{
         let div = this.getOperatorSpan(txt);
         div.style.gridRow = r;
         div.style.gridColumn = c;
+        div.style.justifySelf = 'center';
         div.style.width = "1em";
         if (showElementBorders) div.style.border = '1px solid blue';
 
@@ -2062,9 +2063,9 @@ class Equation{
             gridDiv.appendChild(eDiv);
             // e.insertIntoDiv(d, mods);
             if (i < this.expressions.length-1){
-                // appendString(d, "=");
-                let spn = document.createElement('div');
-                spn.textContent = "=";
+                // let spn = document.createElement('div');
+                // spn.textContent = "=";
+                let spn = getEqualSignDiv();
                 spn.id = this.getGridId(gridDiv.id, gridRow,c);
                 spn.style.gridRow = gridRow;
                 spn.style.gridColumn = c;
@@ -2327,15 +2328,31 @@ function appendDot(div){
     }
     div.appendChild(getDot());
 }
-function appendString(div, s, {margin="4px"}={}){
+function appendString(div, s, {margin="4px", justifySelf='center', gridRow=undefined, gridCol=undefined}={}){
     if (checkForString(div)){ // if string assume it's the element id
         div = document.getElementById(div);
     }
     let spn = document.createElement('span');
     spn.style.marginLeft = margin;
     spn.style.marginRight = margin;
+    spn.style.justifySelf = justifySelf;
+    if (gridRow) spn.style.gridRow = gridRow;
+    if (gridCol) spn.style.gridCol = gridCol;
     spn.textContent = s;
     div.appendChild(spn);
+}
+
+function getEqualSignDiv(style={
+                                justifySelf: 'center',
+                                alignSelf: 'center'
+                            }){
+    let div = document.createElement('div');
+    Object.entries(style).forEach(([s, value]) => {
+        div.style[s] = value;
+    });
+    div.textContent = "=";
+    return div;
+
 }
 
 function appendHTML(div, html, {margin="4px"}={}){
