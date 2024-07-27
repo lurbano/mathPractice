@@ -374,6 +374,10 @@ class Fraction {
         }
     }
 
+    simplify(){
+        return this.reduce();
+    }
+
     //
     // cert above
     //
@@ -414,6 +418,21 @@ class Fraction {
             return true;
         } else {
             return false;
+        }
+    }
+
+    isWhole(){
+        let sf = this.simplify();
+        if (lcm(sf.numerator, sf.denominator) === sf.denominator){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    toWhole(){
+        if (this.isWhole()){
+            return parseInt(this.toFloat());
         }
     }
 
@@ -1486,11 +1505,15 @@ class Term {
     }
 
     divideByConstant(c){
-        c = this.coeff / c;
-        return new Term({
-            coeff: c,
-            variables: this.variables
-        });
+        let cFrac = new Fraction(this.coeff, c);
+        
+        let t = new Term({
+            coeff: this.coeff / c,
+            variables: this.variables,
+            cFrac: cFrac
+        })
+        //t.simplifyFractionCoeff();
+        return t;
     }
 
     add(t){ // add term (t) to this term
@@ -1502,6 +1525,16 @@ class Term {
             })
         }
         return false; // if not similar
+    }
+
+    simplifyFractionCoeff(){
+        if (this.cFrac !== undefined) {
+            if (this.cFrac.isWhole()) {
+                this.cFrac = undefined;
+            }
+        }
+        
+        return this;
     }
 
     simplify(){
@@ -1715,9 +1748,14 @@ class AlgebraicExpression {
                 simpTerms.push(t);
             }
         }
-        // add a zero if not terms in expression
+        // add a zero if no terms in expression
         if (simpTerms.length === 0){
             simpTerms.push(parseTerm("0"));
+        }
+
+        // remove fractions that are constants
+        for (let i in simpTerms){
+            simpTerms[i].simplifyFractionCoeff();
         }
         
         return new AlgebraicExpression({
@@ -1725,7 +1763,11 @@ class AlgebraicExpression {
         });
     }
 
-    getDiv({showDots=false}={}){
+    removeFractionConstants(){
+
+    }
+
+    getElement({showDots=false}={}){
         // div is either the Element or the element's id
 
         let d = document.createElement('span');
@@ -1747,7 +1789,7 @@ class AlgebraicExpression {
         } 
         let d = document.createElement('span');
 
-        div.appendChild(this.getDiv());
+        div.appendChild(this.getElement());
         // let mods = {};
         // for (let [i, t] of this.terms.entries()){
         //     if (i > 0){
@@ -1896,9 +1938,23 @@ class Equation{
                 gridRow = result.removedEquation.insertIntoGrid(gridDiv, {gridRow: gridRow-1});
             }
             gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
+
+            if (showComments) {
+                gridRow = eq.addCommentToGrid({
+                    gridDiv: gridDiv, 
+                    gridRow: gridRow, 
+                    comment: "Simplify:"
+                })
+            }
+            eq = eq.simplify();
+            gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
+
         }
         console.log("Solving 3.", oldEqString, eq.toString());
         // console.log("eq:", this.simplify().toString(), "||", eq.toString(), eq);
+
+        
+        console.log("Solving 4.", oldEqString, eq.toString());
 
         return eq;
 
@@ -2062,7 +2118,7 @@ class Equation{
                 eDiv = document.createElement('div');
                 eDiv.innerHTML = e;
             } else {
-                eDiv = e.getDiv();
+                eDiv = e.getElement();
             }
             eDiv.id = this.getGridId(gridDiv.id, gridRow,c);
             eDiv.classList.add("grid-item");
