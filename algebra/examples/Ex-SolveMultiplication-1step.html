@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../../mathinator.js"></script>
+    <style>
+        /* #tests {
+            border: 1px solid green;
+        } */
+        #gridArea {
+            border: 1px solid red;
+        }
+    </style>
+    <title>Ex. Alg. Single Step Addition</title>
+</head>
+<body>
+    <h3>Single Step Multiplication Equations</h3>
+    <p>
+        Divide both sides of the equation by the coefficient:
+    </p>
+    <p>
+        1. 
+        <div id="example1"></div>
+    </p>
+
+    <p>
+        2. 
+        <div id="example2"></div>
+    </p>
+    
+    <hr>
+    
+</body>
+
+<script>
+
+    
+    // EQUATION's
+    let eq1 = parseEquation("3x = 12 ")
+
+    eq1.solveOneSimilarVariable({showSteps:true, div:"example1"});
+
+
+    // let eq2 = parseEquation("5x = 12")
+
+    // eq2.solveOneSimilarVariable({showSteps:true, div:"example2"});
+
+</script>
+</html>

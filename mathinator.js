@@ -423,7 +423,7 @@ class Fraction {
 
     isWhole(){
         let sf = this.simplify();
-        if (lcm(sf.numerator, sf.denominator) === sf.denominator){
+        if (gcd(sf.numerator, sf.denominator) === sf.denominator){
             return true;
         } else {
             return false;
@@ -1550,11 +1550,12 @@ class Term {
             }
             if (l_addToList) vSimp.push(v);
         }
-
-        return new Term({
+        let t = new Term({
             coeff: this.coeff, 
             variables: vSimp
-        });
+        })
+        t.simplifyFractionCoeff()
+        return t;
     }
 
     toString(showSign=false){
@@ -1755,7 +1756,7 @@ class AlgebraicExpression {
 
         // remove fractions that are constants
         for (let i in simpTerms){
-            simpTerms[i].simplifyFractionCoeff();
+            simpTerms[i] = simpTerms[i].simplifyFractionCoeff();
         }
         
         return new AlgebraicExpression({
@@ -1767,12 +1768,19 @@ class AlgebraicExpression {
 
     }
 
-    getElement({showDots=false}={}){
+    getElement({
+        showDots=false,
+        showSign=false
+     }={}){
         // div is either the Element or the element's id
 
         let d = document.createElement('span');
 
-        let mods = {};
+        let mods = {
+            showDots: showDots,
+            showSign: showSign
+        };
+        
         for (let [i, t] of this.terms.entries()){
             if (i > 0){
                 mods["showSign"] = true;
@@ -1864,7 +1872,7 @@ class Equation{
         // SIMPLIFY
         let oldEqString = this.toString();
         let eq = this.simplify();
-        console.log("Solving 0.", this.toString(), eq.toString(), this.isSameAs(eq));
+        // console.log("Solving 0.", this.toString(), eq.toString(), this.isSameAs(eq));
 
         if (showSteps && oldEqString !== eq.toString()) {
             if (showComments){
@@ -1901,7 +1909,7 @@ class Equation{
             gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
         }
 
-        console.log("Solving 1.", oldEqString, eq.toString());
+        // console.log("Solving 1.", oldEqString, eq.toString());
 
         // remove constants from left hand side
         oldEqString = eq.toString();
@@ -1914,12 +1922,12 @@ class Equation{
                     gridRow: gridRow, 
                     comment: "Move constants to right hand side:"
                 })
-                gridRow = result.removedEquation.insertIntoGrid(gridDiv, {gridRow: gridRow-1});
+                gridRow = result.removedEquation.insertIntoGrid(gridDiv, {gridRow: gridRow-1, showSign:true});
             }
             gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
         }
 
-        console.log("Solving 2.", oldEqString, eq.toString());
+        // console.log("Solving 2.", oldEqString, eq.toString());
 
         // divide by coefficient
         let coeff = eq.expressions[0].terms[0].coeff;
@@ -1950,11 +1958,7 @@ class Equation{
             gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
 
         }
-        console.log("Solving 3.", oldEqString, eq.toString());
-        // console.log("eq:", this.simplify().toString(), "||", eq.toString(), eq);
-
-        
-        console.log("Solving 4.", oldEqString, eq.toString());
+        // console.log("Solving 3.", oldEqString, eq.toString());
 
         return eq;
 
@@ -2071,9 +2075,10 @@ class Equation{
 
     styleEquationGrid({div=undefined}={}){
         div.style.display = "grid";
-        div.style.gridTemplateColumns =  '1.5em min-content 1.5em min-content'; 
-        // g.style.gridTemplateRows = 'repeat(10, 1fr)';
-        div.style.alignItems = "end";
+        // div.style.gridTemplateColumns =  '1.5em min-content 1.5em min-content'; 
+        div.style.gridTemplateColumns =  '1.5em auto 1.5em auto'; 
+        div.style.gridTemplateRows = 'auto auto auto auto';
+        div.style.alignItems = "center";
     }
 
     addCommentToGrid({gridDiv=undefined, gridRow=1, comment=""}){
@@ -2091,7 +2096,7 @@ class Equation{
         if (element) element.remove();
         return id;
     }
-    insertIntoGrid(gridDiv, {showDots=false, gridRow=1, rawExpressions=false}={}){
+    insertIntoGrid(gridDiv, {showDots=false, gridRow=1, showSign=false, rawExpressions=false}={}){
         // div is either the Element or the element's id
         // rawExpressions = true is for if you want to put some text in instead of using the AlgebraicExpressions in the equation.
         
@@ -2108,7 +2113,10 @@ class Equation{
 
         this.styleEquationGrid({div: gridDiv});
 
-        let mods = {showDots:showDots};
+        let mods = {
+            showDots:showDots,
+            showSign:showSign
+        };
         let margin = "4px";
         let c = this.gridStartCol;
         
@@ -2118,7 +2126,7 @@ class Equation{
                 eDiv = document.createElement('div');
                 eDiv.innerHTML = e;
             } else {
-                eDiv = e.getElement();
+                eDiv = e.getElement(mods);
             }
             eDiv.id = this.getGridId(gridDiv.id, gridRow,c);
             eDiv.classList.add("grid-item");

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../../mathinator.js"></script>
+    <style>
+        /* #tests {
+            border: 1px solid green;
+        } */
+        #gridArea {
+            border: 1px solid red;
+        }
+    </style>
+    <title>Ex. Alg. Single Step Addition</title>
+</head>
+<body>
+    <h3>Single Step Equations</h3>
+    <p>
+        Solving algebraic equations with addition and subtraction. Find the variable by adding or subtracting a constant to make the constant that's added/subtracted to/from the variable zero.
+    </p>
+    <p>
+        1. Find the value of x by subtracting the constant on the left hand side:
+        <div id="addExample"></div>
+    </p>
+
+    <p>
+        2. Isolate x on the left by adding to eliminate the constant.
+        <div id="subExample"></div>
+    </p>
+    
+    <hr>
+    
+</body>
+
+<script>
+
+    
+    // EQUATION's
+    let addEqn = parseEquation("x + 3 = 8 ")
+
+    addEqn.solveOneSimilarVariable({showSteps:true, div:"addExample"});
+
+
+    let subEqn = parseEquation("x - 4 = 2 ")
+
+    subEqn.solveOneSimilarVariable({showSteps:true, div:"subExample"});
+
+</script>
+</html>
