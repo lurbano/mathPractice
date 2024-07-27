@@ -701,6 +701,11 @@ function parseMixedNumber(input, toFraction=true) {
     // remove spaces before and after slash
     input = input.replace(/\s+\//g, '/');
     input = input.replace(/\/\s+/g, '/');
+    // remove spaces before and after +-
+    input = input.replace(/\s+\+/g, '+');
+    input = input.replace(/\+\s+/g, '+');
+    input = input.replace(/\s+\-/g, '-');
+    input = input.replace(/\-\s+/g, '-');
     // Split the string by spaces
     let parts = input.trim().split(' ');
     
@@ -1529,6 +1534,7 @@ class Term {
 
     simplifyFractionCoeff(){
         if (this.cFrac !== undefined) {
+            this.cFrac = this.cFrac.simplify();
             if (this.cFrac.isWhole()) {
                 this.cFrac = undefined;
             }
@@ -1599,7 +1605,14 @@ class Term {
         }
 
         if (this.cFrac instanceof Fraction){
-            let fDiv = this.cFrac.getElement();
+            let fDiv = this.cFrac.toMixed().getElement();
+            if (this.coeff > 0) {
+                if (showSign) appendHTML(signSpan, "+");
+            } else {
+                appendHTML(signSpan, "−");
+                fDiv = this.cFrac.multiplyByWhole(-1).toMixed().getElement();
+            }
+            
             signSpan.appendChild(fDiv);
         } else {
             signSpan.innerHTML = sign + c;
@@ -1629,25 +1642,27 @@ function parseTerm(input="x"){
     let c = "";
     let cFrac = undefined;
     let variables = [];
+    
     //check for valid input string
     if (typeof input !== 'string' || input.trim() === '') {
-        console.log("parseFraction Error: ", input);
+        console.log("parseTerm Error: ", input);
         throw new Error("parseTerm Error.")
         // return false;
     }
     try {
         let s = input.trim();
-        s = s.replace(/\s/g, '');
+        //s = s.replace(/\s/g, '');
         
         // get constant
         for (const char of s){
-            if ("0123456789.+-/".includes(char)){
+            if ("0123456789.+-/ ".includes(char)){
                 c = c + char;
                 s = s.slice(1);
             } else {
                 break;
             }
         }
+        
         if (c.length === 0){
             c = 1;
             
@@ -1656,13 +1671,15 @@ function parseTerm(input="x"){
         } else if (c === '-'){
             c = -1;
         } else if (c.includes('/')){
-            let frac = c.split("/");
-            c = parseFloat(frac[0]) / parseFloat(frac[1]);
-            if (frac.length === 2) {
-                cFrac = new Fraction(parseInt(frac[0]), parseInt(frac[1]));
-            }
+            let st = c.replace(/\s/g, '');
+            let frac = st.split("/");
+
+            cFrac = parseMixedNumber(c);
+            c = cFrac.toFloat();
             
         } else {
+            //remove all spaces
+            c = c.replace(/\s/g, '');
             c = parseFloat(c);
         }
 
@@ -1717,6 +1734,25 @@ class AlgebraicExpression {
         let expr = new AlgebraicExpression({terms: this.terms.concat(e.terms)});
         expr = expr.simplify();
         return expr;
+    }
+
+    isSameAs(expr){
+        //simplify first
+        expr = expr.simplify();
+        thisExpr = this.simplify();
+
+        //check for same number of terms
+        if (expr.terms.length !== thisExpr.terms.length) return false;
+
+        for (let t of thisExpr.terms){
+            console.log('AlgebraicExpression isSameAs:', t)
+            let isIn = false;
+            for (let [i, tt] of expr.terms.entries()){
+                if (t.isSameAs(tt)) isIn = true;
+            }
+            if (!isIn) return false;
+        }
+        return true;
     }
 
     toString(){
@@ -1814,13 +1850,13 @@ function parseExpression(s){
     if (!checkForString(s)){
         return false;
     }
-
-    s = s.replace(/\s/g, '');; // remove spaces
+    
+    // s = s.replace(/\s/g, '');; // remove spaces
     let t = "";
     let terms = [];
-    // console.log("s:", s)
+    
     for (let c of s){
-        // console.log("c,t:", c, t, t.length);
+        
         if ('+-'.includes(c) && t.length > 0){
             terms.push(parseTerm(t));
             t = c;
@@ -1828,7 +1864,9 @@ function parseExpression(s){
             t = t + c;
         }
     }
+    
     terms.push(parseTerm(t));
+    
     return new AlgebraicExpression({terms:terms});
 }
 
@@ -1841,6 +1879,10 @@ class Equation{
         this.expressions = expressions;
         this.textExpressions = textExpressions;
         this.gridStartCol = 2;
+    }
+
+    copy(){
+        return this;
     }
 
     solveOneSimilarVariable({showSteps=false, showComments=true, div=""}={}){
@@ -1947,6 +1989,15 @@ class Equation{
             }
             gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
 
+        }
+        // console.log("Solving 3.", oldEqString, eq.toString());
+
+        // final simplification
+        let oldEq = eq.copy();//Fix test
+        eq = eq.simplify();
+        
+        if (showSteps && eq.isSameAs(oldEq)) { 
+
             if (showComments) {
                 gridRow = eq.addCommentToGrid({
                     gridDiv: gridDiv, 
@@ -1954,11 +2005,12 @@ class Equation{
                     comment: "Simplify:"
                 })
             }
-            eq = eq.simplify();
+            
             gridRow = eq.insertIntoGrid(gridDiv, {gridRow:gridRow})
 
         }
-        // console.log("Solving 3.", oldEqString, eq.toString());
+        // console.log("Solving 4.", oldEqString, eq.toString(), eq);
+
 
         return eq;
 
@@ -2166,7 +2218,7 @@ function parseEquation(s) {
         return false;
     }
     let expressions = [];
-    s = s.replace(/\s/g, '');; // remove spaces
+    // s = s.replace(/\s/g, '');; // remove spaces
     let xpString = s.split('=');
     for (let e of xpString){
         expr = parseExpression(e);
@@ -2193,7 +2245,6 @@ class AlgebraQuestion {
         if (checkForString(equation)) equation = parseEquation(equation);
         if (equation instanceof Equation){
             this.equation = equation;
-            console.log("AlgebraQuestion:", input, '||', this.equation);
             this.solvedEquation = this.equation.solveOneSimilarVariable();
         } else {
             throw new Error(`${input}, is not a valid Equation instance.`)
@@ -2271,7 +2322,7 @@ class AlgebraQuestion {
             
             let isValid = this.checkIfValidAnswer(this.userEquation, {printConsole:true});
 
-            console.log("isValid? ", isValid);
+            // console.log("isValid? ", isValid);
             
             if (isValid){
                 let result = this.checkAnswer(this.userEquation);
@@ -2311,7 +2362,7 @@ class AlgebraQuestion {
                             : note + " And you used a variable not in the equation."
         }
 
-        console.log("Check answer:", correctValue, userValue, isCorrect, score);
+        // console.log("Check answer:", correctValue, userValue, isCorrect, score);
 
         let r = new AlgebraResult({
             userAnswer: userAnswer,
@@ -2413,8 +2464,7 @@ class RandomAlgebraQuestion extends AlgebraQuestion{
         decimalPlaces = 1
     }){
         let str = '';
-        console.log("operation:", operation)
-
+        
         if (type === 'Single Step'){
             let x = getRandomVariableLetter();
 
@@ -2448,11 +2498,26 @@ class RandomAlgebraQuestion extends AlgebraQuestion{
                 }
             } else if (operation === 'x'){
                 let vsc = randInt(minConst, maxConst, true); //variable side constant
+                let osc = 1;
                 let ct = 0;
-                while (ct < 20 && vsc === 1){ //try to exclude 1
-                    vsc = randInt(minConst, maxConst, true);
+                    
+                if (useIntegers){
+                    while (ct < 20 && vsc === 1){ //try to exclude 1
+                        vsc = randInt(minConst, maxConst, true);
+                    }
+                    osc = result * vsc;
+                } else {
+                    while (ct < 20 && osc === 1){ //try to exclude 1
+                        osc = randInt(minConst, maxConst, true);
+                    }
+                    result = new Fraction(osc, vsc);
+                    if (result.isWhole()){
+                        result = result.toWhole();
+                    } else {
+                        result = result.toString();
+                    }
                 }
-                let osc = result * vsc;
+                
 
                 let vs = vsc + operation;
                 
