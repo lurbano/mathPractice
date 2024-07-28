@@ -1524,9 +1524,14 @@ class Term {
     add(t){ // add term (t) to this term
         if (this.isSimilarTo(t)){
             let c = this.coeff + t.coeff;
+            let cFrac = undefined;
+            if (this.cFrac !== undefined && t.cFrac !== undefined){
+                cFrac = addFractions(this.cFrac, t.cFrac);
+            }
             return new Term({
                 coeff: c,
-                variables: this.variables
+                variables: this.variables,
+                cFrac: cFrac
             })
         }
         return false; // if not similar
@@ -1572,7 +1577,8 @@ class Term {
         }
 
         //coefficient
-        let c = Math.abs(this.coeff) + "";
+        let coeff = roundDecimal(this.coeff);
+        let c = Math.abs(coeff) + "";
         
         if (c === "1" && this.variables.length > 0) c = "";
 
@@ -1584,12 +1590,15 @@ class Term {
         return s;
     }
 
-    insertIntoDiv(div, {showDots=false, showSign=false}={}, signSpace='2px'){
-        // div is either the Element or the element's id
-
-        if (checkForString(div)){ // if string assume it's the element id
-            div = document.getElementById(div);
-        } 
+    getElement({
+                showDots=false, 
+                showSign=false, 
+                useFractions=true,
+                signSpace='2px'
+               }={}
+        ){
+        let div = document.createElement('div');
+        div.style.display = 'inline-block';
 
         let signSpan = document.createElement('span');
 
@@ -1604,7 +1613,7 @@ class Term {
             c =  "";
         }
 
-        if (this.cFrac instanceof Fraction){
+        if (this.cFrac instanceof Fraction && useFractions){
             let fDiv = this.cFrac.toMixed().getElement();
             if (this.coeff > 0) {
                 if (showSign) appendHTML(signSpan, "+");
@@ -1615,7 +1624,13 @@ class Term {
             
             signSpan.appendChild(fDiv);
         } else {
+            if (isFractional(this.coeff)) {
+                c = Math.abs(roundDecimal(this.coeff));
+            } else {
+                signSpan.innerHTML = sign + c;
+            }
             signSpan.innerHTML = sign + c;
+            
         }
         
         
@@ -1633,7 +1648,92 @@ class Term {
             }
         }
 
+        return div;
     }
+
+    insertIntoDiv(div, 
+                  {
+                    showDots=false, 
+                    showSign=false, 
+                    useFractions=true, 
+                    signSpace = '2px'
+                  } = {}
+                 ){
+        // div is either the Element or the element's id
+
+        if (checkForString(div)){ // if string assume it's the element id
+            div = document.getElementById(div);
+        } 
+
+        let mods = {
+            showDots:showDots,
+            showSign: showSign,
+            useFractions: useFractions,
+            signSpace: signSpace
+        }
+        
+        div.append(this.getElement(mods));
+
+    }
+
+    // insertIntoDiv(div, 
+    //               {
+    //                 showDots=false, 
+    //                 showSign=false, 
+    //                 useFractions=true
+    //               }={}, 
+    //               signSpace='2px'
+    //              ){
+    //     // div is either the Element or the element's id
+
+    //     if (checkForString(div)){ // if string assume it's the element id
+    //         div = document.getElementById(div);
+    //     } 
+
+    //     let signSpan = document.createElement('span');
+
+    //     let sign = "";
+    //     if (showSign || this.coeff < 0){
+    //         sign = this.coeff > 0 ? "+" : "−";
+    //     }
+
+    //     //coefficient
+    //     let c = Math.abs(this.coeff) + "";
+    //     if (c === "1" && this.variables.length > 0) {
+    //         c =  "";
+    //     }
+
+    //     if (this.cFrac instanceof Fraction && useFractions){
+    //         let fDiv = this.cFrac.toMixed().getElement();
+    //         if (this.coeff > 0) {
+    //             if (showSign) appendHTML(signSpan, "+");
+    //         } else {
+    //             appendHTML(signSpan, "−");
+    //             fDiv = this.cFrac.multiplyByWhole(-1).toMixed().getElement();
+    //         }
+            
+    //         signSpan.appendChild(fDiv);
+    //     } else {
+    //         if (isFractional(this.coeff)) c = roundDecimal(this.coeff);
+    //         signSpan.innerHTML = sign + Math.abs(c);
+    //     }
+        
+        
+    //     signSpan.style.marginRight = signSpace;
+    //     div.appendChild(signSpan);
+
+    //     if (showDots && this.variables.length > 0){
+    //         appendDot(div);
+    //     }
+
+    //     for (let [i, v] of this.variables.entries()){
+    //         div.appendChild(v.getSPAN());
+    //         if (showDots && i < this.variables.length-1) {
+    //             appendDot(div);
+    //         }
+    //     }
+
+    // }
 }
 
 function parseTerm(input="x"){
@@ -1652,17 +1752,24 @@ function parseTerm(input="x"){
     try {
         let s = input.trim();
         //s = s.replace(/\s/g, '');
-        
-        // get constant
+
+        // console.log("parseTerm:")
+        // console.log(" s:", outS(s))
+
+        // // get constant
         for (const char of s){
             if ("0123456789.+-/ ".includes(char)){
                 c = c + char;
                 s = s.slice(1);
+                
             } else {
                 break;
             }
         }
         
+        c = c.trim();
+        // console.log(" c:", outS(c), outS(s))
+
         if (c.length === 0){
             c = 1;
             
@@ -1684,8 +1791,8 @@ function parseTerm(input="x"){
         }
 
         // get variables
+        s = s.replace(/\s/g, '');
         variables = getVariables(s);
-        
         
 
     } catch (Error) {
@@ -1806,7 +1913,8 @@ class AlgebraicExpression {
 
     getElement({
         showDots=false,
-        showSign=false
+        showSign=false,
+        useFractions=true
      }={}){
         // div is either the Element or the element's id
 
@@ -1814,18 +1922,20 @@ class AlgebraicExpression {
 
         let mods = {
             showDots: showDots,
-            showSign: showSign
+            showSign: showSign,
+            useFractions: useFractions
         };
         
         for (let [i, t] of this.terms.entries()){
             if (i > 0){
                 mods["showSign"] = true;
             }
-            t.insertIntoDiv(d, mods);
+            // t.insertIntoDiv(d, mods);
+            d.appendChild(t.getElement(mods));
         }
         return d;
     }
-    insertIntoDiv(div, {showDots=false}={}){
+    insertIntoDiv(div, {showDots=false, useFractions=true}={}){
         // div is either the Element or the element's id
 
         if (checkForString(div)){ // if string assume it's the element id
@@ -1833,7 +1943,11 @@ class AlgebraicExpression {
         } 
         let d = document.createElement('span');
 
-        div.appendChild(this.getElement());
+        let mods = {
+            showDots: showDots,
+            useFractions: useFractions
+        }
+        div.appendChild(this.getElement(mods));
         // let mods = {};
         // for (let [i, t] of this.terms.entries()){
         //     if (i > 0){
@@ -1852,6 +1966,7 @@ function parseExpression(s){
     }
     
     // s = s.replace(/\s/g, '');; // remove spaces
+    s = s.trim();
     let t = "";
     let terms = [];
     
@@ -1859,12 +1974,14 @@ function parseExpression(s){
         
         if ('+-'.includes(c) && t.length > 0){
             terms.push(parseTerm(t));
+            // console.log("t:", outS(t), parseTerm(t))
             t = c;
         } else {
             t = t + c;
         }
     }
-    
+
+    // console.log("t:", outS(t), parseTerm(t))
     terms.push(parseTerm(t));
     
     return new AlgebraicExpression({terms:terms});
@@ -2617,6 +2734,21 @@ function setInvalidStyle(div){
 function getRandomVariableLetter(str='xyzabcmnpqrst') { //get a random variable letter
     const randomIndex = Math.floor(Math.random() * str.length);
     return str.charAt(randomIndex);
+}
+
+function outS(s){
+    return `|${s}|`
+}
+
+function isFractional(num) {
+    return num % 1 !== 0;
+}
+
+function roundDecimal(n, decimalPlaces=2) {
+    if (isFractional(n)) {
+        n = parseFloat(n.toFixed(decimalPlaces))
+    }
+    return n;
 }
 
 function randInt(min, max, noZero=false) {

@@ -40,9 +40,9 @@
 
     // TERM's
     let testTerm = parseTerm("-43 x^22yz^3");
-    console.log("testTerm:", testTerm);
-
+    // console.log("testTerm:", testTerm);
     let div = document.getElementById('tests');
+    
     let d = document.createElement('div');
     d.textContent = "Parse Term: ";
     div.appendChild(d);
@@ -109,6 +109,7 @@
 
     // EXPRESSION's
     let testExpression = parseExpression("2xy -1 + 3x^2z -4x - y +g +1");
+    // let testExpression = parseExpression(" - y +g ");
     console.log(testExpression)
 
     d = document.createElement('div');
@@ -186,6 +187,22 @@
 
     appendHTML(d, '<p>');
     
+    appendHTML(d, "<br>Coefficients with fractions");
+    let exp6 = parseExpression('1/2 x');
+    appendString(d, `${exp6.toString()} = `)
+    exp6.insertIntoDiv(d);
+    appendHTML(d, "<br> Mixed number:");
+    let exp7 = parseExpression('2 1/3 y - 1/2 x');
+    appendString(d, `${exp7.toString()} = `)
+    exp7.insertIntoDiv(d);
+
+    appendHTML(d, "<br> Insert into div as decimal (rounded)<br>");
+    let exp8 = parseExpression('2 1/3 y - 1/2 x + 5t');
+    exp8.insertIntoDiv(d, {useFractions:true});
+    appendHTML(d, " = ");
+    exp8.insertIntoDiv(d, {useFractions:false});
+
+    appendHTML(d, '<p>');
 
     // EQUATION's
     let testEquation = parseEquation("3x^2 - 5x = 2x - 3")
