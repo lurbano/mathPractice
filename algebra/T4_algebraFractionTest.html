@@ -23,6 +23,33 @@
     appendHTML(div, '<br> Parse string (insertIntoDiv): ')
     frac.insertIntoDiv(div);
 
+    let newExp = frac.numerator.multiplyByConstant(5);
+    appendHTML(div, '<br> Multiply by constant (AlgebraicExpression) <br>'+ 5 + "·" + frac.numerator.toString() + " = ")
+    div.appendChild(newExp.getElement());
+
+    newExp = frac.denominator.multiplyByConstant(5);
+    appendHTML(div, '<br> Multiply by constant (AlgebraFraction) <br>'+ 5 + "·" + frac.denominator.toString() + " = ")
+    div.appendChild(newExp.getElement());
+
+    let c = 5;
+    appendHTML(div, '<br> Multiply by constant (AlgebraFraction) <br>'+ c + " · ")
+    frac.insertIntoDiv(div)
+    appendHTML(div, " = ")
+    frac = frac.multiplyByConstant(c);
+    div.appendChild(frac.getElement());
+
+    c = 10;
+    appendHTML(div, '<br> Divide by constant (AlgebraFraction) <br>')
+    frac.insertIntoDiv(div)
+    appendHTML(div, ` ÷ ${c} = `)
+    frac = frac.divideByConstant(c);
+    div.appendChild(frac.getElement());
+
+    appendHTML(div, '<br> Simplify Constants (AlgebraFraction) <br>')
+    frac.insertIntoDiv(div)
+    frac = frac.simplifyConstants()
+    appendHTML(div, ' = ')
+    frac.insertIntoDiv(div)
 
 </script>
 </html>

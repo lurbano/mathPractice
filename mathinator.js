@@ -777,18 +777,32 @@ function parseFraction(input){
 
 // FUNCTIONS
 
-function gcd(a, b) {
-    // Greatest Common Divisor using Euclidean algorithm
-    if (a !== 0){
-        while (b !== 0) {
-            let temp = b;
-            b = a % b;
-            a = temp;
-        }
-    } else {
-        a = 1;
+// function gcd(a, b) {
+//     // Greatest Common Divisor using Euclidean algorithm
+//     if (a !== 0){
+//         while (b !== 0) {
+//             let temp = b;
+//             b = a % b;
+//             a = temp;
+//         }
+//     } else {
+//         a = 1;
+//     }
+//     return a;
+// }
+
+function gcdTwoNumbers(a, b) {
+    if (!b) {
+        return a;
     }
-    return a;
+    return gcdTwoNumbers(b, a % b);
+}
+
+function gcd(...numbers) {
+    if (Array.isArray(numbers[0])) {
+        numbers = numbers[0];
+    }
+    return numbers.reduce((acc, num) => gcdTwoNumbers(acc, num));
 }
 
 function insertEqualSign(div_id){
@@ -1521,6 +1535,28 @@ class Term {
         return t;
     }
 
+    multiplyByConstant(c){
+        let coeff = 1;
+        let cFrac = this.cFrac;
+        if (c instanceof Fraction){
+            coeff = this.coeff * c.toFloat();
+            if (this.cFrac !== undefined){  // if they're both fractions
+                cFrac = multiplyFractions(this.cFrac, c);
+            } 
+            else if (!isFractional(this.coeff)) {
+                cFrac = c.multiplyByWhole(parseInt(this.coeff));
+            } 
+        } else {
+            coeff = this.coeff * c;
+        }
+        let t = new Term({
+            coeff: coeff,
+            variables: this.variables,
+            cFrac : cFrac
+        })
+        return t;
+    }
+
     add(t){ // add term (t) to this term
         if (this.isSimilarTo(t)){
             let c = this.coeff + t.coeff;
@@ -1676,64 +1712,6 @@ class Term {
 
     }
 
-    // insertIntoDiv(div, 
-    //               {
-    //                 showDots=false, 
-    //                 showSign=false, 
-    //                 useFractions=true
-    //               }={}, 
-    //               signSpace='2px'
-    //              ){
-    //     // div is either the Element or the element's id
-
-    //     if (checkForString(div)){ // if string assume it's the element id
-    //         div = document.getElementById(div);
-    //     } 
-
-    //     let signSpan = document.createElement('span');
-
-    //     let sign = "";
-    //     if (showSign || this.coeff < 0){
-    //         sign = this.coeff > 0 ? "+" : "−";
-    //     }
-
-    //     //coefficient
-    //     let c = Math.abs(this.coeff) + "";
-    //     if (c === "1" && this.variables.length > 0) {
-    //         c =  "";
-    //     }
-
-    //     if (this.cFrac instanceof Fraction && useFractions){
-    //         let fDiv = this.cFrac.toMixed().getElement();
-    //         if (this.coeff > 0) {
-    //             if (showSign) appendHTML(signSpan, "+");
-    //         } else {
-    //             appendHTML(signSpan, "−");
-    //             fDiv = this.cFrac.multiplyByWhole(-1).toMixed().getElement();
-    //         }
-            
-    //         signSpan.appendChild(fDiv);
-    //     } else {
-    //         if (isFractional(this.coeff)) c = roundDecimal(this.coeff);
-    //         signSpan.innerHTML = sign + Math.abs(c);
-    //     }
-        
-        
-    //     signSpan.style.marginRight = signSpace;
-    //     div.appendChild(signSpan);
-
-    //     if (showDots && this.variables.length > 0){
-    //         appendDot(div);
-    //     }
-
-    //     for (let [i, v] of this.variables.entries()){
-    //         div.appendChild(v.getSPAN());
-    //         if (showDots && i < this.variables.length-1) {
-    //             appendDot(div);
-    //         }
-    //     }
-
-    // }
 }
 
 function parseTerm(input="x"){
@@ -1825,6 +1803,14 @@ class AlgebraicExpression {
         let newTerms = [];
         for (let t of this.terms){
             newTerms.push(t.divideByConstant(c));
+        }
+        return new AlgebraicExpression({terms: newTerms});
+    }
+
+    multiplyByConstant(c){
+        let newTerms = [];
+        for (let t of this.terms){
+            newTerms.push(t.multiplyByConstant(c));
         }
         return new AlgebraicExpression({terms: newTerms});
     }
@@ -2671,6 +2657,42 @@ class AlgebraFraction{
                 this.isValid = true;
             }
         
+    }
+
+    multiplyByConstant(c){
+        this.numerator = this.numerator.multiplyByConstant(c);
+        return this;
+    }
+
+    divideByConstant(c){
+        if (c === 0) {
+            this.isValid = false;
+            this.denominator = undefined;
+        } else {
+            this.denominator = this.denominator.multiplyByConstant(c);
+        }
+        
+        return this;
+    }
+
+    simplifyConstants(){
+        let allConstants = [];
+        for (let t of this.numerator.terms) {
+            allConstants.push(t.coeff);
+        }
+        for (let t of this.numerator.terms) {
+            allConstants.push(t. coeff);
+        }
+
+        let commonDivisor = gcd(allConstants)
+        
+        let newNumerator = this.numerator.divideByConstant(commonDivisor);
+        let newDenominator = this.denominator.divideByConstant(commonDivisor);
+
+        return new AlgebraFraction({
+            numerator: newNumerator.simplify(),
+            denominator: newDenominator.simplify()
+        })
     }
 
     getElement(){
