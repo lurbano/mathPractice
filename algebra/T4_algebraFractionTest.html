@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../mathinator.js"></script>
+ 
+    <title>T4:Alg. Fraction</title>
+</head>
+<body>
+    <h3>Algebra Fraction</h3>
+    <div id="tests"></div>
+    
+</body>
+
+<script>
+
+    let div = document.getElementById('tests');
+    let frac = parseAlgebraFraction("x/x^2");
+
+    appendHTML(div, '<br> Parse string (getElement): ')
+    div.appendChild(frac.getElement());
+    appendHTML(div, '<br> Parse string (insertIntoDiv): ')
+    frac.insertIntoDiv(div);
+
+
+</script>
+</html>

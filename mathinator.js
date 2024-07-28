@@ -2656,6 +2656,88 @@ class RandomAlgebraQuestion extends AlgebraQuestion{
 
 
 
+
+class AlgebraFraction{
+
+    constructor({
+        numerator = new AlgebraicExpression(),
+        denominator = new AlgebraicExpression()
+    }){
+        this.isValid = false;
+        if (numerator instanceof AlgebraicExpression 
+            && denominator instanceof AlgebraicExpression){
+                this.numerator = numerator;
+                this.denominator = denominator;
+                this.isValid = true;
+            }
+        
+    }
+
+    getElement(){
+        let fracDiv = doc.createElement('span');
+        fracDiv.style.display = 'inline-block';
+        fracDiv.style.textAlign = "center";
+        fracDiv.style.verticalAlign = "middle";
+
+        if (this.isValid) {
+            let n = doc.createElement('span');
+            n.style.display = 'block';
+            n.style.borderBottom = '1px solid #000';
+            n.style.padding = '0 5px';
+            this.numerator.insertIntoDiv(n);
+
+            let d = doc.createElement('span');
+            d.style.display = 'block';
+            d.style.padding = '0 5px';
+            this.denominator.insertIntoDiv(d);
+            
+            fracDiv.appendChild(n);
+            fracDiv.appendChild(d);
+        } else {
+            let n = doc.createTextNode("NaF");
+            fracDiv.appendChild(n);
+        }
+
+        return fracDiv;
+    }
+
+    insertIntoDiv(div, {}={}){
+        div = findDiv(div);
+        div.appendChild(this.getElement());
+    }
+
+}
+
+
+
+function parseAlgebraFraction(str){
+    let parts = str.split("/");
+    let n = parseExpression(parts[0]);
+    let d = parseExpression(parts[1]);
+
+    return new AlgebraFraction({
+        numerator: n,
+        denominator: d
+    })
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //
 //
 //  UTILITY FUNCTIONS
@@ -2670,6 +2752,17 @@ function checkForString(input){
     } else {
         return true;
     }
+}
+
+function findDiv(div){ //make sure div exists either as element or as id.
+    let input = div;
+    if (checkForString(div)){ // if string assume it's the element id
+        div = document.getElementById(div);
+    } 
+    if (!(div instanceof Element)){
+        throw new Error(`div not found: ${input}`)
+    }
+    return div;
 }
 
 function getDot(){
