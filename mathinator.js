@@ -2020,7 +2020,12 @@ class AlgebraicExpression {
 
 function parseExpression(s){
     if (!checkForString(s)){
-        return false;
+        if (isFinite(parseFloat(s))){
+            s = s + '';
+        } else {
+            return undefined;
+        }
+        
     }
 
     //check for fraction
@@ -2770,10 +2775,21 @@ class AlgebraFraction{
         return this;
     }
 
-    // input can be String, Variable, Term, AlgebraicExpression or AlgebraFraction
-    multiply(inputFrac, simplify=true){ 
-        //checks
-        if (checkForString(inputFrac)) inputFrac = parseFraction(inputFrac);
+    fractionInputCheck(inputFrac){
+        if (checkForString(inputFrac) || isFinite(parseFloat(inputFrac))) {
+            let frac = parseAlgebraFraction(inputFrac);
+            if (frac !== undefined){
+                inputFrac = frac;
+            } else {
+                let numerator = parseExpression(inputFrac);
+                // let numerator = new AlgebraicExpression({terms:[inputTerm]});
+                inputFrac = new AlgebraFraction({
+                    numerator: numerator, 
+                    denominator: parseExpression("1")
+                })
+            }
+            
+        }
         if (inputFrac instanceof Variable){
             let inputTerm = new Term({coeff:1, variables:[inputFrac]});
             let numerator = new AlgebraicExpression({terms:[inputTerm]});
@@ -2796,11 +2812,35 @@ class AlgebraFraction{
             })
         } 
         if (!(inputFrac instanceof AlgebraFraction)) 
-            throw new Error("Not an AlgebraFraction (AlgebraFraction.multiply)")
+            throw new Error("Not an AlgebraFraction (AlgebraFraction)")
+        
+        return inputFrac;
+    }
 
+    // input can be String, Variable, Term, AlgebraicExpression or AlgebraFraction
+    multiply(inputFrac, simplify=true){ 
+        //checks
+        inputFrac = this.fractionInputCheck(inputFrac);
 
         let numerator = this.numerator.multiply(inputFrac.numerator);
         let denominator = this.denominator.multiply(inputFrac.denominator);
+
+        let newFrac = new AlgebraFraction({
+            numerator: numerator,
+            denominator: denominator
+        })
+
+        if (simplify) newFrac = newFrac.simplify();
+
+        return newFrac;
+    }
+
+    divide(inputFrac, simplify=true){
+        //checks
+        inputFrac = this.fractionInputCheck(inputFrac);
+
+        let numerator = this.numerator.multiply(inputFrac.denominator);
+        let denominator = this.denominator.multiply(inputFrac.numerator);
 
         let newFrac = new AlgebraFraction({
             numerator: numerator,
@@ -2841,6 +2881,10 @@ class AlgebraFraction{
             numerator: newNumerator.simplify(),
             denominator: newDenominator.simplify()
         })
+    }
+
+    simplifyVariables(){
+        
     }
 
     simplify(){
@@ -2899,16 +2943,27 @@ class AlgebraFraction{
 
 // Note: use curly brackets {} around numerator and denominator
 function parseAlgebraFraction(str){ 
-    let parts = str.split("/");
-    let n = getFromBrackets(parts[0]);
-    let d = getFromBrackets(parts[1]);
-    n = parseExpression(n);
-    d = parseExpression(d);
+    if (!checkForString(str)) str = str + "";
+    try {
+        let parts = str.split("/");
+        let n = getFromBrackets(parts[0]);
+        let d = getFromBrackets(parts[1]);
+        n = parseExpression(n);
+        d = parseExpression(d);
+    
+        // check if n and d are AlgebraicExpressions
+        if (!(n instanceof AlgebraicExpression && d instanceof AlgebraicExpression))
+            return undefined;
 
-    return new AlgebraFraction({
-        numerator: n,
-        denominator: d
-    })
+        return new AlgebraFraction({
+            numerator: n,
+            denominator: d
+        })
+
+    } catch {
+        return undefined;
+    }
+    
 }
 
 function getFromBrackets(str) {
