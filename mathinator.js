@@ -2015,7 +2015,8 @@ class Equation{
     }
 
     copy(){
-        return this;
+        let result = this.divideByConstant(1);
+        return result.equation;
     }
 
     solveOneSimilarVariable({showSteps=false, showComments=true, div=""}={}){
@@ -2045,11 +2046,11 @@ class Equation{
 
         // console.log("Solving -1.", this.expressions[1]);
         // SIMPLIFY
-        let oldEqString = this.toString();
+        let oldEq = this.copy();
         let eq = this.simplify();
         // console.log("Solving 0.", this.toString(), eq.toString(), this.isSameAs(eq));
-
-        if (showSteps && oldEqString !== eq.toString()) {
+        
+        if (showSteps && !eq.isSameAs(oldEq)) { 
             if (showComments){
                 gridRow = eq.addCommentToGrid({
                     gridDiv: gridDiv, 
@@ -2068,11 +2069,12 @@ class Equation{
         
         // CONSOLIDATE VARIABLE ON LEFT HAND SIDE
         // get all variable terms to the left hand side
-        oldEqString = eq.toString();
+        // let oldResult = eq.divideByConstant(1);
+        oldEq = eq.copy()
         let result = eq.removeAllFromSide({whatToRemove:"variables", side:1});
         eq = result.equation;
-    
-        if (showSteps && oldEqString !== eq.toString()) {
+
+        if (showSteps && !oldEq.isSameAs(eq)) { 
             if (showComments){
                 gridRow = eq.addCommentToGrid({
                     gridDiv: gridDiv, 
@@ -2087,10 +2089,11 @@ class Equation{
         // console.log("Solving 1.", oldEqString, eq.toString());
 
         // remove constants from left hand side
-        oldEqString = eq.toString();
+        oldEq = eq.copy();
         result = eq.removeAllFromSide({whatToRemove:"constants", side:0});
         eq = result.equation;
-        if (showSteps && oldEqString !== eq.toString()) {
+        
+        if (showSteps && !oldEq.isSameAs(eq)) { 
             if (showComments){
                 gridRow = eq.addCommentToGrid({
                     gridDiv: gridDiv, 
@@ -2107,10 +2110,11 @@ class Equation{
         // divide by coefficient
         let coeff = eq.expressions[0].terms[0].coeff;
     
-        oldEqString = eq.toString();
+        oldEq = eq.copy();
         result = eq.divideByConstant(coeff);
         eq = result.equation;
-        if (showSteps && oldEqString !== eq.toString()) {
+        
+        if (showSteps && !eq.isSameAs(oldEq)) { 
             if (showComments) {
                 gridRow = eq.addCommentToGrid({
                     gridDiv: gridDiv, 
@@ -2126,7 +2130,7 @@ class Equation{
         // console.log("Solving 3.", oldEqString, eq.toString());
 
         // final simplification
-        let oldEq = eq.copy();//Fix test
+        oldEq = eq.copy();//Fix test
         eq = eq.simplify();
         
         if (showSteps && eq.isSameAs(oldEq)) { 
@@ -2725,6 +2729,10 @@ class AlgebraFraction{
         })
     }
 
+    toString(){
+
+    }
+
     getElement(){
         let fracDiv = doc.createElement('span');
         fracDiv.style.display = 'inline-block';
@@ -2861,6 +2869,7 @@ function getEqualSignDiv(style={
 }
 
 function appendHTML(div, html, {margin="4px"}={}){
+    div = findDiv(div);
     let spn = document.createElement('span');
     spn.style.marginLeft = margin;
     spn.style.marginRight = margin;

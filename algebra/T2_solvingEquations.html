@@ -12,7 +12,7 @@
             border: 1px solid red;
         }
     </style>
-    <title>Document</title>
+    <title>T2.Alg.Solve</title>
 </head>
 <body>
     <h3>Algebra</h3>
@@ -23,6 +23,7 @@
     <hr>
     <div id="testEqn"></div>
 
+    <hr>
     <div id="testSolution"></div>
 </body>
 
@@ -55,17 +56,15 @@
     eq1.insertIntoGrid('testEqn', {gridRow:1});
     eq1.simplify().insertIntoGrid('testEqn', {gridRow:3});
     console.log("remove varaibles")
-    eq1.simplify()
-       .removeAllFromSide({whatToRemove:"variables", side:1})
-       .insertIntoGrid('testEqn', {gridRow:5});
-    console.log('remove constants')
-    eq1.simplify()
-       .removeAllFromSide({whatToRemove:"variables", side:1})
-       .removeAllFromSide({whatToRemove:"constants", side:0})
-       .insertIntoGrid('testEqn', {gridRow:7});
+    let e = eq1.simplify();
+    let result = e.removeAllFromSide({whatToRemove:"variables", side:1})
+    result.equation.insertIntoGrid('testEqn', {gridRow:5})
+    result = e.removeAllFromSide({whatToRemove:"constants", side:0})
+    result.equation.insertIntoGrid('testEqn', {gridRow:7})
+    
     eq1.solveOneSimilarVariable().insertIntoGrid('testEqn', {gridRow:9});
 
-    let eq2 = parseEquation("3y - 2y + 6 = 8y - 1");
+    let eq2 = parseEquation("3y - 2y + 6 = 8y - 15");
     eq2.solveOneSimilarVariable({showSteps:true, div:"testSolution"});
 
 </script>
