@@ -1950,8 +1950,38 @@ function parseExpression(s){
     if (!checkForString(s)){
         return false;
     }
+
+    //check for fraction
+    if (s.includes("{")){
+        return parseAlgebraFraction(s);
+    }
+
+    s = s.trim();
+    let t = "";
+    let terms = [];
     
-    // s = s.replace(/\s/g, '');; // remove spaces
+    for (let c of s){
+        
+        if ('+-'.includes(c) && t.length > 0){
+            terms.push(parseTerm(t));
+            // console.log("t:", outS(t), parseTerm(t))
+            t = c;
+        } else {
+            t = t + c;
+        }
+    }
+
+    // console.log("t:", outS(t), parseTerm(t))
+    terms.push(parseTerm(t));
+    
+    return new AlgebraicExpression({terms:terms});
+}
+
+function parseExpressionWithAlgFrac(s){
+    if (!checkForString(s)){
+        return false;
+    }
+
     s = s.trim();
     let t = "";
     let terms = [];
@@ -1976,7 +2006,7 @@ function parseExpression(s){
 
 class Equation{
     constructor({
-        expressions = [],    //list of AlgebraicExpressions
+        expressions = [],    //list of AlgebraicExpressions or AlgebraFractions
         textExpressions = false  // if the array of expressions are text
     }){
         this.expressions = expressions;
@@ -2731,11 +2761,13 @@ class AlgebraFraction{
 }
 
 
-
-function parseAlgebraFraction(str){
+// Note: use curly brackets {} around numerator and denominator
+function parseAlgebraFraction(str){ 
     let parts = str.split("/");
-    let n = parseExpression(parts[0]);
-    let d = parseExpression(parts[1]);
+    let n = getFromBrackets(parts[0]);
+    let d = getFromBrackets(parts[1]);
+    n = parseExpression(n);
+    d = parseExpression(d);
 
     return new AlgebraFraction({
         numerator: n,
@@ -2743,7 +2775,10 @@ function parseAlgebraFraction(str){
     })
 }
 
-
+function getFromBrackets(str) {
+    const matches = str.match(/{(.*?)}/);
+    return matches ? matches[1] : null;
+}
 
 
 

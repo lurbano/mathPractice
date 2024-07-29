@@ -16,7 +16,7 @@
 <script>
 
     let div = document.getElementById('tests');
-    let frac = parseAlgebraFraction("x/x^2");
+    let frac = parseAlgebraFraction("{x}/{x^2}");
 
     appendHTML(div, '<br> Parse string (getElement): ')
     div.appendChild(frac.getElement());
@@ -28,7 +28,7 @@
     div.appendChild(newExp.getElement());
 
     newExp = frac.denominator.multiplyByConstant(5);
-    appendHTML(div, '<br> Multiply by constant (AlgebraFraction) <br>'+ 5 + "·" + frac.denominator.toString() + " = ")
+    appendHTML(div, '<br> Multiply by constant (AlgebraicExperssion) <br>'+ 5 + "·" + frac.denominator.toString() + " = ")
     div.appendChild(newExp.getElement());
 
     let c = 5;
@@ -50,6 +50,12 @@
     frac = frac.simplifyConstants()
     appendHTML(div, ' = ')
     frac.insertIntoDiv(div)
+
+    let str = '{2x}/{3} = 8';
+    appendHTML(div, '<p> AlgebraEquation <br>');
+    let eqn = parseEquation(str)
+    eqn.insertIntoDiv(div);
+    
 
 </script>
 </html>
