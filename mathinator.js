@@ -1557,6 +1557,34 @@ class Term {
         return t;
     }
 
+    // input can be in the for of a String, Variable, or Term
+    multiply(inputTerm){
+
+        //checks
+        if (checkForString(inputTerm)) inputTerm = parseTerm(inputTerm);
+        if (inputTerm instanceof Variable) inputTerm = new Term({coeff:1, variables:[inputTerm]});
+        if (!(inputTerm instanceof Term)) 
+            throw new Error("Not a term (Term.multiplyByTerm)")
+
+        let coeff = inputTerm.coeff * this.coeff;
+        let cFrac = undefined;
+        if (inputTerm.cFrac !== undefined  && this.cFrac !== undefined){
+            cFrac = multiplyFractions(inputTerm.cFrac, this.cFrac);
+        }
+
+        let variables = this.variables.concat(inputTerm.variables);
+
+        // console.log("variables", variables)
+        let t = new Term({
+            coeff: coeff,
+            variables: variables,
+            cFrac: cFrac
+        });
+
+        return t.simplify();
+
+    }
+
     add(t){ // add term (t) to this term
         if (this.isSimilarTo(t)){
             let c = this.coeff + t.coeff;
@@ -1601,7 +1629,7 @@ class Term {
             coeff: this.coeff, 
             variables: vSimp
         })
-        t.simplifyFractionCoeff()
+        t.simplifyFractionCoeff().sort()
         return t;
     }
 
@@ -1813,6 +1841,50 @@ class AlgebraicExpression {
             newTerms.push(t.multiplyByConstant(c));
         }
         return new AlgebraicExpression({terms: newTerms});
+    }
+
+    // input can be in the for of a String, Variable, or Term
+    multiplyByTerm(inputTerm){ 
+
+        //checks
+        if (checkForString(inputTerm)) inputTerm = parseTerm(inputTerm);
+        if (inputTerm instanceof Variable) inputTerm = new Term({coeff:1, variables:[inputTerm]});
+        if (!(inputTerm instanceof Term)) 
+            throw new Error("Not a term (AlgebraicExpression.multiplyByTerm)")
+        
+        let newTerms = []
+        for (let t of this.terms){
+            newTerms.push(t.multiply(inputTerm));
+        }
+
+        return new AlgebraicExpression({
+            terms: newTerms
+        })
+    }
+
+    multiply(inputExpr){ 
+
+        //checks
+        if (checkForString(inputExpr)) inputExpr = parseExpression(inputExpr);
+        if (inputExpr instanceof Variable){
+            let inputTerm = new Term({coeff:1, variables:[inputTerm]});
+            inputExpr = new AlgebraicExpression({terms:[inputTerm]});
+        } 
+        if (inputExpr instanceof Term){
+            inputExpr = new AlgebraicExpression({terms:[inputExpr]});
+        } 
+        if (!(inputExpr instanceof AlgebraicExpression)) 
+            throw new Error("Not an AlgebraicExpression (AlgebraicExpression.multiply)")
+
+        let newTerms = [];
+        for (let t of inputExpr.terms){
+            let newExpr = this.multiplyByTerm(t);
+            newTerms = newTerms.concat(newExpr.terms);
+        }
+
+        return new AlgebraicExpression({
+            terms: newTerms
+        })
     }
 
     add(e){ //add Expression or Term (e) to this Expression
@@ -2698,6 +2770,48 @@ class AlgebraFraction{
         return this;
     }
 
+    // input can be String, Variable, Term, AlgebraicExpression or AlgebraFraction
+    multiply(inputFrac, simplify=true){ 
+        //checks
+        if (checkForString(inputFrac)) inputFrac = parseFraction(inputFrac);
+        if (inputFrac instanceof Variable){
+            let inputTerm = new Term({coeff:1, variables:[inputFrac]});
+            let numerator = new AlgebraicExpression({terms:[inputTerm]});
+            inputFrac = new AlgebraFraction({
+                numerator: numerator, 
+                denominator: parseExpression("1")
+            })
+        } 
+        if (inputFrac instanceof Term){
+            let numerator = new AlgebraicExpression({terms:[inputFrac]});
+            inputFrac = new AlgebraFraction({
+                numerator: numerator, 
+                denominator: parseExpression("1")
+            })
+        } 
+        if (inputFrac instanceof AlgebraicExpression){
+            inputFrac = new AlgebraFraction({
+                numerator: inputFrac, 
+                denominator: parseExpression("1")
+            })
+        } 
+        if (!(inputFrac instanceof AlgebraFraction)) 
+            throw new Error("Not an AlgebraFraction (AlgebraFraction.multiply)")
+
+
+        let numerator = this.numerator.multiply(inputFrac.numerator);
+        let denominator = this.denominator.multiply(inputFrac.denominator);
+
+        let newFrac = new AlgebraFraction({
+            numerator: numerator,
+            denominator: denominator
+        })
+
+        if (simplify) newFrac = newFrac.simplify();
+
+        return newFrac;
+    }
+
     divideByConstant(c){
         if (c === 0) {
             this.isValid = false;
@@ -2709,7 +2823,7 @@ class AlgebraFraction{
         return this;
     }
 
-    simplifyConstants(){
+    simplifyConstants(){ //finds common factors and siplifies them.
         let allConstants = [];
         for (let t of this.numerator.terms) {
             allConstants.push(t.coeff);
@@ -2727,6 +2841,20 @@ class AlgebraFraction{
             numerator: newNumerator.simplify(),
             denominator: newDenominator.simplify()
         })
+    }
+
+    simplify(){
+        let n = this.numerator.simplify();
+        let d = this.denominator.simplify();
+
+        let simp = new AlgebraFraction({
+            numerator: n,
+            denominator: d
+        })
+        simp = simp.simplifyConstants();
+
+        return simp;
+        
     }
 
     toString(){

@@ -47,9 +47,25 @@
 
     appendHTML(div, '<br> Simplify Constants (AlgebraFraction) <br>')
     frac.insertIntoDiv(div)
-    frac = frac.simplifyConstants()
+    let frac2 = frac.simplifyConstants()
     appendHTML(div, ' = ')
+    frac2.insertIntoDiv(div)
+
+    appendHTML(div, '<br> Multiply AlgebraFractions <br>')
     frac.insertIntoDiv(div)
+    appendHTML(div, ' · ')
+    frac2.insertIntoDiv(div)
+    appendHTML(div, ' = ')
+    let frac3 = frac.multiply(frac2, false);
+    frac3.insertIntoDiv(div)
+    appendHTML(div, ' = ')
+    let frac4 = frac3.simplify();
+    frac4.insertIntoDiv(div)
+
+    
+    
+    
+
 
     let str = '{2x}/{3} = 8';
     appendHTML(div, '<p> AlgebraEquation <br>');

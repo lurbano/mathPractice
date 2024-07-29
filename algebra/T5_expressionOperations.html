@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../mathinator.js"></script>
+ 
+    <title>T5:ExprOps</title>
+</head>
+<body>
+    <h3>Algebra Fraction</h3>
+    <div id="tests"></div>
+    
+</body>
+
+<script>
+
+    let div = document.getElementById('tests');
+    let expr = parseExpression("12x + 8x^2 - 4xy^2 -4y");
+
+    let c = 5;
+    appendHTML(div, `<br> Multiply by constant (${c})<br> ${c} ・ (`)
+    div.appendChild(expr.getElement());
+    appendHTML(div, ") = ")
+    expr = expr.multiplyByConstant(c);
+    expr.insertIntoDiv(div);
+
+    c = 4;
+    appendHTML(div, `<br> Divide by constant (${c})<br> (`)
+    div.appendChild(expr.getElement());
+    appendHTML(div, `) ÷ ${c} = `)
+    expr = expr.divideByConstant(c);
+    expr.insertIntoDiv(div);
+
+    let vari = "x";
+    appendHTML(div, `<br> Multiply by Term (${vari})<br> ${vari} ・ (`)
+    div.appendChild(expr.getElement());
+    appendHTML(div, ") = ")
+    expr = expr.multiply(vari);
+    expr.insertIntoDiv(div);
+    
+    vari = "5x^2yz";
+    appendHTML(div, `<p> Multiply by Term (${vari})<br> ${vari} ・ (`)
+    div.appendChild(expr.getElement());
+    appendHTML(div, ") = ")
+    expr = expr.multiply(vari);
+    expr.insertIntoDiv(div);
+
+    vari = "{2x}";
+    appendHTML(div, `<p> Multiply by AlgebraFraction (${vari})<br> ${vari} ・ (`)
+    div.appendChild(expr.getElement());
+    appendHTML(div, ") = ")
+    expr = expr.multiply(vari);
+    expr.insertIntoDiv(div);
+
+</script>
+</html>
