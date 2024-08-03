@@ -2030,7 +2030,12 @@ function parseExpression(s){
 
     //check for fraction
     if (s.includes("{")){
-        return parseAlgebraFraction(s);
+        if (s.includes('/')){
+            return parseAlgebraFraction(s);
+        } else {
+            s = getFromBrackets(s)
+        }
+            
     }
 
     s = s.trim();
