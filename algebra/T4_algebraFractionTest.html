@@ -45,11 +45,14 @@
     frac = frac.divideByConstant(c);
     div.appendChild(frac.getElement());
 
-    appendHTML(div, '<br> Simplify Constants (AlgebraFraction) <br>')
+    appendHTML(div, '<br> Simplify Constants and Variables (AlgebraFraction) <br>')
     frac.insertIntoDiv(div)
     let frac2 = frac.simplifyConstants()
     appendHTML(div, ' = ')
     frac2.insertIntoDiv(div)
+    let frac2s = frac2.simplifyVariables()
+    appendHTML(div, ' = ')
+    frac2s.insertIntoDiv(div)
 
     appendHTML(div, '<br> Multiply AlgebraFractions <br>')
     frac.insertIntoDiv(div)

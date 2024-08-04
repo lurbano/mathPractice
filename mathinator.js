@@ -1,4 +1,7 @@
 var doc = document;
+
+// class Worksheet
+//#region Worksh..
 //
 //
 //
@@ -6,6 +9,7 @@ var doc = document;
 //
 //
 //
+
 class Worksheet {
 
     constructor ({
@@ -237,10 +241,11 @@ class Worksheet {
 
 }
 
+//#endregion
 
 
-
-
+// class Fraction
+//#region Fraction
 // 
 //
 //
@@ -248,7 +253,6 @@ class Worksheet {
 //
 //
 //
-
 let showElementBorders = false;
 
 class Fraction {
@@ -478,7 +482,10 @@ class Fraction {
         return new Fraction(this.denominator, this.numerator);
     }
 }
+//#endregion
 
+// class mixedNumber
+//#region mixedNu
 class mixedNumber{
     constructor(whole = 0, frac = new Fraction()){
         this.whole = parseInt(whole);
@@ -594,9 +601,10 @@ class mixedNumber{
 
 }
 
+//#endregion
 
-
-
+// functions related to Fractions
+//#region FracFun..
 function lcm(a, b) {
     // Least Common Multiple
     return (a * b) / gcd(a, b);
@@ -746,6 +754,7 @@ function parseMixedNumber(input, toFraction=true) {
     
 }
 
+// use parseMixedNumber if possible
 function parseFraction(input){
     if (typeof input !== 'string' || input.trim() === '') {
         console.log("parseFraction Error: 1")
@@ -777,19 +786,6 @@ function parseFraction(input){
 
 // FUNCTIONS
 
-// function gcd(a, b) {
-//     // Greatest Common Divisor using Euclidean algorithm
-//     if (a !== 0){
-//         while (b !== 0) {
-//             let temp = b;
-//             b = a % b;
-//             a = temp;
-//         }
-//     } else {
-//         a = 1;
-//     }
-//     return a;
-// }
 
 function gcdTwoNumbers(a, b) {
     if (!b) {
@@ -813,7 +809,10 @@ function insertEqualSign(div_id){
 function subtractFractionFromWhole(whole, frac){
 
 }
+//#endregion
 
+// class FractionQuestion
+//#region FracQue..
 class FractionQuestion{
 
     constructor({
@@ -1367,9 +1366,7 @@ function putInGrid(div, row, col){
     div.style.gridColumn = col;
 }
 
-
-
-
+//#endregion
 
 
 
@@ -1385,8 +1382,10 @@ function putInGrid(div, row, col){
 // A Variable has a letter and its exponent: "x^3"
 // A Term has a coefficient (coeff) and an array of Variable's
 // An AlgebraicExperssion has an array of Terms
-// An Equation has an array of AlgebraicExperssion's
+// An Equation has an array of AlgebraicExperssion's or AlgebraFractions
 
+// class Variable
+//#region Variable
 class Variable {
     constructor({
         character = "x",  // variable character
@@ -1472,7 +1471,11 @@ function getVariables(s){
     }
     return variables;
 }
+//#endregion
 
+
+// class Term
+//#region Term
 class Term {
     constructor({
         coeff = 1,          // a coefficient
@@ -1811,7 +1814,11 @@ function parseTerm(input="x"){
         cFrac: cFrac
     })
 }
+//#endregion
 
+// class AlgebraicExpression
+//#region AlgExpr..
+//
 class AlgebraicExpression {
     constructor({
         terms = []      // a list of Term's
@@ -2085,6 +2092,11 @@ function parseExpressionWithAlgFrac(s){
     return new AlgebraicExpression({terms:terms});
 }
 
+//#endregion
+
+
+// class Equation
+//#region Equation
 
 class Equation{
     constructor({
@@ -2447,7 +2459,11 @@ function parseEquation(s) {
     }
     return new Equation({expressions:expressions});
 }
+//#endregion
 
+
+// class AlgebraQuestion
+//#region AlgQue..
 
 class AlgebraQuestion {
 
@@ -2755,9 +2771,11 @@ class RandomAlgebraQuestion extends AlgebraQuestion{
 
 }
 
+//#endregion
 
 
-
+// class AlgebraFraction
+//#region AlgFrac..
 
 class AlgebraFraction{
 
@@ -2977,6 +2995,7 @@ function getFromBrackets(str) {
 }
 
 
+//#endregion
 
 
 
@@ -2989,8 +3008,7 @@ function getFromBrackets(str) {
 
 
 
-
-
+//#region Util Fun..
 //
 //
 //  UTILITY FUNCTIONS
@@ -3113,3 +3131,5 @@ function randInt(min, max, noZero=false) {
     
     return n;
 }
+
+//endregion
