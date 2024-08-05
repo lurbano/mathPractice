@@ -1427,6 +1427,20 @@ class Variable {
     }
 }
 
+function divideTwoVariables(v1, v2){
+    if (v1.character === v2.character){
+        return new Variable({
+            character: v1.character,
+            exp: v1.exp - v2.exp
+        })
+    } else {
+        return new AlgebraFraction({
+            numerator: v1,
+            denominator: v2
+        })
+    }
+}
+
 function parseVariable(s){
     if (s.length === 1){
         return new Variable({
@@ -1814,10 +1828,64 @@ function parseTerm(input="x"){
         cFrac: cFrac
     })
 }
+
+function factorTwoTerms(t1, t2){
+    let coeff = gcd(t1.coeff, t2.coeff);
+
+    let v = [];
+    for (let v1 of t1.variables){
+        for (let v2 of t2.variables){
+            if (v1.character === v2.character){
+                let minExp = closestToZero(v1.exp, v2.exp);
+                v.push(new Variable({
+                    character: v1.character,
+                    exp: minExp
+                }))
+            }
+        }
+    }
+
+    return new Term({
+        coeff: coeff,
+        variables: v
+    })
+}
+
+function divideTwoTerms(t1, t2){
+    let coeff = t1.coeff / t2.coeff;
+    let cFrac = undefined;
+    if (isFractional(coeff))
+        cFrac = new Fraction(t1.coeff, t2.coeff);
+
+    let n = []; numerator
+    let d = []; denominator
+    let v = [];
+    for (let v1 of t1.variables){
+        for (let v2 of t2.variables){
+            let vDiv = divideTwoVariables(v1, v1);
+            // ??
+        }
+    }
+    
+
+}
+
+function closestToZero(a, b) {
+    if (Math.abs(a) < Math.abs(b)) {
+        return a;
+    } else if (Math.abs(a) > Math.abs(b)) {
+        return b;
+    } else {
+        // If both are equally close to zero, you can return either, or handle it as needed
+        return a; // or return b;
+    }
+}
+
 //#endregion
 
+
 // class AlgebraicExpression
-//#region AlgExpr..
+//#region Expres..
 //
 class AlgebraicExpression {
     constructor({
@@ -1972,9 +2040,23 @@ class AlgebraicExpression {
         });
     }
 
-    removeFractionConstants(){
-
+    factor(){
+        //get coefficient
+        // let cfac = this.terms.reduce(
+        //     (tf,t) => new Term( 
+        //         {coeff: gcd(tf.coeff, t.coeff)}
+        //     )
+        // )
+        let fTerm = this.terms.reduce(
+            (tf, t) => factorTwoTerms(tf, t)
+        )
+        
+        return fTerm;
     }
+
+    // removeFractionConstants(){
+
+    // }
 
     getElement({
         showDots=false,
@@ -2784,6 +2866,26 @@ class AlgebraFraction{
         denominator = new AlgebraicExpression()
     }){
         this.isValid = false;
+
+        // check numerator
+        if (isNumber(numerator))
+            numerator = new Term({coeff:numerator})
+        if (numerator instanceof Variable)
+            numerator = new Term({variables:[numerator]});
+
+        if (numerator instanceof Term) 
+            numerator = new AlgebraicExpression({terms:[numerator]});
+
+        // check denominator
+        if (isNumber(denominator))
+            denominator = new Term({coeff:denominator})
+        if (denominator instanceof Variable)
+            denominator = new Term({variables:[denominator]});
+
+        if (numerator instanceof Term) 
+            numerator = new AlgebraicExpression({terms:[numerator]});
+
+
         if (numerator instanceof AlgebraicExpression 
             && denominator instanceof AlgebraicExpression){
                 this.numerator = numerator;
@@ -3130,6 +3232,16 @@ function randInt(min, max, noZero=false) {
     }
     
     return n;
+}
+
+function isNumber(n){
+    if (typeof denominator === "number" && Number.isFinite(denominator)) {
+        return true;
+    } else {
+        return false;
+    }
+        
+    
 }
 
 //endregion

@@ -42,6 +42,10 @@
     let testTerm = parseTerm("-43 x^22yz^3");
     // console.log("testTerm:", testTerm);
     let div = document.getElementById('tests');
+
+    let h = document.createElement('h3');
+    h.innerHTML = 'Terms';
+    div.appendChild(h);
     
     let d = document.createElement('div');
     d.textContent = "Parse Term: ";
@@ -108,6 +112,10 @@
     
 
     // EXPRESSION's
+    h = document.createElement('h3');
+    h.innerHTML = 'Expressions';
+    div.appendChild(h);
+    
     let testExpression = parseExpression("2xy -1 + 3x^2z -4x - y +g +1");
     // let testExpression = parseExpression(" - y +g ");
     console.log(testExpression)
@@ -185,9 +193,11 @@
     appendString(d, ") = ");
     exp3.add(term1).sort().insertIntoDiv(d);
 
-    appendHTML(d, '<p>');
+    h = document.createElement('h3');
+    h.innerHTML = 'Fractions';
+    d.appendChild(h);
     
-    appendHTML(d, "<br>Coefficients with fractions");
+    appendHTML(d, "Coefficients with fractions");
     let exp6 = parseExpression('1/2 x');
     appendString(d, `${exp6.toString()} = `)
     exp6.insertIntoDiv(d);
@@ -205,6 +215,10 @@
     appendHTML(d, '<p>');
 
     // EQUATION's
+    h = document.createElement('h3');
+    h.innerHTML = 'Equations';
+    div.appendChild(h);
+    
     let testEquation = parseEquation("3x^2 - 5x = 2x - 3")
     console.log("testEquation", testEquation);
     
