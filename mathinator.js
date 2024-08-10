@@ -1852,22 +1852,46 @@ function factorTwoTerms(t1, t2){
 }
 
 function divideTwoTerms(t1, t2){
+    t1 = t1.simplify();
+    t2 = t2.simplify();
     let coeff = t1.coeff / t2.coeff;
     let cFrac = undefined;
-    if (isFractional(coeff))
+    let cn = coeff; //coeff for numerator
+    let dn = 1; 
+    if (isFractional(coeff)){
         cFrac = new Fraction(t1.coeff, t2.coeff);
+        cn = t1.coeff;
+        dn = t2.coeff;
+    }
+        
 
-    let n = []; numerator
-    let d = []; denominator
+
+    let n = []; //numerator
+    let d = []; //denominator
     let v = [];
-    for (let v1 of t1.variables){
-        for (let v2 of t2.variables){
-            let vDiv = divideTwoVariables(v1, v1);
-            // ??
+    for (let dv of t2.variables){
+        let wasNotDivided = true;
+        for (let nv of t1.variables){
+            let vDiv = divideTwoVariables(nv, dv);
+            if (vDiv instanceof Variable){
+                n.push(vDiv);
+                wasNotDivided = false;
+                break;
+            }
+        }
+        if (wasNotDivided){
+            n.push[nv];
+            d.push[dv];
         }
     }
-    
 
+    let nTerm = new Term({coeff: cn, variables: n})
+    let dTerm = new Term({coeff: dn, variables: d});
+    
+    let numerator = new AlgebraicExpression({terms: [nTerm]});
+    let denominator = new AlgebraicExpression({terms: [dTerm]});
+
+    return new AlgebraFraction({numerator: numerator, denominator: denominator});
 }
 
 function closestToZero(a, b) {
@@ -2047,11 +2071,19 @@ class AlgebraicExpression {
         //         {coeff: gcd(tf.coeff, t.coeff)}
         //     )
         // )
+        let factors = [];
         let fTerm = this.terms.reduce(
             (tf, t) => factorTwoTerms(tf, t)
         )
         
-        return fTerm;
+        factors.push(new AlgebraicExpression({
+            terms: [fTerm]
+        }))
+
+        // divide to find remainder factor
+        
+
+        return factors;
     }
 
     // removeFractionConstants(){
@@ -3009,7 +3041,22 @@ class AlgebraFraction{
     }
 
     simplifyVariables(){
-        
+        let newFrac = undefined;
+        // if one term divided by another term
+        if (this.numerator.terms.length === 1 && this.denominator.terms.length === 1){
+            newFrac = divideTwoTerms(this.numerator.terms[0], this.denominator.terms[0]);
+        }
+        else if (this.numerator.terms.length > 1 && this.denominator.terms.length === 1){
+            console.log("multiple terms on numerator (not coded yet)");
+        }
+        else if (this.numerator.terms.length === 1 && this.denominator.terms.length > 1){
+            console.log("multiples terms on denominator (not coded yet)");
+        } 
+        else { 
+            console.log("Multiple terms on numerator and denominator (not coded yet)")
+        }
+
+        return newFrac;
     }
 
     simplify(){

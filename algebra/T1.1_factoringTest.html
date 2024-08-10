@@ -17,12 +17,25 @@
 <script>
 
     tests.innerHTML = '<h4>Factoring</h4>';
+
+    let t1 = parseTerm("2x^2yz^3");
+    let t2 = parseTerm("4x y^4 z^2");
+    appendString('tests', "Dividinig Terms:");
+    t1.insertIntoDiv('tests');
+    appendString('tests', '/');
+    t2.insertIntoDiv('tests');
+    appendString('tests', '=')
+    let f = divideTwoTerms(t1, t2);
+    console.log("f:", f)
+    f.insertIntoDiv('tests');
+
+    appendHTML('tests', '<p>')
     
     let s = '2x^2yz^3 + 6xyz^5 + 4xy^2z^7';
     let expr = parseExpression(s);
     expr.insertIntoDiv('tests');
     appendString('tests', ' = ');
-    appendString('tests', expr.factor());
+    appendString('tests', expr.factor()[0]);
     
 
     
