@@ -1634,45 +1634,6 @@ class Term {
 
     divide(t, cleanupExps=true){
         return divideTwoTerms(this, t, cleanupExps);
-        // t1 = this.simplify();
-        // t2 = t.simplify();
-
-        // // deal with coefficients
-        // let coeff = t1.coeff / t2.coeff;
-        // let cFrac = undefined;
-        // let cn = coeff; //coeff for numerator
-        // let dn = 1; 
-        // if (isFractional(coeff)){
-        //     cFrac = new Fraction(t1.coeff, t2.coeff);
-        //     cn = t1.coeff;
-        //     dn = t2.coeff;
-        // }
-
-        // let result = t1.multiply(t2.reciprocal());
-        // //let result = t1;
-
-        // // console.log('result 1', result.toString())
-
-        // if (cleanupExps){
-        //     let newVars = [];
-        //     for (let v of result.variables){
-        //         if (v.exp === 0) {
-        //             //skip because = 1
-        //         } 
-        //         else {
-        //             newVars.push(v);
-        //         }
-        //     }
-
-        //     result = new Term({
-        //         coeff: result.coeff,
-        //         variables: newVars
-        //     })
-        // }
-
-        
-
-        // return result;
     }
 
     toAlgebraFraction(){
@@ -2137,7 +2098,11 @@ class AlgebraicExpression {
 
     simplify(){ // combine like terms
         let eSimp = [];
+        let st = []
         for (let t of this.terms){
+            st.push(t.simplify());
+        }
+        for (let t of st){
             let l_addToList = true;
             for (let [i,ts] of eSimp.entries()){
                 if (t.isSimilarTo(ts)) {
@@ -2170,6 +2135,41 @@ class AlgebraicExpression {
         });
     }
 
+    // simplify(){ // combine like terms
+    //     let eSimp = [];
+    //     for (let t of this.terms){
+    //         let l_addToList = true;
+    //         for (let [i,ts] of eSimp.entries()){
+    //             if (t.isSimilarTo(ts)) {
+    //                 l_addToList = false;
+    //                 eSimp[i] = t.add(ts);
+    //             }
+    //         }
+    //         if (l_addToList) eSimp.push(t);
+    //     }
+
+    //     // remove zero terms
+    //     let simpTerms = [];
+    //     for (let t of eSimp){
+    //         if (String(t.coeff) !== "0"){
+    //             simpTerms.push(t);
+    //         }
+    //     }
+    //     // add a zero if no terms in expression
+    //     if (simpTerms.length === 0){
+    //         simpTerms.push(parseTerm("0"));
+    //     }
+
+    //     // remove fractions that are constants
+    //     for (let i in simpTerms){
+    //         simpTerms[i] = simpTerms[i].simplifyFractionCoeff();
+    //     }
+        
+    //     return new AlgebraicExpression({
+    //         terms: simpTerms
+    //     });
+    // }
+
     factor(){
         //get coefficient
         // let cfac = this.terms.reduce(
@@ -2187,6 +2187,15 @@ class AlgebraicExpression {
         }))
 
         // divide to find remainder factor
+        let newTerms = [];
+        for (let t of this.terms){
+            // console.log(getPrototypeChain(t), getPrototypeChain(factors[0]));
+            newTerms.push(t.divide(fTerm));
+        }
+
+        factors.push( new AlgebraicExpression({
+            terms: newTerms
+        }))
         
 
         return factors;
@@ -3178,7 +3187,20 @@ class AlgebraFraction{
             numerator: n,
             denominator: d
         })
-        simp = simp.simplifyConstants();
+
+
+        let nf = n.factor()[0];
+        let df = d.factor()[0];
+
+        //divide if the factors only have one term each
+        if (nf.terms.length === 1 && df.terms.length === 1){
+            simp = nf.terms[0].divide(df.terms[0]).toAlgebraFraction();
+        }
+
+
+        
+        //simp = simp.simplifyConstants();
+        
 
         return simp;
         
@@ -3260,6 +3282,7 @@ function parseAlgebraFraction(str){
         })
 
     } catch {
+        console.log("parseAlgebraFraction: something went wrong")
         return undefined;
     }
     

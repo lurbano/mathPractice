@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../mathinator.js"></script>
+    <style>
+        
+    </style>
+    <title>T7.Factor</title>
+</head>
+<body>
+    <div id="tests"></div>
+    
+</body>
+
+<script>
+
+    tests.innerHTML = '<h4>Factoring</h4>';
+
+
+
+    appendHTML('tests', '<p>')
+    
+    let s = '2x^2yz^3 + 6xyz^5 + 4xy^2z^7';
+    let expr = parseExpression(s);
+    expr.insertIntoDiv('tests');
+    appendString('tests', ' = ');
+    appendString('tests', expr.factor()[0]);
+    appendString('tests', ' · ');
+    appendString('tests', expr.factor()[1]);
+    appendHTML('tests', '<p>')
+
+    s = '2x^2y + 3z^5';
+    expr = parseExpression(s);
+    expr.insertIntoDiv('tests');
+    appendString('tests', ' = ');
+    appendString('tests', expr.factor()[0]);
+    appendString('tests', ' · ');
+    appendString('tests', expr.factor()[1]);
+    appendHTML('tests', '<p>')
+
+        s = '2x^2y';
+    expr = parseExpression(s);
+    expr.insertIntoDiv('tests');
+    appendString('tests', ' = ');
+    appendString('tests', expr.factor()[0]);
+    appendString('tests', ' · ');
+    appendString('tests', expr.factor()[1]);
+    appendHTML('tests', '<p>')
+
+
+    let f = parseAlgebraFraction('{2x^2y^5zx^3}/{xy}');
+    console.log("f:", f);
+    f.insertIntoDiv('tests')
+    appendString('tests', ' = ');
+    f.simplify().insertIntoDiv('tests')
+
+</script>
+</html>
