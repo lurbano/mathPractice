@@ -1393,6 +1393,20 @@ class Variable {
     }){
         this.character = character;
         this.exp = parseFloat(exp);
+
+    }
+    reciprocal(){
+        return new Variable({
+            character: this.character,
+            exp: this.exp * -1
+        })
+    }
+    simplify(){
+        if (this.exp === 0){
+            return 1;
+        } else {
+            return this;
+        }
     }
     isSameAs(v){
         let test = ((this.character === v.character) && (this.exp === v.exp)) ? true : false;
@@ -1428,17 +1442,21 @@ class Variable {
 }
 
 function divideTwoVariables(v1, v2){
+    console.log('divideTwoVariables:', v1.toString(), v2.toString());
+    let result = undefined;
     if (v1.character === v2.character){
-        return new Variable({
+        result = new Variable({
             character: v1.character,
             exp: v1.exp - v2.exp
         })
     } else {
-        return new AlgebraFraction({
+        result = new AlgebraFraction({
             numerator: v1,
             denominator: v2
         })
     }
+    console.log("result", result)
+    return result;
 }
 
 function parseVariable(s){
@@ -1502,6 +1520,19 @@ class Term {
         if (cFrac instanceof Fraction){
             coeff = cFrac.toFloat();
         }
+    }
+
+    reciprocal(){
+        let vars = [];
+        for (let v of this.variables){
+            vars.push(v.reciprocal());
+        }
+        let result = new Term({
+            coeff: 1/this.coeff,
+            variables: vars
+        })
+
+        return result;
     }
 
     sort(){ //sort variables
@@ -1589,9 +1620,8 @@ class Term {
             cFrac = multiplyFractions(inputTerm.cFrac, this.cFrac);
         }
 
-        let variables = this.variables.concat(inputTerm.variables);
+        let variables = inputTerm.variables.concat(this.variables);
 
-        // console.log("variables", variables)
         let t = new Term({
             coeff: coeff,
             variables: variables,
@@ -1600,6 +1630,78 @@ class Term {
 
         return t.simplify();
 
+    }
+
+    divide(t, cleanupExps=true){
+        return divideTwoTerms(this, t, cleanupExps);
+        // t1 = this.simplify();
+        // t2 = t.simplify();
+
+        // // deal with coefficients
+        // let coeff = t1.coeff / t2.coeff;
+        // let cFrac = undefined;
+        // let cn = coeff; //coeff for numerator
+        // let dn = 1; 
+        // if (isFractional(coeff)){
+        //     cFrac = new Fraction(t1.coeff, t2.coeff);
+        //     cn = t1.coeff;
+        //     dn = t2.coeff;
+        // }
+
+        // let result = t1.multiply(t2.reciprocal());
+        // //let result = t1;
+
+        // // console.log('result 1', result.toString())
+
+        // if (cleanupExps){
+        //     let newVars = [];
+        //     for (let v of result.variables){
+        //         if (v.exp === 0) {
+        //             //skip because = 1
+        //         } 
+        //         else {
+        //             newVars.push(v);
+        //         }
+        //     }
+
+        //     result = new Term({
+        //         coeff: result.coeff,
+        //         variables: newVars
+        //     })
+        // }
+
+        
+
+        // return result;
+    }
+
+    toAlgebraFraction(){
+        let n = [];
+        let d = [];
+        for (let v of this.variables){
+            console.log("v:", v.toString())
+            if (v.exp < 1){
+                v.exp = v.exp * -1;
+                d.push(v);
+            } else {
+                n.push(v);
+            }
+        }
+
+        n = new Term({
+            coeff: this.coeff,
+            variables: n
+        })
+        d = new Term({
+            coeff: 1,
+            variables: d
+        })
+
+
+        return new AlgebraFraction({
+            numerator: n,
+            denominator: d
+        })
     }
 
     add(t){ // add term (t) to this term
@@ -1829,6 +1931,7 @@ function parseTerm(input="x"){
     })
 }
 
+
 function factorTwoTerms(t1, t2){
     let coeff = gcd(t1.coeff, t2.coeff);
 
@@ -1851,9 +1954,13 @@ function factorTwoTerms(t1, t2){
     })
 }
 
-function divideTwoTerms(t1, t2){
+function divideTwoTerms(t1, t2, cleanupExps=true){
+
+    // console.log('t1, t2', t1.toString(), t2.toString())
     t1 = t1.simplify();
     t2 = t2.simplify();
+
+    // deal with coefficients
     let coeff = t1.coeff / t2.coeff;
     let cFrac = undefined;
     let cn = coeff; //coeff for numerator
@@ -1863,35 +1970,33 @@ function divideTwoTerms(t1, t2){
         cn = t1.coeff;
         dn = t2.coeff;
     }
-        
 
+    let result = t1.multiply(t2.reciprocal());
+    //let result = t1;
 
-    let n = []; //numerator
-    let d = []; //denominator
-    let v = [];
-    for (let dv of t2.variables){
-        let wasNotDivided = true;
-        for (let nv of t1.variables){
-            let vDiv = divideTwoVariables(nv, dv);
-            if (vDiv instanceof Variable){
-                n.push(vDiv);
-                wasNotDivided = false;
-                break;
+    // console.log('result 1', result.toString())
+
+    if (cleanupExps){
+        let newVars = [];
+        for (let v of result.variables){
+            if (v.exp === 0) {
+                //skip because = 1
+            } 
+            else {
+                newVars.push(v);
             }
         }
-        if (wasNotDivided){
-            n.push[nv];
-            d.push[dv];
-        }
+
+        result = new Term({
+            coeff: result.coeff,
+            variables: newVars
+        })
     }
 
-    let nTerm = new Term({coeff: cn, variables: n})
-    let dTerm = new Term({coeff: dn, variables: d});
     
-    let numerator = new AlgebraicExpression({terms: [nTerm]});
-    let denominator = new AlgebraicExpression({terms: [dTerm]});
 
-    return new AlgebraFraction({numerator: numerator, denominator: denominator});
+    return result;
+
 }
 
 function closestToZero(a, b) {
@@ -1995,7 +2100,8 @@ class AlgebraicExpression {
             return false;
         }
 
-        let expr = new AlgebraicExpression({terms: this.terms.concat(e.terms)});
+        // let expr = new AlgebraicExpression({terms: this.terms.concat(e.terms)});
+        let expr = new AlgebraicExpression({terms: e.terms.concat(this.terms)});
         expr = expr.simplify();
         return expr;
     }
@@ -2898,6 +3004,8 @@ class AlgebraFraction{
         denominator = new AlgebraicExpression()
     }){
         this.isValid = false;
+        // console.log("AlgebraFraction (numerator):", getPrototypeChain(numerator))
+        // console.log("AlgebraFraction (denominator):", getPrototypeChain(denominator))
 
         // check numerator
         if (isNumber(numerator))
@@ -2914,10 +3022,13 @@ class AlgebraFraction{
         if (denominator instanceof Variable)
             denominator = new Term({variables:[denominator]});
 
-        if (numerator instanceof Term) 
-            numerator = new AlgebraicExpression({terms:[numerator]});
+        if (denominator instanceof Term) 
+            denominator = new AlgebraicExpression({terms:[denominator]});
 
 
+        // console.log("AlgebraFraction (numerator):", getPrototypeChain(numerator))
+        // console.log("AlgebraFraction (denominator):", getPrototypeChain(denominator))
+        
         if (numerator instanceof AlgebraicExpression 
             && denominator instanceof AlgebraicExpression){
                 this.numerator = numerator;
@@ -3073,8 +3184,24 @@ class AlgebraFraction{
         
     }
 
-    toString(){
+    noNegativeExponents(){
+        if (this.numerator.terms.length === 1 && this.denominator.terms.length === 1){
+            
+        }
+        else if (this.numerator.terms.length > 1 && this.denominator.terms.length === 1){
+            console.log("multiple terms on numerator (not coded yet)");
+        }
+        else if (this.numerator.terms.length === 1 && this.denominator.terms.length > 1){
+            console.log("multiples terms on denominator (not coded yet)");
+        } 
+        else { 
+            console.log("Multiple terms on numerator and denominator (not coded yet)")
+        }
+    }
 
+    toString(){
+        let s = this.numerator.toString() + " / " + this.denominator.toString();
+        return s;
     }
 
     getElement(){
@@ -3292,3 +3419,16 @@ function isNumber(n){
 }
 
 //endregion
+
+
+function getPrototypeChain(obj) {
+    let proto = Object.getPrototypeOf(obj);
+    const chain = [];
+    
+    while (proto) {
+        chain.push(proto.constructor.name);
+        proto = Object.getPrototypeOf(proto);
+    }
+    
+    return chain;
+}

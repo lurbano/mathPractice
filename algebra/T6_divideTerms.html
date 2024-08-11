@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../mathinator.js"></script>
+    <style>
+        
+    </style>
+    <title>T1.Alg</title>
+</head>
+<body>
+    <div id="tests"></div>
+    
+</body>
+
+<script>
+
+    tests.innerHTML = '<h4>Factoring</h4>';
+
+    let t1 = parseTerm("2x^2yz^3");
+    let t2 = parseTerm("2x^2 ");
+    appendString('tests', "Dividing Terms:");
+    t1.insertIntoDiv('tests');
+    appendString('tests', '/');
+    t2.insertIntoDiv('tests');
+    appendString('tests', '=')
+    let f1 = divideTwoTerms(t1, t2, cleanupExps = false);
+    f1.insertIntoDiv('tests');
+    appendHTML('tests', '<p>')
+
+        t1.insertIntoDiv('tests');
+    appendString('tests', '/');
+    t2.insertIntoDiv('tests');
+    appendString('tests', '=')
+    let f2 = divideTwoTerms(t1, t2);
+    f2.insertIntoDiv('tests');
+    appendHTML('tests', '<p>')
+
+        t1.insertIntoDiv('tests');
+    appendString('tests', '/');
+    t2.insertIntoDiv('tests');
+    appendString('tests', '=')
+    t1.divide(t2).insertIntoDiv('tests');
+    appendString('tests', '=')
+    let t3 = t1.divide(t2).toAlgebraFraction();
+    console.log('t3:', t3.toString(), t3)
+    t3.insertIntoDiv('tests');
+    appendHTML('tests', '<p>')
+
+    t2.insertIntoDiv('tests');
+    appendString('tests', '/');
+    t1.insertIntoDiv('tests');
+    appendString('tests', '=')
+    let t4 = t2.divide(t1)
+    t4.insertIntoDiv('tests');
+    appendString('tests', '=')
+    // let t4 = t2.divide(t1).toAlgebraFraction();
+    // console.log('t4:', t4.toString(), t4)
+    t4.toAlgebraFraction().insertIntoDiv('tests');
+    appendHTML('tests', '<p>')
+
+        t2.insertIntoDiv('tests');
+    appendString('tests', '/');
+    t2.insertIntoDiv('tests');
+    appendString('tests', '=')
+    t2.divide(t2).insertIntoDiv('tests');
+    appendHTML('tests', '<p>')
+
+
+
+    t1 = parseTerm("2x^2yz^3");
+    t2 = parseTerm("4x y^4 z^2");
+    appendString('tests', "Dividing Terms:");
+    t1.insertIntoDiv('tests');
+    appendString('tests', '/');
+    t2.insertIntoDiv('tests');
+    appendString('tests', '=')
+    f1 = divideTwoTerms(t1, t2, cleanupExps = false);
+    f1.insertIntoDiv('tests');
+    appendString('tests', '=')
+    f2 = divideTwoTerms(t1, t2);
+    f2.insertIntoDiv('tests');
+    appendString('tests', '=')
+    f2.toAlgebraFraction().insertIntoDiv('tests');
+
+
+
+    // appendHTML('tests', '<p>')
+    
+    // let s = '2x^2yz^3 + 6xyz^5 + 4xy^2z^7';
+    // let expr = parseExpression(s);
+    // expr.insertIntoDiv('tests');
+    // appendString('tests', ' = ');
+    // appendString('tests', expr.factor()[0]);
+    
+
+    
+
+</script>
+</html>
