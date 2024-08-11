@@ -1227,7 +1227,7 @@ function randomFraction({
         noZero = true,
         l_proper = true,
         noWholeNumber = true
-    }){
+    }={}){
 
         let d = randInt(minDenominator, maxDenominator, noZeroDenominator);
 
@@ -3032,6 +3032,26 @@ class RandomAlgebraQuestion extends AlgebraQuestion{
 
 }
 
+function randomAlgebraQuestionWithFraction(vars={}, sign=undefined){
+    let rfrac = randomFraction(vars);
+    let n = randInt(-10,10);
+    let v = getRandomVariableLetter();
+    
+    if (sign === undefined)
+        sign = getRandomVariableLetter(str='+-');
+
+    let q = '';
+    if ('+-'.includes(sign))
+        q = `x ${sign} ${rfrac.toString()} = ${n}`;
+
+    if ('x·'.includes(sign))
+        q = `${rfrac.toString()}  ${v} = ${n}`;
+    console.log('q:', q);
+
+    return new AlgebraQuestion({
+        equation: q
+    })
+}
 //#endregion
 
 

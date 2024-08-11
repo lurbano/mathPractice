@@ -113,10 +113,28 @@
             maxConst: 10,
             variableComesFirst: false
         }), 
-        new AlgebraQuestion({equation: "x-1/4=2"}),
+        // new AlgebraQuestion({equation: "x-1/4=2"}),
          
+        
 
     ]
+
+    
+    questionsList.push( q = randomAlgebraQuestionWithFraction({
+    minNumerator: 1,
+    maxNumerator: 5,
+    minDenominator: 1,
+    maxDenominator: 5
+}));
+    
+    questionsList.push( randomAlgebraQuestionWithFraction({
+        minNumerator: 1,
+        maxNumerator: 5,
+        minDenominator: 1,
+        maxDenominator: 5
+    }));
+    
+    
     
     let wksht = new Worksheet({
         questionsList: questionsList
