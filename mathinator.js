@@ -1529,7 +1529,8 @@ class Term {
         }
         let result = new Term({
             coeff: 1/this.coeff,
-            variables: vars
+            variables: vars,
+            cFrac: new Fraction(1, this.coeff)
         })
 
         return result;
@@ -1615,6 +1616,13 @@ class Term {
             throw new Error("Not a term (Term.multiplyByTerm)")
 
         let coeff = inputTerm.coeff * this.coeff;
+
+        // if (this.cFrac === undefined && !isFractional(this.coeff)){
+        //     this.cFrac = new Fraction(
+        //         this.coeff, 1
+        //     )
+        // }
+
         let cFrac = undefined;
         if (inputTerm.cFrac !== undefined  && this.cFrac !== undefined){
             cFrac = multiplyFractions(inputTerm.cFrac, this.cFrac);
@@ -1640,7 +1648,7 @@ class Term {
         let n = [];
         let d = [];
         for (let v of this.variables){
-            console.log("v:", v.toString())
+            
             if (v.exp < 1){
                 v.exp = v.exp * -1;
                 d.push(v);
@@ -1649,15 +1657,25 @@ class Term {
             }
         }
 
+        console.log('cFrac:', this.cFrac.toString())
+        let nc = this.coeff;
+        let dc = 1;
+        if (this.cFrac !== undefined){
+            nc = this.cFrac.numerator;
+            dc = this.cFrac.denominator;
+        }
+
         n = new Term({
-            coeff: this.coeff,
+            coeff: nc,
             variables: n
         })
         d = new Term({
-            coeff: 1,
+            coeff: dc,
             variables: d
         })
 
+        console.log('n:',  n);
+        console.log('d:',  d)
 
         return new AlgebraFraction({
             numerator: n,
@@ -1921,22 +1939,35 @@ function divideTwoTerms(t1, t2, cleanupExps=true){
     t1 = t1.simplify();
     t2 = t2.simplify();
 
-    // deal with coefficients
-    let coeff = t1.coeff / t2.coeff;
-    let cFrac = undefined;
-    let cn = coeff; //coeff for numerator
-    let dn = 1; 
-    if (isFractional(coeff)){
-        cFrac = new Fraction(t1.coeff, t2.coeff);
-        cn = t1.coeff;
-        dn = t2.coeff;
-    }
+    let nf = 1;
+    let df = 1;
+
+    // save fractional coefficients
+    if (!isFractional(t1.coeff))
+        nf = t1.coeff;
+    if (!isFractional(t2.coeff))
+        df = t2.coeff;
+
+    // // deal with coefficients
+    // let coeff = t1.coeff / t2.coeff;
+    // let cFrac = undefined;
+    // let cn = coeff; //coeff for numerator
+    // let dn = 1; 
+    // if (isFractional(coeff)){
+    //     cFrac = new Fraction(t1.coeff, t2.coeff);
+    //     cn = t1.coeff;
+    //     dn = t2.coeff;
+    // }
 
     let result = t1.multiply(t2.reciprocal());
     //let result = t1;
 
     // console.log('result 1', result.toString())
+    console.log('coeff:', result.coeff, nf, df, nf/df, result.coeff === nf/df, result.toString())
 
+    if (result.coeff === nf/df){
+        result.cFrac = new Fraction(nf,df);
+    }
     if (cleanupExps){
         let newVars = [];
         for (let v of result.variables){
@@ -1950,11 +1981,12 @@ function divideTwoTerms(t1, t2, cleanupExps=true){
 
         result = new Term({
             coeff: result.coeff,
-            variables: newVars
+            variables: newVars,
+            cFrac: result.cFrac
         })
     }
 
-    
+    console.log('result', result.toString(), result)
 
     return result;
 

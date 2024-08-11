@@ -50,7 +50,15 @@
     appendHTML('tests', '<p>')
 
 
+    appendHTML('tests', 'Simplify Fraction<p>');
     let f = parseAlgebraFraction('{2x^2y^5zx^3}/{xy}');
+    console.log("f:", f);
+    f.insertIntoDiv('tests')
+    appendString('tests', ' = ');
+    f.simplify().insertIntoDiv('tests')
+    appendHTML('tests', '<p>')
+
+    f = parseAlgebraFraction('{xy}/{2x^2y^5zx^3}');
     console.log("f:", f);
     f.insertIntoDiv('tests')
     appendString('tests', ' = ');
